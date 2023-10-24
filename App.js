@@ -1,20 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+// App.js
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Cheesy Tracker</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import React from 'react';
+import AppNavigator from './AppNavigator'; // Ensure the path is correct
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const App = () => {
+  return <AppNavigator />;
+};
+
+export default App;
