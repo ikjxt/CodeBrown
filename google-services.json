@@ -1,0 +1,29 @@
+{
+    "project_info": {
+      "project_number": "413164372288",
+      "project_id": "cheesytracker",
+      "storage_bucket": "cheesytracker.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:413164372288:android:24bdad00cd2f3e5de03aa5",
+          "android_client_info": {
+            "package_name": "tracker.cheesy.com"
+          }
+        },
+        "oauth_client": [],
+        "api_key": [
+          {
+            "current_key": "AIzaSyBD14niYPy6mOu_234-bMZgK-3m6gzOZRg"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": []
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }

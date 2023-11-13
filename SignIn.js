@@ -1,36 +1,33 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import app from './firebaseConfig'; // Adjust the path as necessary
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
-const SignUp = () => {
+const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const navigation = useNavigation(); // Hook for navigation
+  const navigation = useNavigation();
 
-  const handleSignUp = () => {
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match!');
-      return;
-    }
-
+  const handleSignIn = () => {
     const auth = getAuth(app);
-    createUserWithEmailAndPassword(auth, email, password)
+    signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        Alert.alert('Success', 'User created successfully!');
-        navigation.navigate('SignIn'); // Navigate to SignIn screen after successful sign-up
+        // Signed in 
+        var user = userCredential.user;
+        navigation.navigate('Dashboard'); // Navigate to Dashboard after successful sign-in
       })
       .catch((error) => {
-        Alert.alert('Error', error.message);
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        Alert.alert('Error', errorMessage);
       });
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.logoText}>Round Table Pizza</Text>
-      <Text style={styles.title}>Sign Up</Text>
+      <Text style={styles.title}>Sign In</Text>
 
       <TextInput
         style={styles.input}
@@ -50,21 +47,8 @@ const SignUp = () => {
         value={password}
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        placeholderTextColor="#666"
-        secureTextEntry
-        onChangeText={setConfirmPassword}
-        value={confirmPassword}
-      />
-
-      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-        <Text style={styles.switchText}>Already have an account? Sign In</Text>
+      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
+        <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
     </View>
   );
@@ -108,11 +92,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
   },
-  switchText: {
-    color: 'blue',
-    marginTop: 20,
-    textDecorationLine: 'underline',
-  },
 });
 
-export default SignUp;
+export default SignIn;
