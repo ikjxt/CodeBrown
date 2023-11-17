@@ -17,7 +17,7 @@ const Dashboard = ({ navigation }) => {
       ],
       onDelivery: true,
     },
-    // Add more drivers as needed
+    // Add more drivers 
   ]);
 
   // State to hold the selected driver
@@ -25,7 +25,7 @@ const Dashboard = ({ navigation }) => {
 
   // Effect to simulate selecting a driver and updating their location
   useEffect(() => {
-    // This would be replaced with real-time updates from a backend service
+    // Test This would be replaced with real-time updates from a backend service
     const interval = setInterval(() => {
       setDrivers((prevDrivers) =>
         prevDrivers.map((driver) =>
