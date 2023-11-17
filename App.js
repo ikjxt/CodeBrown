@@ -1,7 +1,7 @@
 // App.js
 
 import React from 'react';
-import AppNavigator from './AppNavigator'; // Ensure the path is correct
+import AppNavigator from './AppNavigator'; 
 
 const App = () => {
   return <AppNavigator />;
