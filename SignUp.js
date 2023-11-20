@@ -8,19 +8,35 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const navigation = useNavigation(); // Hook for navigation
+  const [showPassword, setShowPassword] = useState(false); // Added showPassword state for both fields
+  const navigation = useNavigation();
 
   const handleSignUp = () => {
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match!');
+    // Email validation
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
 
+    // Password validation
+    if (password.length < 6) {
+      Alert.alert('Weak Password', 'Password should be at least 6 characters.');
+      return;
+    }
+
+    // Confirm password validation
+    if (password !== confirmPassword) {
+      Alert.alert('Password Mismatch', 'Passwords do not match!');
+      return;
+    }
+
+    // Firebase sign-up function
     const auth = getAuth(app);
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        Alert.alert('Success', 'User created successfully!');
-        navigation.navigate('SignIn'); // Navigate to SignIn screen after successful sign-up
+        Alert.alert('Success', 'Account created successfully!');
+        navigation.navigate('SignIn');
       })
       .catch((error) => {
         Alert.alert('Error', error.message);
@@ -41,23 +57,39 @@ const SignUp = () => {
         autoCapitalize="none"
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#666"
-        secureTextEntry
-        onChangeText={setPassword}
-        value={password}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Password"
+          placeholderTextColor="#666"
+          secureTextEntry={!showPassword} // Toggle secureTextEntry based on showPassword
+          onChangeText={setPassword}
+          value={password}
+        />
+        <TouchableOpacity
+          style={styles.showPasswordButton}
+          onPress={() => setShowPassword(!showPassword)} // Toggle showPassword for password field
+        >
+          <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+        </TouchableOpacity>
+      </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        placeholderTextColor="#666"
-        secureTextEntry
-        onChangeText={setConfirmPassword}
-        value={confirmPassword}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Confirm Password"
+          placeholderTextColor="#666"
+          secureTextEntry={!showPassword} // Toggle secureTextEntry based on showPassword
+          onChangeText={setConfirmPassword}
+          value={confirmPassword}
+        />
+        <TouchableOpacity
+          style={styles.showPasswordButton}
+          onPress={() => setShowPassword(!showPassword)} // Toggle showPassword for confirm password field
+        >
+          <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.buttonText}>Sign Up</Text>
@@ -96,6 +128,24 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 15,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 300,
+    height: 50,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 15,
+    paddingLeft: 15,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 50,
+  },
+  showPasswordButton: {
+    padding: 10,
   },
   button: {
     backgroundColor: '#e74c3c',

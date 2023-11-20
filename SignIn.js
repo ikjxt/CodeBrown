@@ -7,20 +7,17 @@ import { useNavigation } from '@react-navigation/native';
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // Added showPassword state
   const navigation = useNavigation();
 
   const handleSignIn = () => {
     const auth = getAuth(app);
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in 
-        var user = userCredential.user;
-        navigation.navigate('Dashboard'); // Navigate to Dashboard after successful sign-in
+      .then(() => {
+        // Navigate to dashboard 
       })
       .catch((error) => {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        Alert.alert('Error', errorMessage);
+        Alert.alert('Sign In Failed', error.message);
       });
   };
 
@@ -38,17 +35,29 @@ const SignIn = () => {
         autoCapitalize="none"
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#666"
-        secureTextEntry
-        onChangeText={setPassword}
-        value={password}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Password"
+          placeholderTextColor="#666"
+          secureTextEntry={!showPassword} // Toggle secureTextEntry based on showPassword
+          onChangeText={setPassword}
+          value={password}
+        />
+        <TouchableOpacity
+          style={styles.showPasswordButton}
+          onPress={() => setShowPassword(!showPassword)} // Toggle showPassword for password field
+        >
+          <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={handleSignIn}>
         <Text style={styles.buttonText}>Sign In</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+        <Text style={styles.switchText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
     </View>
   );
@@ -81,6 +90,24 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingLeft: 15,
   },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 300,
+    height: 50,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 15,
+    paddingLeft: 15,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 50,
+  },
+  showPasswordButton: {
+    padding: 10,
+  },
   button: {
     backgroundColor: '#e74c3c',
     padding: 15,
@@ -91,6 +118,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 18,
+  },
+  switchText: {
+    color: 'blue',
+    marginTop: 20,
+    textDecorationLine: 'underline',
   },
 });
 
