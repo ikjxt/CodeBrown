@@ -16,6 +16,10 @@ const Dashboard = ({ navigation }) => {
     });
   };
 
+const navigateToContactsScreen = () => {
+    navigation.navigate('ContactsScreen');
+  };
+
   return (
     <View style={styles.container}>
       <MapView
@@ -27,6 +31,11 @@ const Dashboard = ({ navigation }) => {
           longitudeDelta: 0.0421,
         }}
       />
+
+      <TouchableOpacity style={styles.button} onPress={navigateToContactsScreen}
+        accessibilityLabel="Go to Contacts Screen" >
+        <Text style={styles.buttonText}>Contacts</Text>
+      </TouchableOpacity>
 
       {/* Add a Sign-out Button */}
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
@@ -42,6 +51,18 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  button: {
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    position: 'absolute',
+    top: 110,
+    right: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
   },
   signOutButton: {
     backgroundColor: '#e74c3c',
