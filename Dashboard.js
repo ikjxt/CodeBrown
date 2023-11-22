@@ -1,24 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
+import * as Location from 'expo-location';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const Dashboard = ({ navigation }) => {
+  const [userLocation, setUserLocation] = useState(null);
+
+  // Function to request and get the user's live location
+  const getUserLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      console.error('Location permission denied');
+      return;
+    }
+
+    let location = await Location.getCurrentPositionAsync({});
+    setUserLocation(location.coords);
+  };
+
+  // Function to handle centering the map on user's location
+  const centerOnUserLocation = () => {
+    if (userLocation) {
+      mapViewRef.current.animateToRegion({
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        latitudeDelta: 0.02, // Adjust the desired zoom level as needed
+        longitudeDelta: 0.02,
+      });
+    }
+  };
+
   // Function to handle sign out
   const handleSignOut = () => {
     const auth = getAuth();
-    signOut(auth).then(() => {
-      // Sign-out successful.
-      navigation.navigate('SignIn'); // Redirect to sign-in page after sign out
-    }).catch((error) => {
-      // An error happened.
-      console.error("Sign out error:", error);
-    });
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+        navigation.navigate('SignIn'); // Redirect to sign-in page after sign out
+      })
+      .catch((error) => {
+        // An error happened.
+        console.error('Sign out error:', error);
+      });
   };
+
+  useEffect(() => {
+    getUserLocation(); // Fetch user's live location when the component mounts
+  }, []);
+
+  const mapViewRef = React.createRef();
 
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapViewRef}
         style={styles.map}
         initialRegion={{
           latitude: 38.5816,
@@ -26,7 +63,31 @@ const Dashboard = ({ navigation }) => {
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
-      />
+        showsUserLocation={true}
+        onUserLocationChange={(event) => {
+          setUserLocation(event.nativeEvent.coordinate);
+        }}
+      >
+        {/* Display the user's live location as a Marker */}
+        {userLocation && (
+          <Marker
+            coordinate={{
+              latitude: userLocation.latitude,
+              longitude: userLocation.longitude,
+            }}
+            title="Your Location"
+            description="You are here"
+          />
+        )}
+      </MapView>
+
+      {/* Add a button with a pizza slice icon to center the map on the user's location */}
+      <TouchableOpacity
+        style={styles.centerLocationButton}
+        onPress={centerOnUserLocation}
+      >
+        <MaterialIcons name="local-pizza" size={24} color="#3498db" />
+      </TouchableOpacity>
 
       {/* Add a Sign-out Button */}
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
@@ -42,6 +103,15 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  centerLocationButton: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 50,
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    elevation: 5,
   },
   signOutButton: {
     backgroundColor: '#e74c3c',
