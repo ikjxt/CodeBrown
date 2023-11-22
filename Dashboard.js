@@ -81,6 +81,11 @@ const Dashboard = ({ navigation }) => {
         )}
       </MapView>
 
+      {/* Add a button to test Firebase Query*/}
+      <TouchableOpacity style={styles.searchButton}>
+      <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
+
       {/* Add a button with a pizza slice icon to center the map on the user's location */}
       <TouchableOpacity
         style={styles.centerLocationButton}
@@ -91,7 +96,7 @@ const Dashboard = ({ navigation }) => {
 
       {/* Add a Sign-out Button */}
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-        <Text style={styles.signOutButtonText}>Sign Out</Text>
+        <Text style={styles.buttonText}>Sign Out</Text>
       </TouchableOpacity>
     </View>
   );
@@ -113,6 +118,14 @@ const styles = StyleSheet.create({
     right: 20,
     elevation: 5,
   },
+  searchButton: {
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    position: 'absolute',
+    top: 50,
+    left: 10,
+  },
   signOutButton: {
     backgroundColor: '#e74c3c',
     padding: 15,
@@ -121,7 +134,7 @@ const styles = StyleSheet.create({
     top: 50,
     right: 10,
   },
-  signOutButtonText: {
+  buttonText: {
     color: '#fff',
     fontSize: 16,
   },
