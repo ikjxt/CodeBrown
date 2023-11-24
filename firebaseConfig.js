@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, Firestore, orderBy, query } from '@firebase/firestore';
+import { collection, Firestore, onSnapshot, orderBy, query, snapshot } from '@firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBth5BPdFF7zR7utwzEU5aqyNKusBDjTSs",
@@ -16,15 +16,30 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Auth with AsyncStorage for persistence
-initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});
+// initializeAuth(app, {
+//   persistence: getReactNativePersistence(AsyncStorage)
+// });
 
 // Firestore query SKELETON
 // TO-DO add Snapshot for realtime listener (query) and make asynchronous
-export function searchDB( {driverID} ){
-  const driverCol = collection(firestore, 'DRIVERS')
-  const driverQuery = query(driverCol)
+export async function searchDB( {key} ){
+  try{
+  // Reference collection
+  const driverCol = collection(firestore, key)
+  // query
+  const driverQ = query(driverCol, orderBy(key))
+  // REAL TIME DATA COLLECTION
+  onSnapshot(driverQ, (snapshot) => {
+    let drivers = []
+    snapshot.docs.forEach((doc) => {
+      drivers.push({...doc.data(), id: doc.id })
+    })
+    console.log(drivers)
+  })
+  }
+  catch(err){
+    console.error(err)
+  }
 }
 
 export default app;

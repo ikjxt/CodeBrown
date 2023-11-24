@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { searchDB } from './firebaseConfig';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
@@ -19,6 +20,11 @@ const Dashboard = ({ navigation }) => {
     let location = await Location.getCurrentPositionAsync({});
     setUserLocation(location.coords);
   };
+
+  // Function to query
+  const handleSearch = async () => {
+    searchDB(DRIVERS);
+  }
 
   // Function to handle centering the map on user's location
   const centerOnUserLocation = () => {
@@ -82,7 +88,7 @@ const Dashboard = ({ navigation }) => {
       </MapView>
 
       {/* Add a button to test Firebase Query*/}
-      <TouchableOpacity style={styles.searchButton}>
+      <TouchableOpacity style={styles.searchButton} onPress = {handleSearch}>
       <Text style={styles.buttonText}>Search</Text>
       </TouchableOpacity>
 
