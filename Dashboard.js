@@ -86,6 +86,11 @@ const Dashboard = ({ navigation }) => {
       <Text style={styles.buttonText}>Search</Text>
       </TouchableOpacity>
 
+      {/* TEST BUTTON*/}
+      <TouchableOpacity style={styles.orderButton}>
+      <Text style={styles.buttonText}>Current Order</Text>
+      </TouchableOpacity>
+
       {/* Add a button with a pizza slice icon to center the map on the user's location */}
       <TouchableOpacity
         style={styles.centerLocationButton}
@@ -124,6 +129,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     position: 'absolute',
     top: 50,
+    left: 10,
+  },
+  orderButton: {
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    position: 'absolute',
+    bottom: 20,
     left: 10,
   },
   signOutButton: {
