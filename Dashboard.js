@@ -36,6 +36,10 @@ const Dashboard = ({ navigation }) => {
     }
   };
 
+  const navigateToContactsScreen = () => {
+    navigation.navigate('ContactsScreen');
+  };
+
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
@@ -90,6 +94,10 @@ const Dashboard = ({ navigation }) => {
         <MaterialIcons name="local-pizza" size={24} color="#3498db" />
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.button} onPress={navigateToContactsScreen}>
+        <Text style={styles.buttonText}>Contacts</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
         <Text style={styles.signOutButtonText}>Sign Out</Text>
       </TouchableOpacity>
@@ -119,6 +127,18 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 20,
     elevation: 5,
+  },
+  button: {
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    position: 'absolute',
+    top: 110,
+    right: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
   },
   signOutButton: {
     backgroundColor: '#e74c3c',
