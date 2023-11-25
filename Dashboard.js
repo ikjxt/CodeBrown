@@ -21,9 +21,9 @@ const Dashboard = ({ navigation }) => {
     setUserLocation(location.coords);
   };
 
-  // Function to query
+  // Function to SEARCH
   const handleSearch = async () => {
-    searchDB(DRIVERS);
+    searchDB();
   }
 
   // Function to handle centering the map on user's location
