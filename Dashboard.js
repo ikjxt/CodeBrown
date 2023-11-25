@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
@@ -7,8 +7,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const Dashboard = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
+  const mapViewRef = useRef(null);
+  const locationUpdateInterval = useRef(null);
 
-  // Function to request and get the user's live location
+  // Get user ID from Firebase Authentication
+  const auth = getAuth();
+  const userId = auth.currentUser ? auth.currentUser.uid : null;
+
   const getUserLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -20,37 +25,37 @@ const Dashboard = ({ navigation }) => {
     setUserLocation(location.coords);
   };
 
-  // Function to handle centering the map on user's location
   const centerOnUserLocation = () => {
-    if (userLocation) {
+    if (userLocation && mapViewRef.current) {
       mapViewRef.current.animateToRegion({
         latitude: userLocation.latitude,
         longitude: userLocation.longitude,
-        latitudeDelta: 0.02, // Adjust the desired zoom level as needed
+        latitudeDelta: 0.02,
         longitudeDelta: 0.02,
       });
     }
   };
 
-  // Function to handle sign out
   const handleSignOut = () => {
-    const auth = getAuth();
     signOut(auth)
       .then(() => {
-        // Sign-out successful.
-        navigation.navigate('SignIn'); // Redirect to sign-in page after sign out
+        navigation.navigate('SignIn');
       })
       .catch((error) => {
-        // An error happened.
         console.error('Sign out error:', error);
       });
   };
 
   useEffect(() => {
-    getUserLocation(); // Fetch user's live location when the component mounts
-  }, []);
+    getUserLocation();
+    locationUpdateInterval.current = setInterval(getUserLocation, 10000);
 
-  const mapViewRef = React.createRef();
+    return () => {
+      if (locationUpdateInterval.current) {
+        clearInterval(locationUpdateInterval.current);
+      }
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -64,11 +69,8 @@ const Dashboard = ({ navigation }) => {
           longitudeDelta: 0.0421,
         }}
         showsUserLocation={true}
-        onUserLocationChange={(event) => {
-          setUserLocation(event.nativeEvent.coordinate);
-        }}
+        onUserLocationChange={(event) => setUserLocation(event.nativeEvent.coordinate)}
       >
-        {/* Display the user's live location as a Marker */}
         {userLocation && (
           <Marker
             coordinate={{
@@ -81,7 +83,6 @@ const Dashboard = ({ navigation }) => {
         )}
       </MapView>
 
-      {/* Add a button with a pizza slice icon to center the map on the user's location */}
       <TouchableOpacity
         style={styles.centerLocationButton}
         onPress={centerOnUserLocation}
@@ -89,9 +90,15 @@ const Dashboard = ({ navigation }) => {
         <MaterialIcons name="local-pizza" size={24} color="#3498db" />
       </TouchableOpacity>
 
-      {/* Add a Sign-out Button */}
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
         <Text style={styles.signOutButtonText}>Sign Out</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.historyButton}
+        onPress={() => userId && navigation.navigate('LocationHistoryScreen', { userId })}
+      >
+        <Text style={styles.historyButtonText}>View Location History</Text>
       </TouchableOpacity>
     </View>
   );
@@ -122,6 +129,18 @@ const styles = StyleSheet.create({
     right: 10,
   },
   signOutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  historyButton: {
+    backgroundColor: '#3498db',
+    padding: 10,
+    borderRadius: 5,
+    position: 'absolute',
+    top: 100,
+    left: 10,
+  },
+  historyButtonText: {
     color: '#fff',
     fontSize: 16,
   },
