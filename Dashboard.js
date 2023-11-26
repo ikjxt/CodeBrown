@@ -4,6 +4,8 @@ import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from './firebaseConfig'; // Ensure this is the correct path to your firebaseConfig
 
 const Dashboard = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
@@ -23,6 +25,23 @@ const Dashboard = ({ navigation }) => {
 
     let location = await Location.getCurrentPositionAsync({});
     setUserLocation(location.coords);
+
+    // Construct location object
+    const locationData = {
+      userId: userId,
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      timestamp: new Date() // or use Firebase server timestamp
+    };
+
+    // Add location data to Firestore
+    try {
+      const locationsRef = collection(db, "locations");
+      await addDoc(locationsRef, locationData);
+      console.log("Location data recorded");
+    } catch (error) {
+      console.error("Error recording location data: ", error);
+    }
   };
 
   const centerOnUserLocation = () => {
