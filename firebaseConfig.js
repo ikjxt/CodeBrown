@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getFirestore, collection, Firestore, onSnapshot, orderBy, query, snapshot, getDocs } from '@firebase/firestore';
 
@@ -13,7 +14,6 @@ const firebaseConfig = {
   measurementId: "G-5G4TY0PPZW"
 };
 
-// Initialize firebase app
 const app = initializeApp(firebaseConfig);
 
 // Initialize firestore service
@@ -48,4 +48,22 @@ export function searchDB(){
   }
 }
 
-export default app;
+// Initialize Firestore
+const db = getFirestore(app);
+
+// Function to save location data to Firestore
+const saveLocationData = async (userId, latitude, longitude) => {
+  try {
+    await addDoc(collection(db, "locations"), {
+      userId,
+      latitude,
+      longitude,
+      timestamp: serverTimestamp()
+    });
+    console.log("Location saved successfully");
+  } catch (error) {
+    console.error("Error saving location: ", error);
+  }
+};
+
+export { db, app, saveLocationData };
