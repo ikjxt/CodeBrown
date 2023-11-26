@@ -17,7 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize firestore service
-const db = getFirestore();
+const db = getFirestore(app);
 
 // Create ref for Driver collection
 const colRef = collection(db, 'DRIVERS')
@@ -48,8 +48,6 @@ export function searchDB(){
   }
 }
 
-// Initialize Firestore
-const db = getFirestore(app);
 
 // Function to save location data to Firestore
 const saveLocationData = async (userId, latitude, longitude) => {
