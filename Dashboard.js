@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import { collection, addDoc } from 'firebase/firestore';
-import { db } from './firebaseConfig'; // Ensure this is the correct path to your firebaseConfig
+import { db, nameSearch, searchDB, showOrders } from './firebaseConfig'; // Ensure this is the correct path to your firebaseConfig
+import { Modal } from 'react-native';
 
 const Dashboard = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
@@ -52,6 +53,17 @@ const Dashboard = ({ navigation }) => {
         console.error('Sign out error:', error);
       });
   };
+
+  // search button 
+  // TO DO: GET USER INPUT TO USE AS ARGUMENT
+  const handleSearch = () => {
+    try{
+      showOrders();
+    }catch(error){
+      console.error(error)
+    }
+  }
+  
 
   useEffect(() => {
     getUserLocation();
@@ -146,7 +158,15 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     position: 'absolute',
-    top: 50,
+    top: 10,
+    right: 10,
+  },
+  searchButton: {
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    position: 'absolute',
+    top: 75,
     right: 10,
   },
   buttonText: {
@@ -158,7 +178,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     position: 'absolute',
-    top: 100,
+    top: 10,
     left: 10,
   },
   historyButtonText: {
