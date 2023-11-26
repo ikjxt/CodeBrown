@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getFirestore, collection, Firestore, onSnapshot, orderBy, query, snapshot, getDocs } from '@firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBth5BPdFF7zR7utwzEU5aqyNKusBDjTSs",
@@ -13,16 +14,40 @@ const firebaseConfig = {
   measurementId: "G-5G4TY0PPZW"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Auth with AsyncStorage for persistence
-initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});
-
-// Initialize Firestore
+// Initialize firestore service
 const db = getFirestore(app);
+
+// Create ref for Driver collection
+const colRef = collection(db, 'DRIVERS')
+
+
+// Initialize Firebase Auth with AsyncStorage for persistence
+// initializeAuth(app, {
+//   persistence: getReactNativePersistence(AsyncStorage)
+// });
+
+
+// DISPLAY ALL DRIVERS FROM DB
+// PRESS SEARCH BUTTON TO CONSOLE LOG DRIVERS
+// TO DO: TAKE IN PERAMETERS FOR SPECIFIC SEARCHES
+export function searchDB(){
+  try{
+    getDocs(colRef)
+    .then((snapshot) => {
+      let drivers = []
+      snapshot.docs.forEach((doc) => {
+        drivers.push({ ...doc.data() })
+      })
+      console.log(drivers)
+    })
+  }
+  catch(err){
+    console.error(err)
+  }
+}
+
 
 // Function to save location data to Firestore
 const saveLocationData = async (userId, latitude, longitude) => {
