@@ -5,7 +5,8 @@ import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import { collection, addDoc } from 'firebase/firestore';
-import { db } from './firebaseConfig'; // Ensure this is the correct path to your firebaseConfig
+import { db, nameSearch, searchDB, showOrders } from './firebaseConfig'; // Ensure this is the correct path to your firebaseConfig
+import { Modal } from 'react-native';
 
 const Dashboard = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
@@ -25,25 +26,9 @@ const Dashboard = ({ navigation }) => {
 
     let location = await Location.getCurrentPositionAsync({});
     setUserLocation(location.coords);
-
-    // Construct location object
-    const locationData = {
-      userId: userId,
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      timestamp: new Date() // or use Firebase server timestamp
-    };
-
-    // Add location data to Firestore
-    try {
-      const locationsRef = collection(db, "locations");
-      await addDoc(locationsRef, locationData);
-      console.log("Location data recorded");
-    } catch (error) {
-      console.error("Error recording location data: ", error);
-    }
   };
 
+  // Function to handle centering the map on user's location
   const centerOnUserLocation = () => {
     if (userLocation && mapViewRef.current) {
       mapViewRef.current.animateToRegion({
@@ -68,6 +53,17 @@ const Dashboard = ({ navigation }) => {
         console.error('Sign out error:', error);
       });
   };
+
+  // search button 
+  // TO DO: GET USER INPUT TO USE AS ARGUMENT
+  const handleSearch = () => {
+    try{
+      showOrders();
+    }catch(error){
+      console.error(error)
+    }
+  }
+  
 
   useEffect(() => {
     getUserLocation();
@@ -106,6 +102,16 @@ const Dashboard = ({ navigation }) => {
         )}
       </MapView>
 
+      {/* Add a button to test Firebase Query*/}
+      <TouchableOpacity style={styles.searchButton} onPress = {handleSearch}>
+      <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
+
+      {/* TEST BUTTON*/}
+      <TouchableOpacity style={styles.orderButton}>
+      <Text style={styles.buttonText}>Current Order</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.centerLocationButton}
         onPress={centerOnUserLocation}
@@ -118,7 +124,7 @@ const Dashboard = ({ navigation }) => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-        <Text style={styles.signOutButtonText}>Sign Out</Text>
+        <Text style={styles.buttonText}>Sign Out</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -147,27 +153,23 @@ const styles = StyleSheet.create({
     right: 20,
     elevation: 5,
   },
-  button: {
-    backgroundColor: '#e74c3c',
-    padding: 15,
-    borderRadius: 5,
-    position: 'absolute',
-    top: 110,
-    right: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
   signOutButton: {
     backgroundColor: '#e74c3c',
     padding: 15,
     borderRadius: 5,
     position: 'absolute',
-    top: 50,
+    top: 10,
     right: 10,
   },
-  signOutButtonText: {
+  searchButton: {
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    position: 'absolute',
+    top: 75,
+    right: 10,
+  },
+  buttonText: {
     color: '#fff',
     fontSize: 16,
   },
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     position: 'absolute',
-    top: 100,
+    top: 10,
     left: 10,
   },
   historyButtonText: {

@@ -1,7 +1,9 @@
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { 
+  getFirestore, collection, Firestore, onSnapshot, orderBy, query, where, snapshot, getDocs, addDoc, serverTimestamp, get
+} from '@firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBth5BPdFF7zR7utwzEU5aqyNKusBDjTSs",
@@ -13,16 +15,77 @@ const firebaseConfig = {
   measurementId: "G-5G4TY0PPZW"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+ const app = initializeApp(firebaseConfig);
+
+// Initialize firestore service
+const db = getFirestore(app);
+
+// Create ref for Driver collection
+const driverRef = collection(db, 'DRIVERS')
+
+const orderRef = collection(db, 'ORDERS')
+
+// queries shows all orders belonging to specific name 
+// TO DO: get user input to use for query
+const q = query(orderRef, where("DRIVER:", "==", "Larry"));
 
 // Initialize Firebase Auth with AsyncStorage for persistence
-initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});
+// initializeAuth(app, {
+//   persistence: getReactNativePersistence(AsyncStorage)
+// });
 
-// Initialize Firestore
-const db = getFirestore(app);
+
+// PRESS SEARCH BUTTON TO CONSOLE LOG DRIVERS
+// Display all drivers
+export function searchDB(){
+  try{
+    onSnapshot(driverRef, (snapshot) => {
+      let drivers = []
+      snapshot.docs.forEach((doc) => {
+      drivers.push({ ...doc.data() })
+      })
+      console.log(drivers);
+    })
+  }
+  catch(err){
+    console.error(err);
+  }
+} 
+
+// Get all orders
+export function showOrders(){
+  try{
+    onSnapshot(orderRef, (snapshot) => {
+      let drivers = []
+      snapshot.docs.forEach((doc) => {
+      drivers.push({ ...doc.data() })
+      })
+      console.log(drivers);
+    })
+  }
+  catch(err){
+    console.error(err);
+  }
+} 
+
+// Search by name (all orders) Returns an array of data (in progress)
+export function nameSearch({ name }){
+  try{
+    let orders = []
+    snapshot.docs.forEach((doc) => {
+      orders.push({...doc.data() })
+    })
+    return orders;
+  }
+  catch(err){
+    console.error(err)
+  }
+}
+// Search by date (all orders)
+
+// 
+
+
 
 // Function to save location data to Firestore
 const saveLocationData = async (userId, latitude, longitude) => {
