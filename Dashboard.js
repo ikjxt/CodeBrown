@@ -12,7 +12,7 @@ const Dashboard = ({ navigation }) => {
   const mapViewRef = useRef(null);
   const locationUpdateInterval = useRef(null);
 
-  // Get user ID from Firebase Authentication
+  // Get user ID from Firebase Authentication, test
   const auth = getAuth();
   const userId = auth.currentUser ? auth.currentUser.uid : null;
 
