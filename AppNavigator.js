@@ -7,6 +7,7 @@ import Dashboard from './Dashboard';
 import ContactsScreen from './ContactsScreen';
 import ChatScreen from './ChatScreen';
 import LocationHistoryScreen from './LocationHistoryScreen'; // Import the new screen
+import TakeOrderScreen from './TakeOrderScreen';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,7 @@ function AppNavigator({ isAuthenticated }) {
             <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
             <Stack.Screen name="ChatScreen" component={ChatScreen} />
             <Stack.Screen name="LocationHistoryScreen" component={LocationHistoryScreen} />
+            <Stack.Screen name="TakeOrderScreen" component={TakeOrderScreen} />
           </>
         ) : (
           <>
