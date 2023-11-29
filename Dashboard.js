@@ -59,6 +59,10 @@ const Dashboard = ({ navigation }) => {
     navigation.navigate('ContactsScreen');
   };
 
+  const handleOrderButton = () => {
+    navigation.navigate('TakeOrderScreen')
+  }
+
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
@@ -127,6 +131,12 @@ const Dashboard = ({ navigation }) => {
       >
         <Text style={styles.historyButtonText}>View Location History</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity 
+      style = {styles.orderButton}
+      onPress = {handleOrderButton}>
+        <Text style = {styles.buttonText}>Take Order</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -176,12 +186,20 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     position: 'absolute',
-    top: 100,
+    top: 25,
     left: 10,
   },
   historyButtonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  orderButton: {
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    position: 'absolute',
+    bottom: 50,
+    left: 10,
   },
 });
 
