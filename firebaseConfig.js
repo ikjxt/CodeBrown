@@ -16,23 +16,18 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-<<<<<<< HEAD
-=======
 // Initialize firestore service
-const db = getFirestore();
+const db = getFirestore(app);
 
 // Create ref for Driver collection
 const colRef = collection(db, 'DRIVERS')
 
 
->>>>>>> parent of 6aef7f3 (fixing firestore connection dupe)
+
 // Initialize Firebase Auth with AsyncStorage for persistence
 initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage)
 });
-
-// Initialize Firestore
-const db = getFirestore(app);
 
 // Function to save location data to Firestore
 const saveLocationData = async (userId, latitude, longitude) => {
