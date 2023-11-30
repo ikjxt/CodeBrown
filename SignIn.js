@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard} from 'react-native';
 import app from './firebaseConfig'; 
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
@@ -22,6 +22,7 @@ const SignIn = () => {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <View style={styles.container}>
       <Text style={styles.logoText}>Round Table Pizza</Text>
       <Text style={styles.title}>Sign In</Text>
@@ -59,7 +60,13 @@ const SignIn = () => {
       <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
         <Text style={styles.switchText}>Don't have an account? Sign Up</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')}>
+        <Text style={styles.switchText}>Forgot Password?</Text>
+      </TouchableOpacity>
+
     </View>
+    </TouchableWithoutFeedback>
   );
 };
 
