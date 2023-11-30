@@ -1,23 +1,35 @@
 // ForgotPassword.js
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard} from 'react-native';
+import app from './firebaseConfig'; 
+import { getAuth, sendPasswordResetEmail  } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
-const ForgotPassword = ({ navigation }) => {
+const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const navigation = useNavigation();
+  const auth = getAuth(app);
 
   const handleResetPassword = () => {
-    // Logic to handle password reset. This can include sending a reset link to the user's email.
-    // For now, let's navigate back to the login screen.
-    navigation.goBack();
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return; // Exit the function if the email format is invalid
+    }
+
+    sendPasswordResetEmail(auth, email)
+    .then(() => {
+      Alert.alert('Email Sent', 'A password reset email has been sent to your email address.');
+    }) //Sends user an email to reset their password 
+
+    .catch((error) => {
+      if (error.code === 'auth/user-not-found') {
+        Alert.alert('Error', 'This email is not registered.');
+      } else {
+        Alert.alert('Error', error.message);
+      }
+    });
   };
 
   return (
@@ -37,8 +49,8 @@ const ForgotPassword = ({ navigation }) => {
           <Text style={styles.buttonText}>Reset Password</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.text} onPress={() => navigation.goBack()}>
-          <Text style={styles.text}>Back to Login</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.switchText}>Back to Sign in</Text>
         </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
@@ -72,7 +84,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: 300,
     alignItems: 'center',
-    marginBottom: 30,
   },
   buttonText: {
     color: '#fff',
@@ -80,6 +91,11 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#3498db',
+  },
+  switchText: {
+    color: 'blue',
+    marginTop: 20,
+    textDecorationLine: 'underline',
   },
 });
 
