@@ -88,14 +88,18 @@ Screenshots
 App Screenshots
 
 **Entity Relationship Diagram (ERD):**
-
+![MockUp](ERD.JPG)
 
 **Prototype Images:**
+![MockUp](MockUp.JPG)
+
 
 **Contact Information:**
 
 Client: Harmanjot Singh
+
 Phone Number: (916)-613-3539
+
 Email Address: hsghuman02@gmail.com
 
 ## Authors
@@ -106,6 +110,7 @@ Email Address: hsghuman02@gmail.com
 - [@alexfakai](https://github.com/alexfakai)
 - [@akashdeep42](https://github.com/akashdeep42)
 - [@saulb99](https://github.com/saulb99)
+- [@ikjxt](https://github.com/ikjxt)
 
 
 This project is part of the Senior Project by Team Code Brown.
