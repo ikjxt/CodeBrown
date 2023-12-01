@@ -63,12 +63,6 @@ Delivery Drivers: Employed drivers responsible for pizza deliveries.
 
 The provided codebase is a React Native application using Expo for development. It integrates with Firebase for authentication, real-time data storage, and location tracking.
 
-**Frontend:**
-
-React Native: A JavaScript framework for building mobile applications.
-
-![React](react.PNG)
-
 **Backend:**
 
 Firebase: A comprehensive mobile and web app development platform.
@@ -77,35 +71,42 @@ Authentication: Firebase Authentication for user authentication.
 
 Firestore: Firebase's NoSQL database for real-time data storage.
 
-![Firebase](firebase.PNG)
+![Firebase](firebase.png)
+
+**Frontend:**
+
+React Native: A JavaScript framework for building mobile applications.
+
+![React](react.png)
+
 
 **Development Tools:**
 
 Node.js: A JavaScript runtime for executing JavaScript code server-side.
 
-![nodejs](nodejs.PNG)
+![nodejs](nodejs.png)
 
 **Integrated Development Environment (IDE):**
 
 Visual Studio Code: A lightweight yet powerful code editor.
 
-![VSCODE](vscode.PNG)
+![VSCODE](vscode.jpg)
 
 Android Studio: The official integrated development environment for Android app development.
 
-![AS](as.PNG)
+![AS](as.jpg)
 
 **Version Control:**
 
 Git: A distributed version control system.
 
-![Github](github.PNG)
+![Github](github.png)
 
 **Testing:**
 
 Android Studio: Comprehensive environment tailored for Android app creation.
 
-![AS](as.PNG)
+![AS](as.jpg)
 
 **Development Instructions:**
 
@@ -139,30 +140,33 @@ Node.js
 
 npm
 
-Expo CLI
+## Timeline Milestones:
 
-**Timeline Milestones:**
+**CSC 190 Fall 2023:**
 
-Week: Project setup and Firebase integration.
+**Done**: Project setup and Firebase integration.
 
-Week: Implement basic authentication and user interface.
+**Done:** Implement basic authentication and user interface.
 
-Week: Develop real-time location tracking and sharing features.
+**CSC 191 Spring 2024:**
 
-Week: Implement location logging and two-factor authentication.
+Week 1-2: Develop real-time location tracking and sharing features.
 
-Week: Conduct testing and resolve any issues.
+Week 3-4: Implement location logging and two-factor authentication.
 
-Week: Finalize documentation and prepare for deployment.
-Screenshots
-App Screenshots
+Week 4-5: Conduct testing and resolve any issues.
 
-**Entity Relationship Diagram (ERD):**
+Week 6-7: Improve button responsiveness and feedback on user interaction.
+
+Week 7-9: Ensure a consistent layout across different screen sizes.
+
+Week 9-10: Finalize documentation and prepare for deployment.
+
+## Entity Relationship Diagram (ERD)
 ![MockUp](ERD.JPG)
 
-**Prototype Images:**
+## Prototype Images
 ![MockUp](MockUp.JPG)
-
 
 **Contact Information:**
 
