@@ -1,75 +1,145 @@
 # CodeBrown
 
-**Round Table Pizza Delivery Tracker**
+# Round Table Pizza Delivery Tracker
 
 
 **Synopsis:**
 
 Round Table Pizza Delivery Tracker is a mobile application designed to assist Round Table Pizza in managing deliveries efficiently. The application provides real-time tracking of delivery drivers' locations, allowing business managers to customize routes, enhance accountability, and respond promptly to emergencies.
 
+# Project Description
+
+
+**Client's Business:**
+
+The client, Harmanjot Singh, owns multiple locations of Round Table Pizza in the Sacramento area.
+
+**Value Expected:**
+
+The project aims to benefit the business managers working for the client by providing a tool to manage deliveries efficiently. The application enhances accountability among delivery drivers, ultimately benefiting the client's business.
+
 **Features:**
 
-Real-time location tracking of delivery drivers
+- Real-time location tracking of delivery drivers
 
-Location sharing among users
+  - The software tracks the live location of smartphones (delivery drivers' devices).
 
-Logging and storing of visited locations at intervals
+- Location sharing among users
 
-Two-factor authentication for user information security
+  - Users can share their live location with others, facilitating communication and coordination.
 
-**Key Users Client:** 
+- Logging and storing of visited locations at intervals
 
-Harmanjot Singh
-End Users: Business managers and delivery drivers
+  - The application logs and stores previously visited locations at given intervals, providing a historical record.
+
+- Two-factor authentication for user information security
+
+  - To ensure user information security, the application implements two-factor authentication.
+
+**Expected Uses:**
+
+- Delivery Management
+
+  - Review and manage driver locations during deliveries.
+
+- Route Customization
+  
+  -Use real-time location data to customize and alter routes for more efficient deliveries.
+
+- Emergency Assistance
+
+  - Locate and assist drivers in case of vehicle breakdowns or emergencies.
+
+
+**Expected Users:** 
+
+Client: Harmanjot Singh 
+
+Managers: Employed managers overseeing Round Table Pizza locations.
+
+Delivery Drivers: Employed drivers responsible for pizza deliveries.
+
+# Project Code
+
+The provided codebase is a React Native application using Expo for development. It integrates with Firebase for authentication, real-time data storage, and location tracking.
+
+**Frontend:**
+
+React Native: A JavaScript framework for building mobile applications.
+
+![React](react.PNG)
+
+**Backend:**
+
+Firebase: A comprehensive mobile and web app development platform.
+
+Authentication: Firebase Authentication for user authentication.
+
+Firestore: Firebase's NoSQL database for real-time data storage.
+
+![Firebase](firebase.PNG)
+
+**Development Tools:**
+
+Node.js: A JavaScript runtime for executing JavaScript code server-side.
+
+![nodejs](nodejs.PNG)
+
+**Integrated Development Environment (IDE):**
+
+Visual Studio Code: A lightweight yet powerful code editor.
+
+![VSCODE](vscode.PNG)
+
+Android Studio: The official integrated development environment for Android app development.
+
+![AS](as.PNG)
+
+**Version Control:**
+
+Git: A distributed version control system.
+
+![Github](github.PNG)
+
+**Testing:**
+
+Android Studio: Comprehensive environment tailored for Android app creation.
+
+![AS](as.PNG)
+
+**Development Instructions:**
+
+Clone the repository.
+
+**Git Clone:** https://github.com/your-username/round-table-pizza-tracker.git
+
+Install dependencies using '**npm install**'.
+
+Create a Firebase project and obtain configuration details.
+
+Set up Firebase configuration in '**firebaseConfig.js**'.
+
+Update the firebaseConfig.js file with your Firebase configuration.
+
+Run the application using '**npm start**'.
 
 **Testing:** 
 
-To run tests, use the following command:
-
-npm test
+The project includes a testing suite. Run tests with '**npm test**'.
 
 
 **Deployment:**
 
-To deploy the application, follow these steps:
-
-Set up Firebase configuration in firebaseConfig.js.
-Run the application on an emulator or physical device using:
-npm start
+Deploy the application on an emulator or physical device using '**npm start**'.
 
 
-**Developer Instructions:**
-
-Prerequisites:
+**Prerequisites:**
 
 Node.js
 
 npm
 
 Expo CLI
-
-
-**Installation:**
-
-Clone the repository:
-
-**Git Clone:** https://github.com/your-username/round-table-pizza-tracker.git
-
-
-**Install dependencies:**
-
-cd round-table-pizza-tracker
-npm install
-
-**Set up Firebase:**
-
-Create a Firebase project and obtain configuration details.
-
-Update the firebaseConfig.js file with your Firebase configuration.
-
-**Run the application:**
-
-npm start
 
 **Timeline Milestones:**
 
