@@ -166,7 +166,8 @@ Week 9-10: Finalize documentation and prepare for deployment.
 ![MockUp](ERD.JPG)
 
 ## Prototype Images
-![MockUp](MockUp.JPG)
+
+![MockUp](protoType.jpg)
 
 **Contact Information:**
 
