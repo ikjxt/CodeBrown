@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import { collection, addDoc } from 'firebase/firestore';
-import { db } from './firebaseConfig'; // Ensure this is the correct path to your firebaseConfig
+import { db } from './firebaseConfig';
 
 const Dashboard = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
   const mapViewRef = useRef(null);
   const locationUpdateInterval = useRef(null);
 
-  // Get user ID from Firebase Authentication, test
   const auth = getAuth();
   const userId = auth.currentUser ? auth.currentUser.uid : null;
 
@@ -26,21 +25,19 @@ const Dashboard = ({ navigation }) => {
     let location = await Location.getCurrentPositionAsync({});
     setUserLocation(location.coords);
 
-    // Construct location object
     const locationData = {
       userId: userId,
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
-      timestamp: new Date() // or use Firebase server timestamp
+      timestamp: new Date(),
     };
 
-    // Add location data to Firestore
     try {
-      const locationsRef = collection(db, "locations");
+      const locationsRef = collection(db, 'locations');
       await addDoc(locationsRef, locationData);
-      console.log("Location data recorded");
+      console.log('Location data recorded');
     } catch (error) {
-      console.error("Error recording location data: ", error);
+      console.error('Error recording location data: ', error);
     }
   };
 
@@ -60,8 +57,8 @@ const Dashboard = ({ navigation }) => {
   };
 
   const handleOrderButton = () => {
-    navigation.navigate('TakeOrderScreen')
-  }
+    navigation.navigate('TakeOrderScreen');
+  };
 
   const handleSignOut = () => {
     signOut(auth)
@@ -117,29 +114,34 @@ const Dashboard = ({ navigation }) => {
         <MaterialIcons name="local-pizza" size={24} color="#3498db" />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={navigateToContactsScreen}>
-        <Text style={styles.buttonText}>Contacts</Text>
-      </TouchableOpacity>
+      <View style={styles.bottomButtons}>
+        <TouchableOpacity style={styles.button} onPress={navigateToContactsScreen}>
+          <Text style={styles.buttonText}>Contacts</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-        <Text style={styles.signOutButtonText}>Sign Out</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.historyButton}
-        onPress={() => userId && navigation.navigate('LocationHistoryScreen', { userId })}
-      >
-        <Text style={styles.historyButtonText}>View Location History</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.historyButton}
+          onPress={() => userId && navigation.navigate('LocationHistoryScreen', { userId })}
+        >
+          <Text style={styles.buttonText}>Log</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity 
-      style = {styles.orderButton}
-      onPress = {handleOrderButton}>
-        <Text style = {styles.buttonText}>Take Order</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.orderButton}
+          onPress={handleOrderButton}
+        >
+          <Text style={styles.buttonText}>Take Order</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
+
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -153,53 +155,55 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 50,
     position: 'absolute',
-    bottom: 20,
-    right: 20,
+    top: '1%',
+    right: '1%',
     elevation: 5,
   },
   button: {
+    height: 50,
     backgroundColor: '#e74c3c',
     padding: 15,
     borderRadius: 5,
-    position: 'absolute',
-    top: 110,
-    right: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
+    textAlign: 'center',
   },
   signOutButton: {
+    height: 50,
     backgroundColor: '#e74c3c',
     padding: 15,
     borderRadius: 5,
-    position: 'absolute',
-    top: 50,
-    right: 10,
-  },
-  signOutButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   historyButton: {
-    backgroundColor: '#3498db',
+    height: 50,
+    backgroundColor: '#e74c3c',
     padding: 10,
     borderRadius: 5,
-    position: 'absolute',
-    top: 25,
-    left: 10,
-  },
-  historyButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   orderButton: {
+    height: 50,
     backgroundColor: '#e74c3c',
     padding: 15,
     borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottomButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     position: 'absolute',
-    bottom: 50,
+    bottom: 0,
     left: 10,
+    right: 10,
   },
 });
 
