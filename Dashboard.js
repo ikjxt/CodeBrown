@@ -56,6 +56,10 @@ const Dashboard = ({ navigation }) => {
     navigation.navigate('ContactsScreen');
   };
 
+  const navigateToUserProfileScreen = () => {
+    navigation.navigate('UserProfileScreen');
+  };
+
   const handleOrderButton = () => {
     navigation.navigate('TakeOrderScreen');
   };
@@ -121,6 +125,10 @@ const Dashboard = ({ navigation }) => {
 
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
           <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={navigateToUserProfileScreen}>
+          <Text style={styles.buttonText}>Profile</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
