@@ -7,16 +7,6 @@ const UserProfileScreen = ({ navigation }) => {
   const auth = getAuth();         // Set observer on Auth object,
   const user = auth.currentUser;  // Get the current user to display their info
 
-  var fullName = "Not Available";  
-  var email = "Not Available";
-  var phoneNumber = "Not Available";
-  // if (user != null) {  // If a user is logged in 
-  //   // These are displayed, in the description section of the Card
-  //   fullName = user.displayName;
-  //   email = user.email;
-  //   phoneNumber = user.phoneNumber;
-  // }
-
   const editProfile = () => {
     navigation.navigate('EditProfileScreen')
   }
@@ -27,7 +17,7 @@ const UserProfileScreen = ({ navigation }) => {
         title="Profile"
         description={<Text>Full Name: {user.displayName} {"\n"}
                            Email: {user.email} {"\n"} 
-                           P: {user.phoneNumber} {"\n"}
+                           Phone: {user.phoneNumber} {"\n"}
                     </Text>}
       /> 
       <TouchableOpacity style={styles.button} onPress={editProfile}>
