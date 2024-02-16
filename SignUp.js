@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import app from './firebaseConfig'; 
+import app from './firebaseConfig';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
@@ -45,61 +45,61 @@ const SignUp = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-    <View style={styles.container}>
-      <Text style={styles.logoText}>Round Table Pizza</Text>
-      <Text style={styles.title}>Sign Up</Text>
+      <View style={styles.container}>
+        <Text style={styles.logoText}>Round Table Pizza</Text>
+        <Text style={styles.title}>Sign Up</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#666"
-        onChangeText={setEmail}
-        value={email}
-        autoCapitalize="none"
-      />
-
-      <View style={styles.passwordContainer}>
         <TextInput
-          style={styles.passwordInput}
-          placeholder="Password"
+          style={styles.input}
+          placeholder="Email"
           placeholderTextColor="#666"
-          secureTextEntry={!showPassword} // Toggle secureTextEntry based on showPassword
-          onChangeText={setPassword}
-          value={password}
+          onChangeText={setEmail}
+          value={email}
+          autoCapitalize="none"
         />
-        <TouchableOpacity
-          style={styles.showPasswordButton}
-          onPress={() => setShowPassword(!showPassword)} // Toggle showPassword for password field
-        >
-          <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Password"
+            placeholderTextColor="#666"
+            secureTextEntry={!showPassword} // Toggle secureTextEntry based on showPassword
+            onChangeText={setPassword}
+            value={password}
+          />
+          <TouchableOpacity
+            style={styles.showPasswordButton}
+            onPress={() => setShowPassword(!showPassword)} // Toggle showPassword for password field
+          >
+            <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Confirm Password"
+            placeholderTextColor="#666"
+            secureTextEntry={!showPassword} // Toggle secureTextEntry based on showPassword
+            onChangeText={setConfirmPassword}
+            value={confirmPassword}
+          />
+          <TouchableOpacity
+            style={styles.showPasswordButton}
+            onPress={() => setShowPassword(!showPassword)} // Toggle showPassword for confirm password field
+          >
+            <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+          <Text style={styles.switchText}>Already have an account? Sign In</Text>
         </TouchableOpacity>
       </View>
-
-      <View style={styles.passwordContainer}>
-        <TextInput
-          style={styles.passwordInput}
-          placeholder="Confirm Password"
-          placeholderTextColor="#666"
-          secureTextEntry={!showPassword} // Toggle secureTextEntry based on showPassword
-          onChangeText={setConfirmPassword}
-          value={confirmPassword}
-        />
-        <TouchableOpacity
-          style={styles.showPasswordButton}
-          onPress={() => setShowPassword(!showPassword)} // Toggle showPassword for confirm password field
-        >
-          <Text>{showPassword ? 'Hide' : 'Show'}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-        <Text style={styles.switchText}>Already have an account? Sign In</Text>
-      </TouchableOpacity>
-    </View>
     </TouchableWithoutFeedback>
   );
 };

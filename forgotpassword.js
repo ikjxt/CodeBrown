@@ -1,9 +1,9 @@
 // ForgotPassword.js
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard} from 'react-native';
-import app from './firebaseConfig'; 
-import { getAuth, sendPasswordResetEmail  } from 'firebase/auth';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import app from './firebaseConfig';
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
 const ForgotPassword = () => {
@@ -19,17 +19,17 @@ const ForgotPassword = () => {
     }
 
     sendPasswordResetEmail(auth, email)
-    .then(() => {
-      Alert.alert('Email Sent', 'A password reset email has been sent to your email address.');
-    }) //Sends user an email to reset their password 
+      .then(() => {
+        Alert.alert('Email Sent', 'A password reset email has been sent to your email address.');
+      }) //Sends user an email to reset their password 
 
-    .catch((error) => {
-      if (error.code === 'auth/user-not-found') {
-        Alert.alert('Error', 'This email is not registered.');
-      } else {
-        Alert.alert('Error', error.message);
-      }
-    });
+      .catch((error) => {
+        if (error.code === 'auth/user-not-found') {
+          Alert.alert('Error', 'This email is not registered.');
+        } else {
+          Alert.alert('Error', error.message);
+        }
+      });
   };
 
   return (
