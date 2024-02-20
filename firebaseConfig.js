@@ -1,7 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, QuerySnapshot } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect } from 'react';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBth5BPdFF7zR7utwzEU5aqyNKusBDjTSs",
@@ -20,9 +21,24 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Create ref for Driver collection
-const colRef = collection(db, 'DRIVERS')
-
-
+const colRef = collection(db, 'DRIVERS');
+// reference to orders collection
+const orderRef = collection(db, 'ORDERS');
+// realtime get function
+// useEffect(() => {
+//   const q = query(
+//     orderRef,where('deliveryStatus', '==', false)
+//   );
+//   const unsub = onSnapshot(orderRef, (QuerySnapshot) =>{
+//     const items = [];
+//     QuerySnapshot.forEach((doc) =>{
+//       items.push(doc.data());
+//     });
+//   });
+//   return () => {
+//     unsub();
+//   }
+// }), [];
 
 // Initialize Firebase Auth with AsyncStorage for persistence
 initializeAuth(app, {
@@ -43,5 +59,7 @@ const saveLocationData = async (userId, latitude, longitude) => {
     console.error("Error saving location: ", error);
   }
 };
+
+
 
 export { db, app, saveLocationData };

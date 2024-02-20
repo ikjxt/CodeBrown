@@ -32,7 +32,7 @@ const LocationHistory = ({ userId }) => {
       setIsLoading(true);
       const q = query(collection(db, "locations"), where("userId", "==", userId));
       const querySnapshot = await getDocs(q);
-      
+
       const locationDataPromises = querySnapshot.docs.map(doc => {
         return getLocationName(doc.data().latitude, doc.data().longitude).then(name => {
           return {
