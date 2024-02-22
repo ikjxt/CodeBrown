@@ -7,7 +7,7 @@ import forgotpassword from './forgotpassword';
 import Dashboard from './Dashboard';
 import ContactsScreen from './ContactsScreen';
 import ChatScreen from './ChatScreen';
-import LocationHistoryScreen from './LocationHistoryScreen'; // Import the new screen
+import LocationHistoryScreen from './LocationHistoryScreen';
 import TakeOrderScreen from './TakeOrderScreen';
 import UserProfileScreen from './UserProfileScreen';  
 import EditProfileScreen from './EditProfileScreen';
