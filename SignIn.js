@@ -1,41 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import app from './firebaseConfig';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard} from 'react-native';
+import app from './firebaseConfig'; 
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from './firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Added showPassword state
   const navigation = useNavigation();
-
-  const fetchUserRoleAndNavigate = async (userId) => {
-    const driverDocRef = doc(db, "DRIVERS", userId);
-    const managerDocRef = doc(db, "MANAGERS", userId);
-
-    const driverDocSnap = await getDoc(driverDocRef);
-    if (driverDocSnap.exists()) {
-      navigation.navigate('Dashboard', { role: 'driver' });
-      return;
-    }
-
-    const managerDocSnap = await getDoc(managerDocRef);
-    if (managerDocSnap.exists()) {
-      navigation.navigate('Dashboard', { role: 'manager' });
-      return;
-    }
-
-    Alert.alert("Error", "User's role could not be determined.");
-  };
 
   const handleSignIn = () => {
     const auth = getAuth(app);
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        fetchUserRoleAndNavigate(userCredential.user.uid);
+      .then(() => {
+        // Navigate to dashboard 
       })
       .catch((error) => {
         Alert.alert('Sign In Failed', error.message);
@@ -44,51 +23,53 @@ const SignIn = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <Text style={styles.logoText}>Round Table Pizza</Text>
-        <Text style={styles.title}>Sign In</Text>
+    <View style={styles.container}>
+      <Text style={styles.logoText}>Round Table Pizza</Text>
+      <Text style={styles.title}>Sign In</Text>
 
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor="#666"
+        onChangeText={setEmail}
+        value={email}
+        autoCapitalize="none"
+      />
+
+      <View style={styles.passwordContainer}>
         <TextInput
-          style={styles.input}
-          placeholder="Email"
+          style={styles.passwordInput}
+          placeholder="Password"
           placeholderTextColor="#666"
-          onChangeText={setEmail}
-          value={email}
-          autoCapitalize="none"
+          secureTextEntry={!showPassword} // Toggle secureTextEntry based on showPassword
+          onChangeText={setPassword}
+          value={password}
         />
-
-        <View style={styles.passwordContainer}>
-          <TextInput
-            style={styles.passwordInput}
-            placeholder="Password"
-            placeholderTextColor="#666"
-            secureTextEntry={!showPassword}
-            onChangeText={setPassword}
-            value={password}
-          />
-          <TouchableOpacity
-            style={styles.showPasswordButton}
-            onPress={() => setShowPassword(!showPassword)}
-          >
-            <Text>{showPassword ? 'Hide' : 'Show'}</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-          <Text style={styles.buttonText}>Sign In</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-          <Text style={styles.switchText}>Don't have an account? Sign Up</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')}>
-          <Text style={styles.switchText}>Forgot Password?</Text>
+        <TouchableOpacity
+          style={styles.showPasswordButton}
+          onPress={() => setShowPassword(!showPassword)} // Toggle showPassword for password field
+        >
+          <Text>{showPassword ? 'Hide' : 'Show'}</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity style={styles.button} onPress={handleSignIn}>
+        <Text style={styles.buttonText}>Sign In</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+        <Text style={styles.switchText}>Don't have an account? Sign Up</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')}>
+        <Text style={styles.switchText}>Forgot Password?</Text>
+      </TouchableOpacity>
+
+    </View>
     </TouchableWithoutFeedback>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

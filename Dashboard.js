@@ -1,19 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
-import { Dimensions } from 'react-native';
 
-const Dashboard = ({ navigation, route }) => {
-  const role = route.params?.role || 'defaultRole';
+const Dashboard = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
   const mapViewRef = useRef(null);
   const locationUpdateInterval = useRef(null);
-  
 
   const auth = getAuth();
   const userId = auth.currentUser ? auth.currentUser.uid : null;
@@ -36,7 +33,8 @@ const Dashboard = ({ navigation, route }) => {
     };
 
     try {
-      await addDoc(collection(db, 'locations'), locationData);
+      const locationsRef = collection(db, 'locations');
+      await addDoc(locationsRef, locationData);
       console.log('Location data recorded');
     } catch (error) {
       console.error('Error recording location data: ', error);
@@ -54,12 +52,26 @@ const Dashboard = ({ navigation, route }) => {
     }
   };
 
+  const navigateToContactsScreen = () => {
+    navigation.navigate('ContactsScreen');
+  };
+
+  const navigateToUserProfileScreen = () => {
+    navigation.navigate('UserProfileScreen');
+  };
+
+  const handleOrderButton = () => {
+    navigation.navigate('TakeOrderScreen');
+  };
+
   const handleSignOut = () => {
-    signOut(auth).then(() => {
-      navigation.navigate('SignIn');
-    }).catch((error) => {
-      console.error('Sign out error:', error);
-    });
+    signOut(auth)
+      .then(() => {
+        navigation.navigate('SignIn');
+      })
+      .catch((error) => {
+        console.error('Sign out error:', error);
+      });
   };
 
   useEffect(() => {
@@ -99,27 +111,38 @@ const Dashboard = ({ navigation, route }) => {
         )}
       </MapView>
 
-      <TouchableOpacity style={styles.centerLocationButton} onPress={centerOnUserLocation}>
-        <MaterialIcons name="my-location" size={24} color="black" />
+      <TouchableOpacity
+        style={styles.centerLocationButton}
+        onPress={centerOnUserLocation}
+      >
+        <MaterialIcons name="local-pizza" size={24} color="#3498db" />
       </TouchableOpacity>
 
       <View style={styles.bottomButtons}>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ContactsScreen')}>
+        <TouchableOpacity style={styles.button} onPress={navigateToContactsScreen}>
           <Text style={styles.buttonText}>Contacts</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UserProfileScreen')}>
+        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={navigateToUserProfileScreen}>
           <Text style={styles.buttonText}>Profile</Text>
         </TouchableOpacity>
 
-        {role === 'manager' && (
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LocationHistoryScreen', { userId })}>
-            <Text style={styles.buttonText}>Log</Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={styles.historyButton}
+          onPress={() => userId && navigation.navigate('LocationHistoryScreen', { userId })}
+        >
+          <Text style={styles.buttonText}>Log</Text>
+        </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={handleSignOut}>
-          <Text style={styles.buttonText}>Sign Out</Text>
+        <TouchableOpacity
+          style={styles.orderButton}
+          onPress={handleOrderButton}
+        >
+          <Text style={styles.buttonText}>Take Order</Text>
         </TouchableOpacity>
       </View>
     </View>
