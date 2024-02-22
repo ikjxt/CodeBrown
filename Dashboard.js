@@ -12,6 +12,7 @@ const Dashboard = ({ navigation, route }) => {
   const [userLocation, setUserLocation] = useState(null);
   const mapViewRef = useRef(null);
   const locationUpdateInterval = useRef(null);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Added state for dropdown visibility
 
   const auth = getAuth();
   const userId = auth.currentUser ? auth.currentUser.uid : null;
@@ -60,6 +61,10 @@ const Dashboard = ({ navigation, route }) => {
     });
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownVisible(!isDropdownVisible);
+  };
+
   useEffect(() => {
     getUserLocation();
     locationUpdateInterval.current = setInterval(getUserLocation, 10000);
@@ -97,29 +102,31 @@ const Dashboard = ({ navigation, route }) => {
         )}
       </MapView>
 
-      <TouchableOpacity style={styles.centerLocationButton} onPress={centerOnUserLocation}>
-        <MaterialIcons name="my-location" size={24} color="black" />
+      <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}>
+        <MaterialIcons name="menu" size={24} color="black" />
       </TouchableOpacity>
 
-      {role === 'manager' && (
-        <TouchableOpacity style={[styles.button, styles.logButton]} onPress={() => navigation.navigate('LocationHistoryScreen', { userId })}>
-          <Text style={styles.buttonText}>Log</Text>
-        </TouchableOpacity>
+      {isDropdownVisible && (
+        <View style={styles.dropdown}>
+          <TouchableOpacity style={styles.dropdownItem} onPress={() => navigation.navigate('ContactsScreen')}>
+            <Text style={styles.dropdownItemText}>Contacts</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.dropdownItem} onPress={() => navigation.navigate('UserProfileScreen')}>
+            <Text style={styles.dropdownItemText}>Profile</Text>
+          </TouchableOpacity>
+
+          {role === 'manager' && (
+            <TouchableOpacity style={styles.dropdownItem} onPress={() => navigation.navigate('LocationHistoryScreen', { userId })}>
+              <Text style={styles.dropdownItemText}>Log</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity style={styles.dropdownItem} onPress={handleSignOut}>
+            <Text style={styles.dropdownItemText}>Sign Out</Text>
+          </TouchableOpacity>
+        </View>
       )}
-
-      <View style={styles.bottomButtons}>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ContactsScreen')}>
-          <Text style={styles.buttonText}>Contacts</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UserProfileScreen')}>
-          <Text style={styles.buttonText}>Profile</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.button} onPress={handleSignOut}>
-          <Text style={styles.buttonText}>Sign Out</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -133,43 +140,33 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
-  centerLocationButton: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 50,
+  menuButton: {
     position: 'absolute',
     top: '1%',
-    right: '1%',
-    elevation: 5,
+    left: '1%',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 30,
+    zIndex: 1,
   },
-  button: {
-    height: 50,
-    backgroundColor: '#e74c3c',
-    padding: 15,
+  dropdown: {
+    position: 'absolute',
+    top: 50,
+    left: 10,
+    backgroundColor: '#fff',
+    padding: 10,
     borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 5,
+    zIndex: 1,
   },
-  buttonText: {
-    color: '#fff',
+  dropdownItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  dropdownItemText: {
     fontSize: 16,
-    textAlign: 'center',
   },
-  bottomButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    right: 10,
-  },
-  logButton: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-  },
+  // Feel free to add or modify styles as needed
 });
 
 export default Dashboard;
