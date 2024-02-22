@@ -1,19 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
-import { Dimensions } from 'react-native';
 
 const Dashboard = ({ navigation, route }) => {
   const role = route.params?.role || 'defaultRole';
   const [userLocation, setUserLocation] = useState(null);
   const mapViewRef = useRef(null);
   const locationUpdateInterval = useRef(null);
-  
 
   const auth = getAuth();
   const userId = auth.currentUser ? auth.currentUser.uid : null;
@@ -103,6 +101,12 @@ const Dashboard = ({ navigation, route }) => {
         <MaterialIcons name="my-location" size={24} color="black" />
       </TouchableOpacity>
 
+      {role === 'manager' && (
+        <TouchableOpacity style={[styles.button, styles.logButton]} onPress={() => navigation.navigate('LocationHistoryScreen', { userId })}>
+          <Text style={styles.buttonText}>Log</Text>
+        </TouchableOpacity>
+      )}
+
       <View style={styles.bottomButtons}>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('ContactsScreen')}>
           <Text style={styles.buttonText}>Contacts</Text>
@@ -111,12 +115,6 @@ const Dashboard = ({ navigation, route }) => {
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UserProfileScreen')}>
           <Text style={styles.buttonText}>Profile</Text>
         </TouchableOpacity>
-
-        {role === 'manager' && (
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LocationHistoryScreen', { userId })}>
-            <Text style={styles.buttonText}>Log</Text>
-          </TouchableOpacity>
-        )}
 
         <TouchableOpacity style={styles.button} onPress={handleSignOut}>
           <Text style={styles.buttonText}>Sign Out</Text>
@@ -151,44 +149,26 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: 5,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     textAlign: 'center',
   },
-  signOutButton: {
-    height: 50,
-    backgroundColor: '#e74c3c',
-    padding: 15,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  historyButton: {
-    height: 50,
-    backgroundColor: '#e74c3c',
-    padding: 10,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  orderButton: {
-    height: 50,
-    backgroundColor: '#e74c3c',
-    padding: 15,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   bottomButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     position: 'absolute',
-    bottom: 0,
+    bottom: 10,
     left: 10,
     right: 10,
+  },
+  logButton: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
   },
 });
 
