@@ -15,6 +15,7 @@ const SignUp = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [role, setRole] = useState('driver');
+  const [EmployeeCode, setEmployeeCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const formOpacity = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
@@ -77,6 +78,7 @@ const SignUp = () => {
           lastName: lastName,
           email: email,
           role: role,
+          EmployeeCode: EmployeeCode,
         });
       })
       .then(() => {
@@ -119,6 +121,13 @@ const SignUp = () => {
             placeholderTextColor="#ddd"
             onChangeText={setLastName}
             value={lastName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Employeee Code"
+            placeholderTextColor="#ddd"
+            onChangeText={setEmployeeCode}
+            value={EmployeeCode}
           />
 
           <TextInput
@@ -248,13 +257,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   roleButton: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#e74c3c',
     padding: 10,
     marginHorizontal: 5,
     borderRadius: 5,
   },
   roleButtonSelected: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: 'red',
   },
   roleButtonText: {
     color: '#ffffff',
