@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, Button, StyleSheet } from "react-native";
 
 const ContactsScreen = ({ navigation }) => {
   const handleChatPress = () => {
-    navigation.navigate('ChatScreen');
+    navigation.navigate("ChatScreen");
   };
 
   return (
@@ -18,13 +18,13 @@ const ContactsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
+    justifyContent: "flex-start",
+    alignItems: "center",
     paddingTop: 50,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
 });
