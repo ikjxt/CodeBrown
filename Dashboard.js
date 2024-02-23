@@ -4,12 +4,12 @@ import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { PropTypes } from 'prop-types';
 
 const Dashboard = ({ navigation, route }) => {
-  const role = route.params?.role || 'defaultRole';
+  const [role, setRole] = useState('');
   const [userLocation, setUserLocation] = useState(null);
   const mapViewRef = useRef(null);
   const locationUpdateInterval = useRef(null);
@@ -17,6 +17,7 @@ const Dashboard = ({ navigation, route }) => {
 
   const auth = getAuth();
   const userId = auth.currentUser ? auth.currentUser.uid : null;
+  const user = auth.currentUser;  // ask about this***^
 
   const getUserLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -76,6 +77,23 @@ const Dashboard = ({ navigation, route }) => {
       }
     };
   }, []);
+
+  // Get user's "role" from firestore
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Get the doc
+        const docRef = doc(db, 'USERS', user.email);  
+        const docSnap = await getDoc(docRef);         
+        // Get each field
+        setRole(docSnap.data().role);
+      } catch (error) {
+        console.error('Error fetching document:', error);
+        console.log(role);
+      }
+    };
+    fetchUserData();
+  }, []);  // Empty dependency array means this effect runs once after the initial render
 
   return (
     <View style={styles.container}>

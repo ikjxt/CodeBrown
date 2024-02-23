@@ -71,7 +71,7 @@ const SignUp = () => {
     createUserWithEmailAndPassword(getAuth(app), email, password)
       .then((userCredential) => {
         sendVerificationEmail(userCredential.user);
-        const userRef = doc(db, role === 'driver' ? 'DRIVERS' : 'MANAGERS', userCredential.user.uid);
+        const userRef = doc(db, "USERS", email);
         return setDoc(userRef, {
           firstName: firstName,
           lastName: lastName,

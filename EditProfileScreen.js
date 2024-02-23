@@ -10,7 +10,7 @@ import { PropTypes } from 'prop-types';
 // 02/20/2024
 // On this screen, the user is able to edit their profile information. We are currently NOT using the UserProfile
 // class from Firebase.Auth to hold the user's data. We have collections "DRIVERS" and "MANAGERS" that hold the user's
-// data in our Cloud Firestore. The Document ID of each user is the same as the email of the user **SUBJECT TO CHANGE**
+// data in our Cloud Firestore. The Document ID of each user is the same as the email of the user.
 
 const EditProfileScreen = ({ navigation }) => {
   const [newFirstName, setNewFirstName] = useState('');      // For new name from user input
@@ -24,7 +24,7 @@ const EditProfileScreen = ({ navigation }) => {
   const auth = getAuth();         // Set observer on Auth object,
   const user = auth.currentUser;  // Get the current user's profile,
   const documentID = user.email;  // Get the user's email, which is the ID of the document on our Firestore
-  var oldDocumentID = '';         // Needed when creating a new Document 
+  var oldDocumentID = '';         // Needed when recreating a Document with a new ID
 
   // When user changes their email: must change the 'email' field of the document, 
   // must change the Document ID (which should always be the same email), and must change the email used to sign in
@@ -33,7 +33,7 @@ const EditProfileScreen = ({ navigation }) => {
       oldDocumentID = documentID;  // Save the old ID
 
       // Change email field of document
-      const userDocRef = doc(db, "DRIVERS", documentID)  // Get the document, this is currently just for "driver"s
+      const userDocRef = doc(db, "USERS", documentID)  // Get the document, this is currently just for "driver"s
       await updateDoc(userDocRef, {               
         email: newEmail                                 
       });
@@ -64,12 +64,12 @@ const EditProfileScreen = ({ navigation }) => {
   const changeDocumentID = async (currentID, newID) => {
     try {
       // Retrieve the data from the existing document
-      const currentDocRef = doc(db, 'DRIVERS', currentID);
+      const currentDocRef = doc(db, 'USERS', currentID);
       const currentDocSnapshot = await getDoc(currentDocRef);
       const currentDocData = currentDocSnapshot.data();
 
       // Create a new document with the new email as the Document ID
-      const newDocRef = doc(db, 'DRIVERS', newID);
+      const newDocRef = doc(db, 'USERS', newID);
       await setDoc(newDocRef, currentDocData);
 
       // Delete the existing document, which is now outdated 
@@ -84,7 +84,7 @@ const EditProfileScreen = ({ navigation }) => {
   // User has entered a new first name
   const updateFirstName = async () => {
     try {
-      const userDocRef = doc(db, "DRIVERS", documentID)  // Get the document, this is currently just for "driver"s
+      const userDocRef = doc(db, "USERS", documentID)  // Get the document, this is currently just for "driver"s
       await updateDoc(userDocRef, {
         firstName: newFirstName
       });
@@ -96,7 +96,7 @@ const EditProfileScreen = ({ navigation }) => {
   // User has entered a new last name
   const updateLastName = async () => {
     try {
-      const userDocRef = doc(db, "DRIVERS", documentID)  // Get the document, this is currently just for "driver"s
+      const userDocRef = doc(db, "USERS", documentID)  // Get the document, this is currently just for "driver"s
       await updateDoc(userDocRef, {
         lastName: newLastName
       });
@@ -107,7 +107,7 @@ const EditProfileScreen = ({ navigation }) => {
   // User has entered a new phone number
   const updatePhoneNumber = async () => {
     try {
-      const userDocRef = doc(db, "DRIVERS", documentID)  // Get the document, this is currently just for "driver"s
+      const userDocRef = doc(db, "USERS", documentID)  // Get the document, this is currently just for "driver"s
       await updateDoc(userDocRef, {
         phoneNumber: newPhoneNumber
       });
@@ -118,6 +118,8 @@ const EditProfileScreen = ({ navigation }) => {
 
   // When change email, sign out
   const handleSignOut = () => {
+    setNewEmail('');  // Clear Text Box
+    Alert.alert("Changes Saved");
     setTimeout(() => {
       signOut(auth)
           .then(() => {
@@ -127,24 +129,30 @@ const EditProfileScreen = ({ navigation }) => {
           .catch((error) => {
             console.error('Sign out error:', error);
           });
-    }, 4000);  // 4 second delay
+    }, 3000);  // 3 second delay
         
   };
 
   // Called when user presses the "Submit Changes" button
   // Changes are only made if user inputs text into text box before pressing button
   const handleSubmitChanges = () => {
+    if (newFirstName != '' || newLastName != '' || newPhoneNumber != '') {
+      Alert.alert("Changes Saved");
+    }
     if (newFirstName != '') {  // If a new first name is entered
-      updateFirstName();       // Call function (line )
+      updateFirstName();   
+      setNewFirstName('');  // Clear the Text Box    
     }
     if (newLastName != '') {  // If a new last name is entered
-      updateLastName();       // Call function (line )
+      updateLastName();  
+      setNewLastName('');  // Clear the Text Box    
     }
     if (newPhoneNumber != '') {  // If a new phone number is entered
-      updatePhoneNumber();       // Call function (line )
+      updatePhoneNumber(); 
+      setNewPhoneNumber('');  // Clear the Text Box     
     }
-    if (newEmail != '') {  // If a new email is entered
-      setIsChangingEmail(true);  // So the app knows to change the text on the Submit Button
+    if (newEmail != '') {        // If a new email is entered
+      setIsChangingEmail(true);  // Let app know to change the text on the Button
       
       // The first time this function is called, user will be prompted to enter their password
       if (!isReauthenticated && (password == '')) {  
@@ -153,14 +161,14 @@ const EditProfileScreen = ({ navigation }) => {
       // The second time this function is called, user will have already entered a password
       if (!isReauthenticated && (password != '')) {
         reauthenticate();
-        
+
       }
-      // The third time this function is called, if reauthentication was success
+      // The third time this function is called, if reauthentication was success. 
       if (isReauthenticated) {
-        updateAllEmail();    // Call function (line )
-        setIsChangingEmail(false);
-        setIsReauthenticated(false);
-        handleSignOut();     // Email was changed, so must sign out and email verification must be completed
+        updateAllEmail();             // Update the email at 3 places
+        setIsChangingEmail(false);    // Reset bool
+        setIsReauthenticated(false);  // Reset bool
+        handleSignOut();              // Email was changed, so must sign out and email verification must be completed
       }
     }
   };
@@ -220,6 +228,7 @@ const EditProfileScreen = ({ navigation }) => {
           style={styles.input}
           placeholder="Confirm Password"
           placeholderTextColor="#666"
+          secureTextEntry={true}
           onChangeText={setPassword}
           value={password}
           autoCapitalize="none"

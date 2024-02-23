@@ -1,26 +1,54 @@
-import React from 'react';
+import React , { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Card from './Card';
 import { getAuth } from 'firebase/auth';
 import { PropTypes } from 'prop-types';
+import { doc, getDoc } from '@firebase/firestore';
+import { db } from "./firebaseConfig";
+
 
 const UserProfileScreen = ({ navigation }) => {
+  // Need these to work with the useEffect
+  const [fName, setFName] = useState(''); 
+  const [lName, setLName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  
   const auth = getAuth();         // Set observer on Auth object,
   const user = auth.currentUser;  // Get the current user to display their info
-
+  
+  // Get data from firestore
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Get the doc
+        const docRef = doc(db, 'USERS', user.email);  
+        const docSnap = await getDoc(docRef);         
+        // Get each field
+        setFName(docSnap.data().firstName);
+        setLName(docSnap.data().lastName);
+        setEmail(docSnap.data().email);
+        setPhone(docSnap.data().phoneNumber);
+      } catch (error) {
+        console.error('Error fetching document:', error);
+      }
+    };
+    fetchUserData();
+  }, []);  // Empty dependency array means this effect runs once after the initial render
+    
   const editProfile = () => {
     navigation.navigate('EditProfileScreen')
   }
 
   return (
     <View>
-      <Card
+       <Card
         title="Profile"
         description={<Text>{user.photoURL}
-                           First Name: {user.displayName} {"\n"}
-                           Last Name: {"\n"}
-                           Email: {user.email} {"\n"} 
-                           Phone: {user.phoneNumber} {"\n"}
+                           First Name: {fName} {"\n"}
+                           Last Name: {lName} {"\n"}
+                           Email: {email} {"\n"} 
+                           Phone: {phone} {"\n"}
                     </Text>}
       /> 
       <TouchableOpacity style={styles.button} onPress={editProfile}>
