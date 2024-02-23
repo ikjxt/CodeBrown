@@ -1,8 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from './firebaseConfig';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import MapView, { Marker } from "react-native-maps";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "./firebaseConfig";
 
 const LocationHistory = ({ userId }) => {
   const [locations, setLocations] = useState([]);
@@ -11,7 +18,7 @@ const LocationHistory = ({ userId }) => {
 
   // Function to get location name using Google Maps Geocoding API
   const getLocationName = async (latitude, longitude) => {
-    const apiKey = 'AIzaSyBqdK2r3h7vi8WZ1ldQRHiayg0Mj5JbeUw'; // Replace with your actual API key
+    const apiKey = "AIzaSyBqdK2r3h7vi8WZ1ldQRHiayg0Mj5JbeUw"; // Replace with your actual API key
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
 
     try {
@@ -20,30 +27,35 @@ const LocationHistory = ({ userId }) => {
       if (json.results.length > 0) {
         return json.results[0].formatted_address;
       }
-      return 'Unknown location';
+      return "Unknown location";
     } catch (error) {
       console.error(error);
-      return 'Unknown location';
+      return "Unknown location";
     }
   };
 
   useEffect(() => {
     const fetchLocationHistory = async () => {
       setIsLoading(true);
-      const q = query(collection(db, "locations"), where("userId", "==", userId));
+      const q = query(
+        collection(db, "locations"),
+        where("userId", "==", userId)
+      );
       const querySnapshot = await getDocs(q);
 
-      const locationDataPromises = querySnapshot.docs.map(doc => {
-        return getLocationName(doc.data().latitude, doc.data().longitude).then(name => {
-          return {
-            ...doc.data(),
-            id: doc.id,
-            name: name
-          };
-        });
+      const locationDataPromises = querySnapshot.docs.map((doc) => {
+        return getLocationName(doc.data().latitude, doc.data().longitude).then(
+          (name) => {
+            return {
+              ...doc.data(),
+              id: doc.id,
+              name: name,
+            };
+          }
+        );
       });
 
-      Promise.all(locationDataPromises).then(resolvedLocationData => {
+      Promise.all(locationDataPromises).then((resolvedLocationData) => {
         setLocations(resolvedLocationData);
         setIsLoading(false);
       });
@@ -62,7 +74,10 @@ const LocationHistory = ({ userId }) => {
   };
 
   const renderLocationItem = ({ item }) => (
-    <TouchableOpacity style={styles.listItem} onPress={() => focusOnLocation(item)}>
+    <TouchableOpacity
+      style={styles.listItem}
+      onPress={() => focusOnLocation(item)}
+    >
       <Text style={styles.icon}>📍</Text>
       <View style={styles.textContainer}>
         <Text style={styles.listItemText}>{item.name}</Text>
@@ -85,21 +100,29 @@ const LocationHistory = ({ userId }) => {
           longitudeDelta: 0.0421,
         }}
       >
-        {locations.map(loc => (
+        {locations.map((loc) => (
           <Marker
             key={loc.id}
             coordinate={{ latitude: loc.latitude, longitude: loc.longitude }}
             title={loc.name}
-            description={`Visited on ${new Date(loc.timestamp.seconds * 1000).toLocaleString()}`}
+            description={`Visited on ${new Date(
+              loc.timestamp.seconds * 1000
+            ).toLocaleString()}`}
           />
         ))}
       </MapView>
       <FlatList
         data={locations}
         renderItem={renderLocationItem}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
       />
-      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+      {isLoading && (
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )}
     </View>
   );
 };
@@ -109,14 +132,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   map: {
-    flex: 2,
+    flex: 1,
   },
   listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
+    backgroundColor: "#fff",
+    elevation: 6,
+    margin: 8,
+    borderRadius: 8,
   },
   icon: {
     fontSize: 24,
@@ -130,7 +157,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: 14,
-    color: 'grey',
+    color: "grey",
   },
 });
 
