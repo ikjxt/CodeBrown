@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import SignIn from './SignIn';
@@ -39,5 +40,10 @@ function AppNavigator({ isAuthenticated }) {
     </NavigationContainer>
   );
 }
+
+// 2/20 - fixed the red line under "isAuthenticated"
+AppNavigator.propTypes = {
+  isAuthenticated: PropTypes.bool.isRequired,
+};
 
 export default AppNavigator;

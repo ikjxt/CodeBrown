@@ -12,30 +12,31 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigation = useNavigation();
 
-  const fetchUserRoleAndNavigate = async (userId) => {
-    const driverDocRef = doc(db, "DRIVERS", userId);
-    const managerDocRef = doc(db, "MANAGERS", userId);
+  // const fetchUserRoleAndNavigate = async (userId) => {
+  //   const driverDocRef = doc(db, "DRIVERS", userId);
+  //   const managerDocRef = doc(db, "MANAGERS", userId);
 
-    const driverDocSnap = await getDoc(driverDocRef);
-    if (driverDocSnap.exists()) {
-      navigation.navigate('Dashboard', { role: 'driver' });
-      return;
-    }
+  //   const driverDocSnap = await getDoc(driverDocRef);
+  //   if (driverDocSnap.exists()) {
+  //     navigation.navigate('Dashboard', { role: 'driver' });
+  //     return;
+  //   }
 
-    const managerDocSnap = await getDoc(managerDocRef);
-    if (managerDocSnap.exists()) {
-      navigation.navigate('Dashboard', { role: 'manager' });
-      return;
-    }
+  //   const managerDocSnap = await getDoc(managerDocRef);
+  //   if (managerDocSnap.exists()) {
+  //     navigation.navigate('Dashboard', { role: 'manager' });
+  //     return;
+  //   }
 
-    Alert.alert("Error", "User's role could not be determined.");
-  };
+  //   Alert.alert("Error", "User's role could not be determined.");
+  // };
 
   const handleSignIn = () => {
     const auth = getAuth(app);
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        fetchUserRoleAndNavigate(userCredential.user.uid);
+        //fetchUserRoleAndNavigate(userCredential.user.uid);
+        navigation.navigate('Dashboard');
       })
       .catch((error) => {
         Alert.alert('Sign In Failed', error.message);
