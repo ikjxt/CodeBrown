@@ -8,10 +8,12 @@ import { collection, addDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { PropTypes } from 'prop-types';
 
-const Dashboard = ({ navigation }) => {
+const Dashboard = ({ navigation, route }) => {
+  const role = route.params?.role || 'defaultRole';
   const [userLocation, setUserLocation] = useState(null);
   const mapViewRef = useRef(null);
   const locationUpdateInterval = useRef(null);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Added state for dropdown visibility
 
   const auth = getAuth();
   const userId = auth.currentUser ? auth.currentUser.uid : null;
@@ -34,8 +36,7 @@ const Dashboard = ({ navigation }) => {
     };
 
     try {
-      const locationsRef = collection(db, 'locations');
-      await addDoc(locationsRef, locationData);
+      await addDoc(collection(db, 'locations'), locationData);
       console.log('Location data recorded');
     } catch (error) {
       console.error('Error recording location data: ', error);
@@ -53,26 +54,16 @@ const Dashboard = ({ navigation }) => {
     }
   };
 
-  const navigateToContactsScreen = () => {
-    navigation.navigate('ContactsScreen');
-  };
-
-  const navigateToUserProfileScreen = () => {
-    navigation.navigate('UserProfileScreen');
-  };
-
-  const handleOrderButton = () => {
-    navigation.navigate('TakeOrderScreen');
-  };
-
   const handleSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        navigation.navigate('SignIn');
-      })
-      .catch((error) => {
-        console.error('Sign out error:', error);
-      });
+    signOut(auth).then(() => {
+      navigation.navigate('SignIn');
+    }).catch((error) => {
+      console.error('Sign out error:', error);
+    });
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownVisible(!isDropdownVisible);
   };
 
   useEffect(() => {
@@ -112,40 +103,31 @@ const Dashboard = ({ navigation }) => {
         )}
       </MapView>
 
-      <TouchableOpacity
-        style={styles.centerLocationButton}
-        onPress={centerOnUserLocation}
-      >
-        <MaterialIcons name="local-pizza" size={24} color="#3498db" />
+      <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}>
+        <MaterialIcons name="menu" size={24} color="black" />
       </TouchableOpacity>
 
-      <View style={styles.bottomButtons}>
-        <TouchableOpacity style={styles.button} onPress={navigateToContactsScreen}>
-          <Text style={styles.buttonText}>Contacts</Text>
-        </TouchableOpacity>
+      {isDropdownVisible && (
+        <View style={styles.dropdown}>
+          <TouchableOpacity style={styles.dropdownItem} onPress={() => navigation.navigate('ContactsScreen')}>
+            <Text style={styles.dropdownItemText}>Contacts</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-          <Text style={styles.buttonText}>Sign Out</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.dropdownItem} onPress={() => navigation.navigate('UserProfileScreen')}>
+            <Text style={styles.dropdownItemText}>Profile</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={navigateToUserProfileScreen}>
-          <Text style={styles.buttonText}>Profile</Text>
-        </TouchableOpacity>
+          {role === 'manager' && (
+            <TouchableOpacity style={styles.dropdownItem} onPress={() => navigation.navigate('LocationHistoryScreen', { userId })}>
+              <Text style={styles.dropdownItemText}>Log</Text>
+            </TouchableOpacity>
+          )}
 
-        <TouchableOpacity
-          style={styles.historyButton}
-          onPress={() => userId && navigation.navigate('LocationHistoryScreen', { userId })}
-        >
-          <Text style={styles.buttonText}>Log</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.orderButton}
-          onPress={handleOrderButton}
-        >
-          <Text style={styles.buttonText}>Take Order</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.dropdownItem} onPress={handleSignOut}>
+            <Text style={styles.dropdownItemText}>Sign Out</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -159,61 +141,33 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
-  centerLocationButton: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 50,
+  menuButton: {
     position: 'absolute',
     top: '1%',
-    right: '1%',
-    elevation: 5,
+    left: '1%',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 30,
+    zIndex: 1,
   },
-  button: {
-    height: 50,
-    backgroundColor: '#e74c3c',
-    padding: 15,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  signOutButton: {
-    height: 50,
-    backgroundColor: '#e74c3c',
-    padding: 15,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  historyButton: {
-    height: 50,
-    backgroundColor: '#e74c3c',
+  dropdown: {
+    position: 'absolute',
+    top: 50,
+    left: 10,
+    backgroundColor: '#fff',
     padding: 10,
     borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
+    zIndex: 1,
   },
-  orderButton: {
-    height: 50,
-    backgroundColor: '#e74c3c',
-    padding: 15,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
+  dropdownItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
-  bottomButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 0,
-    left: 10,
-    right: 10,
+  dropdownItemText: {
+    fontSize: 16,
   },
+  // Feel free to add or modify styles as needed
 });
 
 // fixed ['navigation.navigate' is missing in props validationeslintreact/prop-types] error
