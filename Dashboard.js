@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, /*Dimensions*/ } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
+import { PropTypes } from 'prop-types';
 
 const Dashboard = ({ navigation }) => {
   const [userLocation, setUserLocation] = useState(null);
@@ -149,7 +150,7 @@ const Dashboard = ({ navigation }) => {
   );
 };
 
-const { width, height } = Dimensions.get('window');
+//const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -214,5 +215,12 @@ const styles = StyleSheet.create({
     right: 10,
   },
 });
+
+// fixed ['navigation.navigate' is missing in props validationeslintreact/prop-types] error
+Dashboard.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 export default Dashboard;

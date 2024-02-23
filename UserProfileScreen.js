@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Button, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Card from './Card';
 import { getAuth } from 'firebase/auth';
+import { PropTypes } from 'prop-types';
 
 const UserProfileScreen = ({ navigation }) => {
   const auth = getAuth();         // Set observer on Auth object,
@@ -15,7 +16,9 @@ const UserProfileScreen = ({ navigation }) => {
     <View>
       <Card
         title="Profile"
-        description={<Text>Full Name: {user.displayName} {"\n"}
+        description={<Text>{user.photoURL}
+                           First Name: {user.displayName} {"\n"}
+                           Last Name: {"\n"}
                            Email: {user.email} {"\n"} 
                            Phone: {user.phoneNumber} {"\n"}
                     </Text>}
@@ -39,5 +42,12 @@ const styles = StyleSheet.create({
     marginLeft:30,
   }
 })
+
+// fixed ['navigation.navigate' is missing in props validationeslintreact/prop-types] error
+UserProfileScreen.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 export default UserProfileScreen;
