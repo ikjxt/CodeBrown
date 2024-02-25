@@ -116,7 +116,7 @@ const SignUp = () => {
               value={password}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
-              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#333333" />
+              <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={20} color="#333333" />
             </TouchableOpacity>
           </View>
 
@@ -130,7 +130,7 @@ const SignUp = () => {
               value={confirmPassword}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
-              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#333333" />
+              <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={20} color="#333333" />
             </TouchableOpacity>
           </View>
 

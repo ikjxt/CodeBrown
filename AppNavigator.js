@@ -32,10 +32,27 @@ function AppNavigator({ isAuthenticated }) {
           </>
         ) : (
           <>
-            <Stack.Screen name="FirstPage" component={FirstPage} />
-            <Stack.Screen name="SignUp" component={SignUp} />
-            <Stack.Screen name="SignIn" component={SignIn} />
-            <Stack.Screen name="forgotpassword" component={forgotpassword} />
+            {/* Apply gestureEnabled: false to these screens */}
+            <Stack.Screen 
+              name="FirstPage" 
+              component={FirstPage} 
+              options={{ gestureEnabled: false }}
+            />
+            <Stack.Screen 
+              name="SignUp" 
+              component={SignUp} 
+              options={{ gestureEnabled: false }}
+            />
+            <Stack.Screen 
+              name="SignIn" 
+              component={SignIn} 
+              options={{ gestureEnabled: false }}
+            />
+            <Stack.Screen 
+              name="forgotpassword" 
+              component={forgotpassword} 
+              options={{ gestureEnabled: false }}
+            />
           </>
         )}
       </Stack.Navigator>
@@ -43,9 +60,10 @@ function AppNavigator({ isAuthenticated }) {
   );
 }
 
-// 2/20 - fixed the red line under "isAuthenticated"
 AppNavigator.propTypes = {
   isAuthenticated: PropTypes.bool.isRequired,
 };
 
 export default AppNavigator;
+
+
