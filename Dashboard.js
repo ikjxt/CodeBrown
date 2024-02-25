@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, /*Dimensions*/ } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
@@ -7,6 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { PropTypes } from 'prop-types';
+
 
 const Dashboard = ({ navigation, route }) => {
   const [role, setRole] = useState('');
@@ -150,7 +151,7 @@ const Dashboard = ({ navigation, route }) => {
   );
 };
 
-//const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {

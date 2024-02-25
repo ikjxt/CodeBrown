@@ -4,7 +4,6 @@ import app from './firebaseConfig';
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
-import { Video } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import { db } from './firebaseConfig';
 
@@ -16,7 +15,6 @@ const SignUp = () => {
   const [lastName, setLastName] = useState('');
   const [role, setRole] = useState('driver');
   const [showPassword, setShowPassword] = useState(false);
-  const formOpacity = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
 
   useLayoutEffect(() => {
@@ -24,17 +22,6 @@ const SignUp = () => {
       headerShown: false,
     });
   }, [navigation]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      Animated.timing(formOpacity, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-    }, 2750);
-    return () => clearTimeout(timer);
-  }, [formOpacity]);
 
   const sendVerificationEmail = (user) => {
     sendEmailVerification(user)
@@ -91,24 +78,13 @@ const SignUp = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
-        <Video
-          source={require('./assets/Intro.mp4')}
-          rate={1.0}
-          volume={1.0}
-          isMuted={true}
-          resizeMode="cover"
-          shouldPlay
-          isLooping={false}
-          style={StyleSheet.absoluteFill}
-        />
-        <Animated.View style={[styles.overlay, { opacity: formOpacity }]}>
           <Text style={styles.logoText}>Round Table Pizza</Text>
           <Text style={styles.title}>Sign Up</Text>
 
           <TextInput
             style={styles.input}
             placeholder="First Name"
-            placeholderTextColor="#ddd"
+            placeholderTextColor="#666"
             onChangeText={setFirstName}
             value={firstName}
           />
@@ -116,7 +92,7 @@ const SignUp = () => {
           <TextInput
             style={styles.input}
             placeholder="Last Name"
-            placeholderTextColor="#ddd"
+            placeholderTextColor="#666"
             onChangeText={setLastName}
             value={lastName}
           />
@@ -124,7 +100,7 @@ const SignUp = () => {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor="#ddd"
+            placeholderTextColor="#666"
             onChangeText={setEmail}
             value={email}
             autoCapitalize="none"
@@ -134,13 +110,13 @@ const SignUp = () => {
             <TextInput
               style={styles.passwordInput}
               placeholder="Password"
-              placeholderTextColor="#ddd"
+              placeholderTextColor="#666"
               secureTextEntry={!showPassword}
               onChangeText={setPassword}
               value={password}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
-              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#ddd" />
+              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#333333" />
             </TouchableOpacity>
           </View>
 
@@ -148,13 +124,13 @@ const SignUp = () => {
             <TextInput
               style={styles.passwordInput}
               placeholder="Confirm Password"
-              placeholderTextColor="#ddd"
+              placeholderTextColor="#666"
               secureTextEntry={!showPassword}
               onChangeText={setConfirmPassword}
               value={confirmPassword}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
-              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#ddd" />
+              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#333333" />
             </TouchableOpacity>
           </View>
 
@@ -174,7 +150,6 @@ const SignUp = () => {
           <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
             <Text style={styles.switchText}>Already have an account? Sign In</Text>
           </TouchableOpacity>
-        </Animated.View>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -187,14 +162,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f7f7f7',
   },
-  overlay: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Ensures text readability over the video
-  },
+  
   logoText: {
     fontSize: 36,
     fontWeight: 'bold',
@@ -204,17 +172,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 20,
-    color: '#ddd', // Adjusted for visibility on the overlay
+    color: '#333333', // Adjusted for visibility on the overlay
   },
   input: {
     width: 300,
     height: 50,
-    borderColor: '#ddd',
+    borderColor: '#333333',
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 15,
-    color: '#ddd', // Adjusted for visibility on the overlay
+    color: '#333333', // Adjusted for visibility on the overlay
     fontSize: 14,
   },
   passwordContainer: {
@@ -222,7 +190,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 300,
     height: 50,
-    borderColor: '#ddd',
+    borderColor: '#333333',
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 15,
@@ -232,7 +200,7 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 1,
     height: 50,
-    color: '#ddd', // Adjusted for visibility on the overlay
+    color: '#333333', // Adjusted for visibility on the overlay
     fontSize: 14,
   },
   showPasswordButton: {
@@ -241,6 +209,8 @@ const styles = StyleSheet.create({
     height: '100%', // Match the height of passwordContainer
     justifyContent: 'center', // Center the icon vertically
     paddingHorizontal: 5, // Padding inside the button for touch area
+    color: '#333333',
+    
   },
   roleSelection: {
     flexDirection: 'row',
@@ -257,7 +227,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#e74c3c',
   },
   roleButtonText: {
-    color: '#ffffff',
+    color: '#333333',
+
   },
   button: {
     backgroundColor: '#e74c3c',
@@ -274,7 +245,7 @@ const styles = StyleSheet.create({
   switchText: {
     color: 'blue',
     marginTop: 20,
-    textDecorationLine: 'underline',
+    //textDecorationLine: 'underline',
     fontSize: 14,
   },
 });

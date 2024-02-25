@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
+import FirstPage from './FirstPage';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
 import forgotpassword from './forgotpassword';
@@ -18,7 +19,7 @@ const Stack = createStackNavigator();
 function AppNavigator({ isAuthenticated }) {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="SignUp">
+      <Stack.Navigator initialRouteName="FirstPage">
         {isAuthenticated ? (
           <>
             <Stack.Screen name="Dashboard" component={Dashboard} />
@@ -31,6 +32,7 @@ function AppNavigator({ isAuthenticated }) {
           </>
         ) : (
           <>
+            <Stack.Screen name="FirstPage" component={FirstPage} />
             <Stack.Screen name="SignUp" component={SignUp} />
             <Stack.Screen name="SignIn" component={SignIn} />
             <Stack.Screen name="forgotpassword" component={forgotpassword} />

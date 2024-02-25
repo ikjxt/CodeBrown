@@ -95,7 +95,6 @@ const styles = StyleSheet.create({
   switchText: {
     color: 'blue',
     marginTop: 20,
-    textDecorationLine: 'underline',
   },
 });
 
