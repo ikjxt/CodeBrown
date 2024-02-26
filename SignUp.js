@@ -1,7 +1,7 @@
-import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, Animated } from 'react-native';
+import React, { useState, useLayoutEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import app from './firebaseConfig';
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signOut } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,28 +34,29 @@ const SignUp = () => {
   };
 
   const handleSignUp = () => {
+    const auth = getAuth(app);
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
-
+  
     if (password.length < 6) {
       Alert.alert('Weak Password', 'Password should be at least 6 characters.');
       return;
     }
-
+  
     if (password !== confirmPassword) {
       Alert.alert('Password Mismatch', 'Passwords do not match!');
       return;
     }
-
+  
     if (!firstName.trim() || !lastName.trim()) {
       Alert.alert('Invalid Input', 'Please enter your first and last name.');
       return;
     }
-
-    createUserWithEmailAndPassword(getAuth(app), email, password)
+  
+    createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         sendVerificationEmail(userCredential.user);
         const userRef = doc(db, "USERS", email);
@@ -67,8 +68,11 @@ const SignUp = () => {
         });
       })
       .then(() => {
+        return signOut(auth); // Sign out the user after sending the verification email
+      })
+      .then(() => {
         Alert.alert('Account Created', 'Your account has been created successfully. Please verify your email before signing in.');
-        navigation.navigate('SignIn');
+        navigation.navigate('SignIn'); // Navigate to Sign In screen after signing out
       })
       .catch((error) => {
         Alert.alert('Error', error.message);
