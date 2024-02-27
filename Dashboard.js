@@ -154,6 +154,10 @@ const Dashboard = ({ navigation, route }) => {
             <Text style={styles.dropdownItemText}>Profile</Text>
           </TouchableOpacity>
 
+          <TouchableOpacity style={styles.dropdownItem} onPress={() => navigation.navigate('TakeOrderScreen')}>
+            <Text style={styles.dropdownItemText}>TakeOrder</Text>
+          </TouchableOpacity>
+
           {role === 'manager' && (
             <TouchableOpacity style={styles.dropdownItem} onPress={() => navigation.navigate('LocationHistoryScreen', { userId })}>
               <Text style={styles.dropdownItemText}>Log</Text>
