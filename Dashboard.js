@@ -7,6 +7,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { PropTypes } from 'prop-types';
+import { Alert } from 'react-native';
+
 
 
 const Dashboard = ({ navigation, route }) => {
@@ -57,11 +59,24 @@ const Dashboard = ({ navigation, route }) => {
   };
 
   const handleSignOut = () => {
-    signOut(auth).then(() => {
-      navigation.navigate('SignIn');
-    }).catch((error) => {
-      console.error('Sign out error:', error);
-    });
+    Alert.alert(
+      "Sign Out", // Title of the alert
+      "Are you sure you want to sign out?", // Message of the alert
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "No"
+        },
+        { text: "Yes", onPress: () => 
+          signOut(auth).then(() => {
+            navigation.navigate('SignIn');
+          }).catch((error) => {
+            console.error('Sign out error:', error);
+          }) 
+        }
+      ]
+    );
   };
 
   const toggleDropdown = () => {
@@ -125,6 +140,9 @@ const Dashboard = ({ navigation, route }) => {
       <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}>
         <MaterialIcons name="menu" size={24} color="black" />
       </TouchableOpacity>
+      <TouchableOpacity style={styles.locationButton} onPress={centerOnUserLocation}>
+        <MaterialIcons name="my-location" size={24} color="black" />
+      </TouchableOpacity>
 
       {isDropdownVisible && (
         <View style={styles.dropdown}>
@@ -162,8 +180,8 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     position: 'absolute',
-    top: '1%',
-    left: '1%',
+    top: '5%',
+    left: '5%',
     padding: 10,
     backgroundColor: '#fff',
     borderRadius: 30,
@@ -171,7 +189,7 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     position: 'absolute',
-    top: 50,
+    top: 80,
     left: 10,
     backgroundColor: '#fff',
     padding: 10,
@@ -186,6 +204,16 @@ const styles = StyleSheet.create({
   dropdownItemText: {
     fontSize: 16,
   },
+  locationButton: {
+    position: 'absolute',
+    top: '5%',
+    right: '5%',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 30,
+    zIndex: 1,
+  },
+  
   // Feel free to add or modify styles as needed
 });
 
