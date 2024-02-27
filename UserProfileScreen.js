@@ -1,10 +1,11 @@
 import React , { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Card from './Card';
-import { getAuth } from 'firebase/auth';
+import { getAuth,signOut } from 'firebase/auth';
 import { PropTypes } from 'prop-types';
 import { doc, getDoc } from '@firebase/firestore';
 import { db } from "./firebaseConfig";
+import { Alert } from 'react-native';
 
 
 const UserProfileScreen = ({ navigation }) => {
@@ -17,6 +18,27 @@ const UserProfileScreen = ({ navigation }) => {
   const auth = getAuth();         // Set observer on Auth object,
   const user = auth.currentUser;  // Get the current user to display their info
   
+  const handleSignOut = () => { // Sign out logic
+    Alert.alert(
+      "Sign Out", // Title of the alert
+      "Are you sure you want to sign out?", // Message of the alert
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "No"
+        },
+        { text: "Yes", onPress: () => 
+          signOut(auth).then(() => {
+            navigation.navigate('SignIn');
+          }).catch((error) => {
+            console.error('Sign out error:', error);
+          }) 
+        }
+      ]
+    );
+  };
+
   // Get data from firestore
   useEffect(() => {
     const fetchUserData = async () => {
@@ -41,7 +63,7 @@ const UserProfileScreen = ({ navigation }) => {
   }
 
   return (
-    <View>
+    <View >
        <Card
         title="Profile"
         description={<Text>{user.photoURL}
@@ -54,11 +76,16 @@ const UserProfileScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.button} onPress={editProfile}>
         <Text>Edit Profile</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.signoutbutton} onPress={handleSignOut}>
+        <Text>Sign Out</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  
   button: {
     height: 50,
     width: 150,
@@ -68,6 +95,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft:30,
+  }, 
+  signoutbutton: {
+    height: 50,
+    width: 150,
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 30,
+    marginTop: 150, // Adjust this value to position the sign-out button lower
   }
 })
 
