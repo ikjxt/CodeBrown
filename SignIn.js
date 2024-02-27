@@ -72,17 +72,23 @@ const SignIn = () => {
   const handleSignIn = async () => {
     const auth = getAuth(app);
     signInWithEmailAndPassword(auth, email, password)
-      .then(async () => {
-        if (rememberMe) {
-          // Save credentials only if rememberMe is true
-          await AsyncStorage.setItem('userEmail', email);
-          await AsyncStorage.setItem('rememberMe', 'true');
+      .then(async (userCredential) => {
+        if (userCredential.user.emailVerified) {
+          // Email is verified, proceed with signing in
+          if (rememberMe) {
+            await AsyncStorage.setItem('userEmail', email);
+            await AsyncStorage.setItem('rememberMe', 'true');
+          } else {
+            await AsyncStorage.removeItem('userEmail');
+            await AsyncStorage.setItem('rememberMe', 'false');
+          }
+          navigation.navigate('Dashboard');
         } else {
-          // Clear saved credentials if rememberMe is false
-          await AsyncStorage.removeItem('userEmail');
-          await AsyncStorage.setItem('rememberMe', 'false');
+          // Email is not verified, alert the user
+          Alert.alert("Email Verification Required", "Please verify your email before signing in.");
+          // Optional: Sign out the user to reinforce the verification process
+          auth.signOut();
         }
-        navigation.navigate('Dashboard');
       })
       .catch((error) => {
         Alert.alert('Sign In Failed', error.message);
