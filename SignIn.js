@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, Animated, Switch } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, Animated, Switch, ImageBackground} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import app from './firebaseConfig';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
@@ -153,7 +153,7 @@ const SignIn = () => {
               <Text style={styles.switchText}>Sign Up</Text>
             </TouchableOpacity>
         </View>
-      </View>
+        </View>
     </TouchableWithoutFeedback>
   );
 };
@@ -164,6 +164,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f7f7f7',
   },
+  
   signUpContainer: {
     flexDirection: 'row',
     marginTop: 20,

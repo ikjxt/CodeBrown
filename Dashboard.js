@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
@@ -7,11 +7,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { PropTypes } from 'prop-types';
-import { Alert } from 'react-native';
 
 
-
-const Dashboard = ({ navigation, route }) => {
+const Dashboard = ({ navigation }) => {
   const [role, setRole] = useState('');
   const [userLocation, setUserLocation] = useState(null);
   const mapViewRef = useRef(null);
@@ -28,7 +26,6 @@ const Dashboard = ({ navigation, route }) => {
       console.error('Location permission denied');
       return;
     }
-
     let location = await Location.getCurrentPositionAsync({});
     setUserLocation(location.coords);
 
@@ -38,7 +35,6 @@ const Dashboard = ({ navigation, route }) => {
       longitude: location.coords.longitude,
       timestamp: new Date(),
     };
-
     try {
       await addDoc(collection(db, 'locations'), locationData);
       console.log('Location data recorded');
@@ -125,21 +121,19 @@ const Dashboard = ({ navigation, route }) => {
         showsUserLocation={true}
         onUserLocationChange={(event) => setUserLocation(event.nativeEvent.coordinate)}
       >
-        {userLocation && (
-          <Marker
-            coordinate={{
-              latitude: userLocation.latitude,
-              longitude: userLocation.longitude,
-            }}
-            title="Your Location"
-            description="You are here"
-          />
+          {userLocation && (<Marker coordinate={{latitude: userLocation.latitude,longitude: userLocation.longitude,}}
+          title="Your Location"
+          description="You are here"
+        />
         )}
       </MapView>
 
       <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}>
         <MaterialIcons name="menu" size={24} color="black" />
       </TouchableOpacity>
+
+      <Image source={require('./assets/Logo.png')} style={styles.logo} resizeMode="contain" pointerEvents="none" />
+
       <TouchableOpacity style={styles.locationButton} onPress={centerOnUserLocation}>
         <MaterialIcons name="my-location" size={24} color="black" />
       </TouchableOpacity>
@@ -217,6 +211,16 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     zIndex: 1,
   },
+  logo: {
+    position: 'absolute',
+    top: '-5%', // Adjust based on layout
+    alignSelf: 'center',
+    width: 175, // You might want to adjust this
+    height: 175, // Or adjust this based on the image's aspect ratio
+    resizeMode: 'contain', // This line won't directly affect the Image style; use resizeMode on the Image component itself
+    zIndex: 1,
+  },
+  
   
   // Feel free to add or modify styles as needed
 });
