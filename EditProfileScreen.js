@@ -124,12 +124,12 @@ const EditProfileScreen = ({ navigation }) => {
       signOut(auth)
           .then(() => {
             navigation.navigate('SignIn');
-            Alert.alert('You have been signed out. Please verify your new email.')
+            Alert.alert('You have been signed out. Please check your email for verification.')
           })
           .catch((error) => {
             console.error('Sign out error:', error);
           });
-    }, 3000);  // 3 second delay
+    }, 4000);  // 4 second delay
         
   };
 
