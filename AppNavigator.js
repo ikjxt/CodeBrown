@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { MaterialIcons,FontAwesome } from '@expo/vector-icons';
-import { getAuth, signOut } from 'firebase/auth';
+import { MaterialIcons } from '@expo/vector-icons';
+import { getAuth } from 'firebase/auth';
 import * as Location from 'expo-location';
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
@@ -30,7 +30,7 @@ const Tab = createBottomTabNavigator();
 function AuthenticatedTabs({ role,userId }) {
   return (
     <Tab.Navigator screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ color, size }) => {
           let iconName;
           if (route.name === 'Dashboard') iconName = 'dashboard';
           else if (route.name === 'Contacts') iconName = 'contacts';
@@ -98,8 +98,8 @@ function AppNavigator({ isAuthenticated }) {
 
         setRole(docSnap.data().role);
 
-        if (Doc.exists()) {
-          const Data = Doc.data();
+        if (docSnap.exists()) {
+          const Data = docSnap.data();
           setRole(Data.role); // Assuming the role is stored under a field named 'role'
         } else {
           console.error("No such user document!");
