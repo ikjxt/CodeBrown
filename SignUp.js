@@ -59,9 +59,11 @@ const SignUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         sendVerificationEmail(userCredential.user);
+        const userId = auth.currentUser ? auth.currentUser.uid : null;
         const userRef = doc(db, "USERS", email);
         return setDoc(userRef, {
           firstName: firstName,
+          userId: userId,
           lastName: lastName,
           email: email,
           role: role,

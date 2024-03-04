@@ -85,7 +85,7 @@ const Dashboard = ({ navigation, route }) => {
 
   useEffect(() => {
     getUserLocation();
-    locationUpdateInterval.current = setInterval(getUserLocation, 60000);
+    locationUpdateInterval.current = setInterval(getUserLocation, 1200000);
 
     return () => {
       if (locationUpdateInterval.current) {
