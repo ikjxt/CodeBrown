@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, /*Dimensions*/ } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
@@ -8,7 +8,8 @@ import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { PropTypes } from 'prop-types';
 
-const Dashboard = ({ navigation, route }) => {
+
+const Dashboard = ({ navigation }) => {
   const [role, setRole] = useState('');
   const [userLocation, setUserLocation] = useState(null);
   const mapViewRef = useRef(null);
@@ -25,7 +26,6 @@ const Dashboard = ({ navigation, route }) => {
       console.error('Location permission denied');
       return;
     }
-
     let location = await Location.getCurrentPositionAsync({});
     setUserLocation(location.coords);
 
@@ -35,7 +35,6 @@ const Dashboard = ({ navigation, route }) => {
       longitude: location.coords.longitude,
       timestamp: new Date(),
     };
-
     try {
       await addDoc(collection(db, 'locations'), locationData);
       console.log('Location data recorded');
@@ -56,11 +55,24 @@ const Dashboard = ({ navigation, route }) => {
   };
 
   const handleSignOut = () => {
-    signOut(auth).then(() => {
-      navigation.navigate('SignIn');
-    }).catch((error) => {
-      console.error('Sign out error:', error);
-    });
+    Alert.alert(
+      "Sign Out", // Title of the alert
+      "Are you sure you want to sign out?", // Message of the alert
+      [
+        {
+          text: "No",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "No"
+        },
+        { text: "Yes", onPress: () => 
+          signOut(auth).then(() => {
+            navigation.navigate('SignIn');
+          }).catch((error) => {
+            console.error('Sign out error:', error);
+          }) 
+        }
+      ]
+    );
   };
 
   const toggleDropdown = () => {
@@ -69,7 +81,7 @@ const Dashboard = ({ navigation, route }) => {
 
   useEffect(() => {
     getUserLocation();
-    locationUpdateInterval.current = setInterval(getUserLocation, 10000);
+    locationUpdateInterval.current = setInterval(getUserLocation, 1200000);
 
     return () => {
       if (locationUpdateInterval.current) {
@@ -109,20 +121,21 @@ const Dashboard = ({ navigation, route }) => {
         showsUserLocation={true}
         onUserLocationChange={(event) => setUserLocation(event.nativeEvent.coordinate)}
       >
-        {userLocation && (
-          <Marker
-            coordinate={{
-              latitude: userLocation.latitude,
-              longitude: userLocation.longitude,
-            }}
-            title="Your Location"
-            description="You are here"
-          />
+          {userLocation && (<Marker coordinate={{latitude: userLocation.latitude,longitude: userLocation.longitude,}}
+          title="Your Location"
+          description="You are here"
+        />
         )}
       </MapView>
 
       <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}>
         <MaterialIcons name="menu" size={24} color="black" />
+      </TouchableOpacity>
+
+      <Image source={require('./assets/Logo.png')} style={styles.logo} resizeMode="contain" pointerEvents="none" />
+
+      <TouchableOpacity style={styles.locationButton} onPress={centerOnUserLocation}>
+        <MaterialIcons name="my-location" size={24} color="black" />
       </TouchableOpacity>
 
       {isDropdownVisible && (
@@ -133,6 +146,10 @@ const Dashboard = ({ navigation, route }) => {
 
           <TouchableOpacity style={styles.dropdownItem} onPress={() => navigation.navigate('UserProfileScreen')}>
             <Text style={styles.dropdownItemText}>Profile</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.dropdownItem} onPress={() => navigation.navigate('TakeOrderScreen')}>
+            <Text style={styles.dropdownItemText}>TakeOrder</Text>
           </TouchableOpacity>
 
           {role === 'manager' && (
@@ -150,7 +167,7 @@ const Dashboard = ({ navigation, route }) => {
   );
 };
 
-//const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -161,8 +178,8 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     position: 'absolute',
-    top: '1%',
-    left: '1%',
+    top: '5%',
+    left: '5%',
     padding: 10,
     backgroundColor: '#fff',
     borderRadius: 30,
@@ -170,7 +187,7 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     position: 'absolute',
-    top: 50,
+    top: 80,
     left: 10,
     backgroundColor: '#fff',
     padding: 10,
@@ -185,6 +202,26 @@ const styles = StyleSheet.create({
   dropdownItemText: {
     fontSize: 16,
   },
+  locationButton: {
+    position: 'absolute',
+    top: '5%',
+    right: '5%',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 30,
+    zIndex: 1,
+  },
+  logo: {
+    position: 'absolute',
+    top: '-5%', // Adjust based on layout
+    alignSelf: 'center',
+    width: 175, // You might want to adjust this
+    height: 175, // Or adjust this based on the image's aspect ratio
+    resizeMode: 'contain', // This line won't directly affect the Image style; use resizeMode on the Image component itself
+    zIndex: 1,
+  },
+  
+  
   // Feel free to add or modify styles as needed
 });
 

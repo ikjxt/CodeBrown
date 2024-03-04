@@ -1,21 +1,15 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import LocationHistory from './LocationHistory'; // Adjust the import path as needed
+import { View } from 'react-native';
+import LocationHistory from './LocationHistory';
 
 const LocationHistoryScreen = ({ route }) => {
-  const { userId } = route.params;
+  const { driverId } = route.params; // Receive driverId passed from navigation
 
   return (
-    <View style={styles.container}>
-      <LocationHistory userId={userId} />
+    <View style={{ flex: 1 }}>
+      <LocationHistory driverId={driverId} />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default LocationHistoryScreen;
