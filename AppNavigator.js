@@ -21,6 +21,8 @@ import LocationHistoryScreen from './LocationHistoryScreen';
 import TakeOrderScreen from './TakeOrderScreen';
 import UserProfileScreen from './UserProfileScreen';  
 import EditProfileScreen from './EditProfileScreen';
+import driverselection from './driverSelection.js'; 
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -42,7 +44,7 @@ function AuthenticatedTabs({ role,userId }) {
         },
         tabBarActiveTintColor: 'tomato', // Moved here from tabBarOptions
         tabBarInactiveTintColor: 'gray', // Moved here from tabBarOptions
-        tabBarStyle: [{ display: 'flex' }, null], // Custom style if needed
+        tabBarStyle: [{ display: 'flex' }, null], 
       })}>
         
       {/* Define the screens as Tab Screens */}
@@ -50,7 +52,8 @@ function AuthenticatedTabs({ role,userId }) {
       <Tab.Screen name="Contacts" component={ContactsScreen} />
       <Tab.Screen name="TakeOrder" component={TakeOrderScreen} />
       <Tab.Screen name="Profile" component={UserProfileScreen} />
-      {role === 'manager' && <Tab.Screen name="Log" component={LocationHistoryScreen}initialParams={{ userId: userId }} />}
+      {role === 'manager' && <Tab.Screen name="Log" component={driverselection} />}
+
     </Tab.Navigator>
   );
 }
@@ -100,7 +103,7 @@ function AppNavigator({ isAuthenticated }) {
 
         if (docSnap.exists()) {
           const Data = docSnap.data();
-          setRole(Data.role); // Assuming the role is stored under a field named 'role'
+          setRole(Data.role); 
         } else {
           console.error("No such user document!");
           console.log(role);

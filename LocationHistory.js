@@ -11,14 +11,14 @@ import MapView, { Marker } from "react-native-maps";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 
-const LocationHistory = ({ userId }) => {
+const LocationHistory = ({ driverId }) => {
   const [locations, setLocations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const mapRef = React.createRef();
 
   // Function to get location name using Google Maps Geocoding API
   const getLocationName = async (latitude, longitude) => {
-    const apiKey = "AIzaSyBqdK2r3h7vi8WZ1ldQRHiayg0Mj5JbeUw"; // Replace with your actual API key
+    const apiKey = "AIzaSyBqdK2r3h7vi8WZ1ldQRHiayg0Mj5JbeUw"; 
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
 
     try {
@@ -33,36 +33,46 @@ const LocationHistory = ({ userId }) => {
       return "Unknown location";
     }
   };
-
   useEffect(() => {
-    const fetchLocationHistory = async () => {
-      setIsLoading(true);
-      const q = query(
-        collection(db, "locations"),
-        where("userId", "==", userId)
-      );
-      const querySnapshot = await getDocs(q);
-
-      const locationDataPromises = querySnapshot.docs.map((doc) => {
-        return getLocationName(doc.data().latitude, doc.data().longitude).then(
-          (name) => {
-            return {
-              ...doc.data(),
-              id: doc.id,
-              name: name,
-            };
-          }
-        );
+    const fetchUserData = async () => {
+      // Query the USERS collection to find the document with the matching email
+      const userRef = query(collection(db, "USERS"), where("email", "==", driverId));
+      const userSnapshot = await getDocs(userRef);
+  
+      if (!userSnapshot.empty) {
+        const userUid = userSnapshot.docs[0].data().userId; // 'userId' field stores the Firebase UID
+        fetchLocationData(userUid);
+      } else {
+        console.log("No user found with the given email:", driverId);
+        setIsLoading(false);
+      }
+    };
+  
+    const fetchLocationData = async (uid) => {
+      // Use the obtained UID to fetch locations
+      const locRef = query(collection(db, "locations"), where("userId", "==", uid));
+      const locSnapshot = await getDocs(locRef);
+  
+      const locationsDataPromises = locSnapshot.docs.map(async (doc) => {
+        const locationName = await getLocationName(doc.data().latitude, doc.data().longitude);
+        return {
+          ...doc.data(),
+          id: doc.id,
+          name: locationName,
+        };
       });
-
-      Promise.all(locationDataPromises).then((resolvedLocationData) => {
-        setLocations(resolvedLocationData);
+  
+      Promise.all(locationsDataPromises).then((resolvedLocationsData) => {
+        setLocations(resolvedLocationsData);
         setIsLoading(false);
       });
     };
-
-    fetchLocationHistory();
-  }, [userId]);
+  
+    if (driverId) {
+      fetchUserData();
+    }
+  }, [driverId]);
+  
 
   const focusOnLocation = (location) => {
     mapRef.current.animateToRegion({
