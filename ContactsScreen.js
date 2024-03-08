@@ -1,68 +1,60 @@
-import React from 'react';
-import { View, Text, SectionList, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 
 const ContactScreen = ({ navigation }) => {
-  const contacts = [
-    { id: '1', name: 'Alex' },
-    { id: '2', name: 'Bridgette' },
-    { id: '3', name: 'Connor' },
-    { id: '4', name: 'Dole' },
-    { id: '5', name: 'Eva' },
-    { id: '6', name: 'Evelynn' },
-    { id: '7', name: 'Anthony' },
-    { id: '8', name: 'Henry' },
-    { id: '9', name: 'Ivy' },
-    { id: '10', name: 'Olaf' },
-    { id: '11', name: 'North' },
-    { id: '12', name: 'Olivia' },
-    { id: '13', name: 'Peter' },
-    { id: '14', name: 'Vivian' },
-    { id: '15', name: 'William' },
-    { id: '16', name: 'Zoe' },
-  ];
+  const [searchText, setSearchText] = useState('');
+  const [contacts, setContacts] = useState([
+    { id: '1', name: 'Alex', email: 'alex@example.com' },
+    { id: '2', name: 'Bridgette', email: 'bridgette@example.com' },
+    { id: '3', name: 'Connor', email: 'connor@example.com' },
+    // Add more contacts as needed
+  ]);
+
+  const handleGroupChatPress = () => {
+    navigation.navigate('ChatScreen');
+  };
 
   const handleContactPress = (contact) => {
     navigation.navigate('ChatScreen', { contactName: contact.name });
   };
 
-  const renderItem = ({ item }) => (
+  const handleSearch = () => {
+    // Perform search logic here, filter contacts based on searchText
+    // For simplicity, we'll just filter contacts by name containing searchText
+    const filteredContacts = contacts.filter(contact =>
+      contact.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+    return filteredContacts;
+  };
+
+  const renderContactItem = ({ item }) => (
     <TouchableOpacity
       style={styles.contactItem}
       onPress={() => handleContactPress(item)}>
-      <View style={styles.contactNameContainer}>
-        <Text style={styles.contactName}>{item.name}</Text>
-      </View>
+      <Text style={styles.contactName}>{item.name}</Text>
     </TouchableOpacity>
   );
 
-  const renderSectionHeader = ({ section: { title } }) => (
-    <Text style={styles.sectionHeader}>{title}</Text>
-  );
-
-  const contactsData = contacts.reduce((acc, contact) => {
-    const sectionKey = contact.name.charAt(0).toUpperCase();
-    if (!acc[sectionKey]) {
-      acc[sectionKey] = [];
-    }
-    acc[sectionKey].push(contact);
-    return acc;
-  }, {});
-
-  const sections = Object.keys(contactsData)
-    .sort()
-    .map(sectionKey => ({
-      title: sectionKey,
-      data: contactsData[sectionKey],
-    }));
-
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Messages</Text>
+      <TouchableOpacity
+        style={[styles.groupChatButton, { backgroundColor: 'red' }]}
+        onPress={handleGroupChatPress}>
+        <Text style={styles.buttonText}>Group Chat</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>Contacts</Text>
-      <SectionList
-        sections={sections}
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search Contacts"
+        value={searchText}
+        onChangeText={setSearchText}
+      />
+      <FlatList
+        data={handleSearch()}
+        renderItem={renderContactItem}
         keyExtractor={item => item.id}
-        renderItem={renderItem}
-        renderSectionHeader={renderSectionHeader}
+        style={styles.contactList}
       />
     </View>
   );
@@ -72,29 +64,42 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 50,
-    paddingLeft: 20,
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  sectionHeader: {
-    fontSize: 20,
+  groupChatButton: {
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  buttonText: {
+    fontSize: 18,
+    color: 'white',
     fontWeight: 'bold',
-    marginBottom: 10,
+  },
+  searchInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  contactList: {
+    flex: 1,
   },
   contactItem: {
-    marginBottom: 10,
-  },
-  contactNameContainer: {
-    backgroundColor: 'red',
-    padding: 10,
-    borderRadius: 10,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   contactName: {
     fontSize: 16,
-    color: 'white',
   },
 });
 
