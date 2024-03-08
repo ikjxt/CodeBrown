@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
@@ -8,6 +8,7 @@ const ChatScreen = () => {
   const [inputText, setInputText] = useState('');
   const auth = getAuth();
   const db = getFirestore();
+  const flatListRef = useRef();
 
   useEffect(() => {
     const unsubscribe = onSnapshot(query(collection(db, 'messages'), orderBy('createdAt', 'asc'), limit(20)), (snapshot) => {
@@ -16,6 +17,7 @@ const ChatScreen = () => {
         updatedMessages.push({ id: doc.id, ...doc.data() });
       });
       setMessages(updatedMessages);
+      scrollToBottom();
     });
     return () => unsubscribe();
   }, []);
@@ -35,14 +37,22 @@ const ChatScreen = () => {
     try {
       await addDoc(collection(db, 'messages'), message);
       setInputText('');
+      scrollToBottom();
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
 
+  const scrollToBottom = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({ animated: true });
+    }
+  };
+
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : null} style={styles.container}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : null} style={styles.container} keyboardVerticalOffset={Platform.select({ ios: 0, android: 10 })}>
       <FlatList
+        ref={flatListRef}
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -53,6 +63,7 @@ const ChatScreen = () => {
           </View>
         )}
         contentContainerStyle={{ flexGrow: 1 }} // Add flexGrow to ensure the content expands to fill the space
+        onContentSizeChange={scrollToBottom} // Ensure auto-scroll when content changes
       />
       <View style={styles.inputContainer}>
         <TextInput
