@@ -47,7 +47,9 @@ const ChatScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.messageContainer}>
-            <Text style={styles.messageText}>{item.text} - {item.email}</Text>
+            <Text style={[styles.messageText, { color: item.email === auth.currentUser.email ? 'red' : 'black' }]}>
+              {item.email} - {item.text}
+            </Text>
           </View>
         )}
         contentContainerStyle={{ flexGrow: 1 }} // Add flexGrow to ensure the content expands to fill the space
