@@ -1,85 +1,24 @@
 import { React, useState } from "react";
 import { View, TextInput, StyleSheet, Text, Alert, TouchableWithoutFeedback, Keyboard } from "react-native";
-import { getAuth, updateEmail, signOut, verifyBeforeUpdateEmail, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { doc, updateDoc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { PropTypes } from 'prop-types';
-//import Reauthenticate from "./Reauthenticate";
 
-// 02/20/2024
-// On this screen, the user is able to edit their profile information. We are currently NOT using the UserProfile
-// class from Firebase.Auth to hold the user's data. We have collections "DRIVERS" and "MANAGERS" that hold the user's
-// data in our Cloud Firestore. The Document ID of each user is the same as the email of the user.
+// 03/07/2024
+// On this screen, the user is able to edit their first name, last name, and phone number. There is a button to change 
+// their email and a button to change their password. We are now using the USERS collection
+// on Firestore. The Document ID of each user is the same as the email of the user. 
 
 const EditProfileScreen = ({ navigation }) => {
   const [newFirstName, setNewFirstName] = useState('');      // For new name from user input
   const [newLastName, setNewLastName] = useState('');        // For new name from user input
-  const [newEmail, setNewEmail] = useState('');              // For new email form user input
   const [newPhoneNumber, setNewPhoneNumber] = useState('');  // For new phone number from user input
-  const [isChangingEmail, setIsChangingEmail] = useState(false);      // For conditional render
-  const [isReauthenticated, setIsReauthenticated] = useState(false);  // For the reauthentication
-  const [password, setPassword] = useState('');
 
   const auth = getAuth();         // Set observer on Auth object,
   const user = auth.currentUser;  // Get the current user's profile,
   const documentID = user.email;  // Get the user's email, which is the ID of the document on our Firestore
-  var oldDocumentID = '';         // Needed when recreating a Document with a new ID
-
-  // When user changes their email: must change the 'email' field of the document, 
-  // must change the Document ID (which should always be the same email), and must change the email used to sign in
-  const updateAllEmail = async () => {
-    try {
-      oldDocumentID = documentID;  // Save the old ID
-
-      // Change email field of document
-      const userDocRef = doc(db, "USERS", documentID)  // Get the document, this is currently just for "driver"s
-      await updateDoc(userDocRef, {               
-        email: newEmail                                 
-      });
-
-      // Update the Document ID, because it should be the new email
-      changeDocumentID(oldDocumentID, newEmail)  
-
-      // Update email that is used to Sign In
-      changeSignInEmail(newEmail);    
-
-    } catch (error) {
-      console.error('Error updating email', error);
-      console.log(documentID);
-    }
-  };
-  // Change the email used to sign in
-  const changeSignInEmail = async (newEmail) => {
-    try {
-      await verifyBeforeUpdateEmail(user, newEmail);  // Send an email verification to the new email
-
-      await updateEmail(user, newEmail);
-      console.log('success email for sign in CHANGE');
-    } catch (error) {
-      console.error('Error updating sign in email', error);
-    }
-  }
-  // When an email is changed, must change the Document ID to match
-  const changeDocumentID = async (currentID, newID) => {
-    try {
-      // Retrieve the data from the existing document
-      const currentDocRef = doc(db, 'USERS', currentID);
-      const currentDocSnapshot = await getDoc(currentDocRef);
-      const currentDocData = currentDocSnapshot.data();
-
-      // Create a new document with the new email as the Document ID
-      const newDocRef = doc(db, 'USERS', newID);
-      await setDoc(newDocRef, currentDocData);
-
-      // Delete the existing document, which is now outdated 
-      await deleteDoc(currentDocRef);
-
-      console.log('Document ID changed successfully!');
-    } catch (error) {
-      console.error('Error changing document ID:', error);
-    }
-  }
  
   // User has entered a new first name
   const updateFirstName = async () => {
@@ -116,23 +55,6 @@ const EditProfileScreen = ({ navigation }) => {
     }
   };
 
-  // When change email, sign out
-  const handleSignOut = () => {
-    setNewEmail('');  // Clear Text Box
-    Alert.alert("Changes Saved");
-    setTimeout(() => {
-      signOut(auth)
-          .then(() => {
-            navigation.navigate('SignIn');
-            Alert.alert('You have been signed out. Please verify your new email.')
-          })
-          .catch((error) => {
-            console.error('Sign out error:', error);
-          });
-    }, 3000);  // 3 second delay
-        
-  };
-
   // Called when user presses the "Submit Changes" button
   // Changes are only made if user inputs text into text box before pressing button
   const handleSubmitChanges = () => {
@@ -151,39 +73,14 @@ const EditProfileScreen = ({ navigation }) => {
       updatePhoneNumber(); 
       setNewPhoneNumber('');  // Clear the Text Box     
     }
-    if (newEmail != '') {        // If a new email is entered
-      setIsChangingEmail(true);  // Let app know to change the text on the Button
-      
-      // The first time this function is called, user will be prompted to enter their password
-      if (!isReauthenticated && (password == '')) {  
-        Alert.alert("Confirm password to change email.");
-      }
-      // The second time this function is called, user will have already entered a password
-      if (!isReauthenticated && (password != '')) {
-        reauthenticate();
-
-      }
-      // The third time this function is called, if reauthentication was success. 
-      if (isReauthenticated) {
-        updateAllEmail();             // Update the email at 3 places
-        setIsChangingEmail(false);    // Reset bool
-        setIsReauthenticated(false);  // Reset bool
-        handleSignOut();              // Email was changed, so must sign out and email verification must be completed
-      }
-    }
   };
 
-  // Reauthenticate user before changing email
-  const reauthenticate = async () => {
-    try {
-      const credential = EmailAuthProvider.credential(user.email, password);
-      await reauthenticateWithCredential(user, credential);
-      Alert.alert("Authentication Successful, Press Button to Change Email");
-      setIsReauthenticated(true);
-    } catch (error) {
-      console.error('Error reauthenticating:', error);
-      // Handle reauthentication error (e.g., show an error message to the user)
-    }
+  const handleChangeEmail = () => {
+    navigation.navigate('Enter Current Password ');
+  }
+
+  const handleChangePassword = () => {
+    navigation.navigate('Enter Current Password');
   }
 
   return (
@@ -214,29 +111,17 @@ const EditProfileScreen = ({ navigation }) => {
         value={newPhoneNumber}
         autoCapitalize="none"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#666"
-        onChangeText={setNewEmail}
-        value={newEmail}
-        autoCapitalize="none"
-      />
 
-      {isChangingEmail && (!isReauthenticated) && (
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor="#666"
-          secureTextEntry={true}
-          onChangeText={setPassword}
-          value={password}
-          autoCapitalize="none"
-        />
-      )}
+      <TouchableOpacity style={styles.button2} onPress={handleChangeEmail}>
+        <Text>Email</Text>
+      </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmitChanges}>
-        <Text>{(isChangingEmail && (!isReauthenticated)) ? "Confirm Password" : "Submit Changes" } </Text>
+      <TouchableOpacity style={styles.button2} onPress={handleChangePassword}>
+        <Text>Password</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button1} onPress={handleSubmitChanges}>
+        <Text>Submit Changes</Text>
       </TouchableOpacity>
 
       
@@ -267,7 +152,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingLeft: 15,
   },
-  button: {
+  button1: {
     height: 50,
     width: 150,
     backgroundColor: '#e74c3c',
@@ -275,7 +160,22 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft:30,
+    marginTop: 15,
+    marginBottom: 15,
+  },
+  button2: {
+    height: 50,
+    width: 300,
+    backgroundColor: '#eeeded',
+    padding: 15,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'left',
+    marginTop: 15,
+    marginBottom: 15,
+    paddingLeft: 15,
   }
 })
 
