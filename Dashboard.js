@@ -4,9 +4,11 @@ import MapView, { Marker } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
-import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, query, where, onSnapshot, forEach } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { PropTypes } from 'prop-types';
+import { Platform, Linking } from "react-native"
+
 
 
 const Dashboard = ({ navigation }) => {
@@ -15,10 +17,25 @@ const Dashboard = ({ navigation }) => {
   const mapViewRef = useRef(null);
   const locationUpdateInterval = useRef(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Added state for dropdown visibility
+  const [custNum, setCustNum] = useState('');
 
   const auth = getAuth();
   const userId = auth.currentUser ? auth.currentUser.uid : null;
   const user = auth.currentUser;  // ask about this***^
+
+
+  // CALL CUSTOMER FUNCTION
+  const makePhoneCall = () => {
+    if(Platform.OS === "android") {
+       Linking.openURL("tel: " + custNum)
+    } 
+    if(Platform.OS == "ios"){
+      Linking.openURL("tel:// " + custNum)
+    }
+    else{
+       Linking.openURL("telprompt: " + custNum)
+    }
+ }
 
   const getUserLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -90,6 +107,23 @@ const Dashboard = ({ navigation }) => {
     };
   }, []);
 
+
+  // Get customers number from firestore
+  useEffect(() => {
+    const fetchCustData = async () => {
+      try {
+        // Get the doc // todo allow manager to set current order
+        const docRef = doc(db, 'ORDERS', '0cMjeyuxHkUN14IvhWTlX3Iit5I2_222');  
+        const docSnap = await getDoc(docRef);         
+        // Get each field
+        setCustNum(docSnap.data().custNum);
+      } catch (error) {
+        console.error('Error fetching document:', error);
+      }
+    };
+    fetchCustData();
+  }, []);  
+
   // Get user's "role" from firestore
   useEffect(() => {
     const fetchUserData = async () => {
@@ -127,6 +161,14 @@ const Dashboard = ({ navigation }) => {
         />
         )}
       </MapView>
+
+      <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}>
+        <MaterialIcons name="menu" size={24} color="black" />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.callButton} onPress={makePhoneCall}>
+        <MaterialIcons name="call" size={24} color="black" />
+      </TouchableOpacity>
 
       <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}>
         <MaterialIcons name="menu" size={24} color="black" />
@@ -218,6 +260,15 @@ const styles = StyleSheet.create({
     width: 175, // You might want to adjust this
     height: 175, // Or adjust this based on the image's aspect ratio
     resizeMode: 'contain', // This line won't directly affect the Image style; use resizeMode on the Image component itself
+    zIndex: 1,
+  },
+  callButton: {
+    position: 'absolute',
+    top: '25%',
+    left: '5%',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 30,
     zIndex: 1,
   },
   
