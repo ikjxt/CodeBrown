@@ -22,10 +22,6 @@ import TakeOrderScreen from './TakeOrderScreen';
 import UserProfileScreen from './UserProfileScreen';  
 import EditProfileScreen from './EditProfileScreen';
 import driverselection from './driverSelection.js'; 
-import ChangePasswordScreen from './ChangePasswordScreen.js';
-import ChangePasswordScreen2 from './ChangePasswordScreen2.js';
-import ChangeEmailScreen from './ChangeEmailScreen.js';
-import ChangeEmailScreen2 from './ChangeEmailScreen2.js';
 
 
 const Stack = createStackNavigator();
@@ -136,10 +132,6 @@ function AppNavigator({ isAuthenticated }) {
             <Stack.Screen name="TakeOrderScreen" component={TakeOrderScreen} />
             <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} />
             <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
-            <Stack.Screen name="Enter Current Password" component={ChangePasswordScreen} />
-            <Stack.Screen name="Enter New Password" component={ChangePasswordScreen2} />
-            <Stack.Screen name="Enter Current Password " component={ChangeEmailScreen} />
-            <Stack.Screen name="Enter New Email" component={ChangeEmailScreen2} />
           </>
         ) : (
           <>
