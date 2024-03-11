@@ -9,6 +9,8 @@ import {
   Keyboard,
   View,
   Alert,
+  Platform,
+  Linking,
 } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { app, db } from "./firebaseConfig";
@@ -125,6 +127,18 @@ const TakeOrderScreen = () => {
       Alert.alert("Error", "Please make sure the order number is provided.");
     }
   };
+  const handleNavigatePress = () => {
+    if (deliveryAddress) {
+      const url = Platform.select({
+        ios: `http://maps.apple.com/?daddr=${encodeURIComponent(deliveryAddress)}`,
+        android: `http://maps.google.com/?daddr=${encodeURIComponent(deliveryAddress)}`,
+      });
+
+      Linking.openURL(url);
+    } else {
+      Alert.alert("Error", "Please enter a delivery address.");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -172,6 +186,10 @@ const TakeOrderScreen = () => {
 
           <TouchableOpacity style={styles.completeButton} onPress={handleCompleteOrderPress}>
             <Text style={styles.completeButtonText}>Complete Order</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navigateButton} onPress={handleNavigatePress}>
+            <Text style={styles.navigateButtonText}>Navigate</Text>
           </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
@@ -230,6 +248,18 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   completeButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  navigateButton: {
+    backgroundColor: "#3498db",
+    borderRadius: 4,
+    paddingVertical: 12,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  navigateButtonText: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
