@@ -17,7 +17,6 @@ import { app, db } from "./firebaseConfig";
 import { getAuth } from "firebase/auth";
 
 import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, orderBy, limit, getDoc } from "firebase/firestore";
-import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { getDistance, getCompletion } from "./utils";
 
 const TakeOrderScreen = () => {
@@ -216,16 +215,6 @@ const TakeOrderScreen = () => {
           <TouchableOpacity style={styles.startButton} onPress={handleStartOrderPress}>
             <Text style={styles.startButtonText}>Start Order</Text>
           </TouchableOpacity>
-
-          <Text style={styles.headerText}>Route Information</Text>
-          <View style={styles.routeContainer}>
-            <Text style={styles.routeText}>Estimated Time: {estimatedTime} minutes</Text>
-            <Text style={styles.routeText}>Distance: {distance} miles</Text>
-          </View>
-
-          <TouchableOpacity style={styles.startButton} onPress={handleStartOrderPress}>
-            <Text style={styles.startButtonText}>Start Order</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.completeButton} onPress={handleCompleteOrderPress}>
             <Text style={styles.completeButtonText}>Complete Order</Text>
           </TouchableOpacity>
@@ -254,13 +243,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: "#333",
   },
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: "#333",
-  },
+  
   input: {
     height: 40,
     borderColor: "#ccc",
