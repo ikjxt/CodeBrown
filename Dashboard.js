@@ -10,6 +10,10 @@ import { db } from './firebaseConfig';
 import { PropTypes } from 'prop-types';
 import { Platform, Linking } from "react-native"
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { collection, addDoc, doc, getDoc, query, where, onSnapshot, forEach } from 'firebase/firestore';
+import { db } from './firebaseConfig';
+import { PropTypes } from 'prop-types';
+import { Platform, Linking } from "react-native"
 
 const Dashboard = ({ navigation }) => {
   const [role, setRole] = useState('');
@@ -29,6 +33,8 @@ const Dashboard = ({ navigation }) => {
   const [lastViewed, setLastViewed] = useState(null);
   const [currentOrders, setCurrentOrders] = useState([]);
   const [markers, setMarkers] = useState([]);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false); // Added state for dropdown visibility
+  const [custNum, setCustNum] = useState('');
 
   const auth = getAuth();
   const userId = auth.currentUser ? auth.currentUser.uid : null;
@@ -268,6 +274,20 @@ async function geocodeAddress(address) {
     }
  }
 
+
+  // CALL CUSTOMER FUNCTION
+  const makePhoneCall = () => {
+    if(Platform.OS === "android") {
+       Linking.openURL("tel: " + custNum)
+    } 
+    if(Platform.OS == "ios"){
+      Linking.openURL("tel:// " + custNum)
+    }
+    else{
+       Linking.openURL("telprompt: " + custNum)
+    }
+ }
+
   const getUserLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -360,7 +380,24 @@ async function geocodeAddress(address) {
     };
   }, []);
 
-  
+  // Get customers number from firestore
+  useEffect(() => {
+    const fetchCustData = async () => {
+      try {
+        // Get the doc // todo allow manager to set current order
+        const docRef = doc(db, 'ORDERS', '0cMjeyuxHkUN14IvhWTlX3Iit5I2_222');  
+        const docSnap = await getDoc(docRef);         
+        // Get each field
+        setCustNum(docSnap.data().custNum);
+      } catch (error) {
+        console.error('Error fetching document:', error);
+      }
+    };
+    fetchCustData();
+  }, []);  
+
+  // Get user's "role" from firestore
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -493,6 +530,14 @@ async function geocodeAddress(address) {
         <MaterialIcons name="call" size={24} color="black" />
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.callButton} onPress={makePhoneCall}>
+        <MaterialIcons name="call" size={24} color="black" />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}>
+        <MaterialIcons name="menu" size={24} color="black" />
+      </TouchableOpacity>
+
       <Image source={require('./assets/Logo.png')} style={styles.logo} resizeMode="contain" pointerEvents="none" />
 
       <TouchableOpacity style={styles.locationButton} onPress={centerOnUserLocation}>
@@ -601,12 +646,14 @@ const styles = StyleSheet.create({
   callButton: {
     position: 'absolute',
     top: '16%',
+    top: '25%',
     left: '5%',
     padding: 10,
     backgroundColor: '#fff',
     borderRadius: 30,
     zIndex: 1,
   },
+
   scrollView: {
     maxHeight: 500, 
   },

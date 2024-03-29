@@ -15,7 +15,9 @@ import {
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { app, db } from "./firebaseConfig";
 import { getAuth } from "firebase/auth";
+
 import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, orderBy, limit, getDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 import { getDistance, getCompletion } from "./utils";
 
 const TakeOrderScreen = () => {
@@ -29,8 +31,6 @@ const TakeOrderScreen = () => {
     const estimateTimeAndDistance = async () => {
       if (deliveryAddress) {
         try {
-          
-
           const locationsRef = collection(db, "locations");
           const querySnapshot = await getDocs(query(locationsRef, where("userId", "==", auth.currentUser.uid), limit(1), orderBy("timestamp", "desc")));
 
@@ -44,7 +44,6 @@ const TakeOrderScreen = () => {
             const estimatedTimeInHours = distanceInMiles / 50; // Assuming an average speed of 50 miles/h
             const estimatedTimeInMinutes = estimatedTimeInHours * 60;
             const roundedEstimatedTime = Math.round(estimatedTimeInMinutes);
-        
 
             setDistance(distanceInMiles.toFixed(2)); // Now in miles
             setEstimatedTime(roundedEstimatedTime > 0 ? roundedEstimatedTime : 1); // Ensuring a minimum of 1 minute
@@ -88,7 +87,7 @@ const TakeOrderScreen = () => {
         userLastName = "User";    // Fallback value
       }
       //ADDED
-        
+
         const locationsRef = collection(db, "locations");
         const querySnapshot = await getDocs(query(locationsRef, where("userId", "==", auth.currentUser.uid), limit(1), orderBy("timestamp", "desc")));
 
@@ -218,6 +217,15 @@ const TakeOrderScreen = () => {
             <Text style={styles.startButtonText}>Start Order</Text>
           </TouchableOpacity>
 
+          <Text style={styles.headerText}>Route Information</Text>
+          <View style={styles.routeContainer}>
+            <Text style={styles.routeText}>Estimated Time: {estimatedTime} minutes</Text>
+            <Text style={styles.routeText}>Distance: {distance} miles</Text>
+          </View>
+
+          <TouchableOpacity style={styles.startButton} onPress={handleStartOrderPress}>
+            <Text style={styles.startButtonText}>Start Order</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.completeButton} onPress={handleCompleteOrderPress}>
             <Text style={styles.completeButtonText}>Complete Order</Text>
           </TouchableOpacity>
@@ -239,6 +247,13 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#333",
+  },
   },
   headerText: {
     fontSize: 18,
