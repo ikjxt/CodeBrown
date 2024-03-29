@@ -75,6 +75,7 @@ const SignIn = () => {
       .then(async (userCredential) => {
         if (userCredential.user.emailVerified) {
           // Email is verified, proceed with signing in
+          
           if (rememberMe) {
             await AsyncStorage.setItem('userEmail', email);
             await AsyncStorage.setItem('rememberMe', 'true');

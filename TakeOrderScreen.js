@@ -15,7 +15,8 @@ import {
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { app, db } from "./firebaseConfig";
 import { getAuth } from "firebase/auth";
-import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
+
+import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, orderBy, limit, getDoc } from "firebase/firestore";
 import { getDistance, getCompletion } from "./utils";
 
 const TakeOrderScreen = () => {
@@ -60,6 +61,32 @@ const TakeOrderScreen = () => {
   const handleStartOrderPress = async () => {
     if (auth.currentUser && orderNumber && deliveryAddress) {
       try {
+        //ADDED
+        const userEmail = auth.currentUser.email; // Get the current user's email
+      if (!userEmail) {
+        console.error("User email not found");
+        Alert.alert("Error", "User email not found.");
+        return;
+      }
+
+      // Reference the user's document by their email
+      const userDocRef = doc(db, "USERS", userEmail);
+      // Fetch the document
+      const userDocSnap = await getDoc(userDocRef);
+
+      let userFirstName, userLastName;
+      // Check if the document exists and has the data
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        userFirstName = userData.firstName || "No First Name Found"; // Adjust these keys if your document structure uses different names
+        userLastName = userData.lastName || "No Last Name Found";
+      } else {
+        console.log("Document does not exist for the user's email:", userEmail);
+        userFirstName = "Unknown"; // Fallback value
+        userLastName = "User";    // Fallback value
+      }
+      //ADDED
+
         const locationsRef = collection(db, "locations");
         const querySnapshot = await getDocs(query(locationsRef, where("userId", "==", auth.currentUser.uid), limit(1), orderBy("timestamp", "desc")));
 
@@ -69,6 +96,11 @@ const TakeOrderScreen = () => {
 
           const orderData = {
             userId: auth.currentUser.uid,
+            //ADDED
+            userEmail: userEmail, // Saving user's email
+            userFirstName,
+            userLastName,
+            //ADDED
             orderNumber: orderNumber,
             deliveryAddress: deliveryAddress,
             estimatedTime: estimatedTime,
@@ -183,7 +215,6 @@ const TakeOrderScreen = () => {
           <TouchableOpacity style={styles.startButton} onPress={handleStartOrderPress}>
             <Text style={styles.startButtonText}>Start Order</Text>
           </TouchableOpacity>
-
           <TouchableOpacity style={styles.completeButton} onPress={handleCompleteOrderPress}>
             <Text style={styles.completeButtonText}>Complete Order</Text>
           </TouchableOpacity>
@@ -212,6 +243,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: "#333",
   },
+  
   input: {
     height: 40,
     borderColor: "#ccc",
