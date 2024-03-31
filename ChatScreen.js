@@ -57,14 +57,15 @@ const ChatScreen = () => {
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={[styles.messageContainer, { alignSelf: item.email === auth.currentUser?.email ? 'flex-end' : 'flex-start' }]}>
+          <View style={[
+            styles.messageBubble,
+            item.email === auth.currentUser?.email ? styles.currentUserBubble : styles.otherUserBubble
+          ]}>
             <Text style={styles.senderName}>{item.email}</Text>
-            <View style={styles.messageBubble}>
-              <Text style={styles.messageText}>{item.text}</Text>
-            </View>
+            <Text style={styles.messageText}>{item.text}</Text>
           </View>
         )}
-        contentContainerStyle={{ flexGrow: 1, padding: 10 }}
+        contentContainerStyle={styles.listContentContainer}
         onContentSizeChange={scrollToBottom}
       />
       <View style={styles.inputContainer}>
@@ -86,50 +87,63 @@ const ChatScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#E5E5E5', // Light grey background
   },
-  messageContainer: {
-    marginVertical: 5,
-    maxWidth: '80%',
+  listContentContainer: {
+    flexGrow: 1,
+    padding: 10,
+  },
+  messageBubble: {
+    padding: 10,
+    borderRadius: 20,
+    marginVertical: 4,
+    maxWidth: '75%',
+    alignSelf: 'flex-start',
+  },
+  currentUserBubble: {
+    backgroundColor: '#DCF8C6', // Light green bubble for current user
+    alignSelf: 'flex-end',
+    marginRight: 10,
+  },
+  otherUserBubble: {
+    backgroundColor: '#FFFFFF', // White bubble for others
+    marginLeft: 10,
   },
   senderName: {
     fontSize: 12,
-    color: 'black',
+    color: '#6C757D', // Dark grey color for the sender's name
     marginBottom: 2,
-    alignSelf: 'flex-start',
-  },
-  messageBubble: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 15,
-    padding: 10,
   },
   messageText: {
     fontSize: 16,
+    color: '#212529', // Dark color for the message text
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: '#CCC',
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 8,
+    backgroundColor: '#FFF', // White background for the input area
   },
   input: {
     flex: 1,
     height: 40,
     paddingHorizontal: 10,
-    backgroundColor: '#fff',
-    borderRadius: 5,
+    backgroundColor: '#F8F9FA', // Very light grey background for the input field
+    borderRadius: 20,
     marginRight: 10,
   },
   sendButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    backgroundColor: '#007BFF', // Bright blue background for the send button
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
   },
   sendButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#FFFFFF', // White color for the send button text
+    fontSize: 16,
   },
 });
 
