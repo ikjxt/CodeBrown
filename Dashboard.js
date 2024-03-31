@@ -10,6 +10,7 @@ import { db } from './firebaseConfig';
 import { PropTypes } from 'prop-types';
 import { Platform, Linking } from "react-native"
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {custNumberRef} from './TakeOrderScreen';
 
 
 const Dashboard = ({ navigation }) => {
@@ -18,7 +19,6 @@ const Dashboard = ({ navigation }) => {
   const mapViewRef = useRef(null);
   const locationUpdateInterval = useRef(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false); 
-  const [custNum, setCustNum] = useState('');
   const [selectedOrderLocation, setSelectedOrderLocation] = useState(null);
   const [polylineCoordinates, setPolylineCoordinates] = useState([]);
   const [eta, setEta] = useState('');
@@ -261,13 +261,13 @@ async function geocodeAddress(address) {
   // CALL CUSTOMER FUNCTION
   const makePhoneCall = () => {
     if(Platform.OS === "android") {
-       Linking.openURL("tel: " + custNum)
+       Linking.openURL("tel: " + custNumberRef)
     } 
     if(Platform.OS == "ios"){
-      Linking.openURL("tel:// " + custNum)
+      Linking.openURL("tel:// " + custNumberRef)
     }
     else{
-       Linking.openURL("telprompt: " + custNum)
+       Linking.openURL("telprompt: " + custNumberRef)
     }
  }
 

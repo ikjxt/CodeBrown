@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -28,6 +28,7 @@ const TakeOrderScreen = () => {
   const [estimatedTime, setEstimatedTime] = useState("");
   const [distance, setDistance] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [custNumber, setCustNumber] = useState("");
   const auth = getAuth(app);
 
   const fetchSuggestions = async (input) => {
@@ -50,6 +51,17 @@ const TakeOrderScreen = () => {
       setSuggestions([]);
     }
   };
+
+  const handleCustNumberChange = (text) => {
+    setCustNumber(text);
+  }
+
+  const custNumberRef = useRef(null);
+
+  useEffect(() => {
+    customerContact = custNumber;
+    console.log(customerContact)
+  },[custNumber])
 
   const handleSuggestionPress = async (placeId) => {
     try {
@@ -128,17 +140,18 @@ const TakeOrderScreen = () => {
             deliveryAddress: deliveryAddress,
             estimatedTime: estimatedTime,
             distance: distance, // Now reflects miles
+            custNumber: custNumber, 
             startLocation: { latitude: startLat, longitude: startLng },
             createdAt: serverTimestamp(),
             status: "pending",
           };
-
           await setDoc(doc(db, "ORDERS", `${auth.currentUser.uid}_${orderNumber}`), orderData);
           Alert.alert("Success", "Order has been started successfully!");
           setOrderNumber("");
           setDeliveryAddress("");
           setEstimatedTime("");
-          setDistance("");
+          setDistance("")
+          setCustNumber("");
         } else {
           console.error("User location data not found");
           Alert.alert("Error", "User location data not found.");
@@ -208,7 +221,7 @@ const TakeOrderScreen = () => {
   const renderOrderDetails = () => (
     <View style={styles.content}>
       <Image
-        source={require("./assets/pizza.png")}
+        source={require("./assets/Logo.png")}
         style={styles.logo}
         resizeMode="contain"
       />
@@ -240,6 +253,17 @@ const TakeOrderScreen = () => {
           keyboardShouldPersistTaps="always"
         />
       )}
+
+      <Text style={styles.headerText}>Customer Phone Number</Text>
+        <TextInput
+          ref ={custNumberRef}
+          style={styles.input}
+          value={custNumber}
+          onChangeText={handleCustNumberChange}
+          placeholder="Enter Customer Phone Number"
+          placeholderTextColor="#888"
+          returnKeyType="done"
+          />
 
       <Text style={styles.headerText}>Route Information</Text>
       <View style={styles.routeContainer}>
@@ -285,7 +309,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexGrow: 1,
-    backgroundColor: "#f5e5d5", // Light beige background color
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
   },
   content: {
     flex: 1,
@@ -294,8 +318,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 150,
-    height: 150,
-    marginBottom: 24,
+    height: 30,
+    marginBottom: 5,
   },
   headerText: {
     fontSize: 18,
@@ -338,7 +362,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   startButton: {
-    backgroundColor: "#ff6f00", // Deep orange color
+    backgroundColor: "#e74c3c", // Deep orange color
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 32,
