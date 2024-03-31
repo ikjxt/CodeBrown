@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
@@ -11,21 +11,23 @@ const ChatScreen = () => {
   const flatListRef = useRef();
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(query(collection(db, 'messages'), orderBy('createdAt', 'asc'), limit(20)), (snapshot) => {
-      const updatedMessages = [];
-      snapshot.forEach((doc) => {
-        updatedMessages.push({ id: doc.id, ...doc.data() });
-      });
+    const messagesQuery = query(collection(db, 'messages'), orderBy('createdAt', 'asc'), limit(100));
+    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+      const updatedMessages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
       setMessages(updatedMessages);
       scrollToBottom();
     });
+
     return () => unsubscribe();
   }, []);
 
   const sendMessage = async () => {
     if (inputText.trim() === '') return;
 
-    const { uid, email } = auth.currentUser;
+    const { uid, email } = auth.currentUser || {};
     const createdAt = new Date();
     const message = {
       text: inputText,
@@ -37,7 +39,6 @@ const ChatScreen = () => {
     try {
       await addDoc(collection(db, 'messages'), message);
       setInputText('');
-      scrollToBottom();
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -50,20 +51,21 @@ const ChatScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : null} style={styles.container} keyboardVerticalOffset={Platform.select({ ios: 0, android: 10 })}>
+    <View style={styles.container}>
       <FlatList
         ref={flatListRef}
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.messageContainer}>
-            <Text style={[styles.messageText, { color: item.email === auth.currentUser.email ? 'red' : 'black' }]}>
-              {item.email} - {item.text}
-            </Text>
+          <View style={[styles.messageContainer, { alignSelf: item.email === auth.currentUser?.email ? 'flex-end' : 'flex-start' }]}>
+            <Text style={styles.senderName}>{item.email}</Text>
+            <View style={styles.messageBubble}>
+              <Text style={styles.messageText}>{item.text}</Text>
+            </View>
           </View>
         )}
-        contentContainerStyle={{ flexGrow: 1 }} // Add flexGrow to ensure the content expands to fill the space
-        onContentSizeChange={scrollToBottom} // Ensure auto-scroll when content changes
+        contentContainerStyle={{ flexGrow: 1, padding: 10 }}
+        onContentSizeChange={scrollToBottom}
       />
       <View style={styles.inputContainer}>
         <TextInput
@@ -77,7 +79,7 @@ const ChatScreen = () => {
           <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -86,12 +88,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messageContainer: {
-    padding: 10,
     marginVertical: 5,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
     maxWidth: '80%',
-    alignSelf: 'flex-end',
+  },
+  senderName: {
+    fontSize: 12,
+    color: 'black',
+    marginBottom: 2,
+    alignSelf: 'flex-start',
+  },
+  messageBubble: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 15,
+    padding: 10,
   },
   messageText: {
     fontSize: 16,
@@ -103,7 +112,6 @@ const styles = StyleSheet.create({
     borderTopColor: '#ccc',
     paddingHorizontal: 10,
     paddingVertical: 5,
-    height: 60, // Set a fixed height for the input container
   },
   input: {
     flex: 1,
