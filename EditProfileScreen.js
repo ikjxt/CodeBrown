@@ -6,11 +6,6 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { PropTypes } from 'prop-types';
 
-// 03/07/2024
-// On this screen, the user is able to edit their first name, last name, and phone number. There is a button to change 
-// their email and a button to change their password. We are now using the USERS collection
-// on Firestore. The Document ID of each user is the same as the email of the user. 
-
 const EditProfileScreen = ({ navigation }) => {
   const [newFirstName, setNewFirstName] = useState('');      // For new name from user input
   const [newLastName, setNewLastName] = useState('');        // For new name from user input
@@ -107,9 +102,10 @@ const EditProfileScreen = ({ navigation }) => {
         style={styles.input}
         placeholder="Phone Number"
         placeholderTextColor="#666"
-        onChangeText={setNewPhoneNumber}
+        onChangeText={(text) => setNewPhoneNumber(text.replace(/[^0-9]/g, '').slice(0, 10))}
         value={newPhoneNumber}
-        autoCapitalize="none"
+        keyboardType="numeric"
+        maxLength={10}
       />
 
       <TouchableOpacity style={styles.button2} onPress={handleChangeEmail}>
@@ -179,7 +175,6 @@ const styles = StyleSheet.create({
   }
 })
 
-// fixed ['navigation.navigate' is missing in props validationeslintreact/prop-types] error
 EditProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
