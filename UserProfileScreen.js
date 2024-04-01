@@ -1,5 +1,5 @@
 import React , { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import Card from './Card';
 import { getAuth,signOut } from 'firebase/auth';
 import { PropTypes } from 'prop-types';
@@ -43,26 +43,32 @@ const UserProfileScreen = ({ navigation }) => {
   }
 
   return (
-    <View >
-       <Card
-        title="Profile"
-        description={<Text>{user.photoURL}
-                           First Name: {fName} {"\n"}
-                           Last Name: {lName} {"\n"}
-                           Email: {email} {"\n"} 
-                           Phone: {phone} {"\n"}
-                    </Text>}
-      /> 
-      <TouchableOpacity style={styles.button} onPress={editProfile}>
-        <Text>Edit Profile</Text>
-      </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <View >
+        <Card
+          title="Profile"
+          description={<Text>{user.photoURL}
+                            First Name: {fName} {"\n"}
+                            Last Name: {lName} {"\n"}
+                            Email: {email} {"\n"} 
+                            Phone: {phone} {"\n"}
+                      </Text>}
+        /> 
+        <TouchableOpacity style={styles.editButton} onPress={editProfile}>
+          <Text>Edit Profile</Text>
+        </TouchableOpacity>
 
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: 'center',
+  },
   button: {
     height: 50,
     width: 150,
@@ -73,6 +79,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft:30,
   }, 
+  editButton: {
+    backgroundColor: "#e74c3c", // Deep orange color
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 100,
+    fontSize: 18,
+    fontWeight: "bold",
+    alignItems: "center",
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
   
 })
 
