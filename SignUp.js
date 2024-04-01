@@ -241,12 +241,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    // Padding if needed, for inner content
   },
 
   backgroundImage: {
     flex: 1,
-    width: '100%', // it covers the whole screen
-    height: '100%', 
+    width: '100%', // Ensure it covers the whole screen
+    height: '100%', // Depending on your layout you might need to adjust this
   },
 
   logoTextContainer: {
@@ -275,6 +276,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white", // Adjusted for visibility on the overlay
   },
+  
   input: {
     width: 300,
     height: 50,
