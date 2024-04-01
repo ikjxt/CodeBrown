@@ -8,7 +8,6 @@ import {
   Alert,
   TouchableWithoutFeedback,
   Keyboard,
-  ImageBackground,
 } from "react-native";
 import app from "./firebaseConfig";
 import {
@@ -17,7 +16,7 @@ import {
   sendEmailVerification,
   signOut,
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { db } from "./firebaseConfig";
@@ -30,6 +29,7 @@ const SignUp = () => {
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState("driver");
   const [showPassword, setShowPassword] = useState(false);
+  const [managerAuthCode, setManagerAuthCode] = useState("");
   const navigation = useNavigation();
 
   useLayoutEffect(() => {
@@ -51,7 +51,7 @@ const SignUp = () => {
       });
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     const auth = getAuth(app);
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
@@ -73,6 +73,26 @@ const SignUp = () => {
       Alert.alert("Invalid Input", "Please enter your first and last name.");
       return;
     }
+
+    if (role === "manager") {
+      if (!managerAuthCode.trim()) {
+        Alert.alert("Authorization Required", "Please enter the manager authorization code.");
+        return;
+      }
+      // Retrieve the manager authorization code from Firebase
+      const authCodeDoc = await getDoc(doc(db, "managerAuthCodes", "authCode"));
+      if (authCodeDoc.exists()) {
+        const validManagerAuthCode = authCodeDoc.data().code;
+        if (managerAuthCode !== validManagerAuthCode) {
+          Alert.alert("Invalid Authorization", "The entered manager authorization code is incorrect.");
+          return;
+        }
+      } else {
+        Alert.alert("Error", "Manager authorization code not found. Please contact support.");
+        return;
+      }
+    }
+
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
@@ -103,25 +123,15 @@ const SignUp = () => {
   };
 
   return (
-
-    <ImageBackground 
-      source={require('./assets/backgroundimage.jpg')}
-      resizeMode="cover"
-      style={styles.backgroundImage}
-    >
-
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
-      <View style={styles.logoTextContainer}>
         <Text style={styles.logoText}>Round Table Pizza</Text>
-        </View>
-
         <Text style={styles.title}>Sign Up</Text>
 
         <TextInput
           style={styles.input}
           placeholder="First Name"
-          placeholderTextColor="white"
+          placeholderTextColor="#666"
           onChangeText={setFirstName}
           value={firstName}
         />
@@ -129,7 +139,7 @@ const SignUp = () => {
         <TextInput
           style={styles.input}
           placeholder="Last Name"
-          placeholderTextColor="white"
+          placeholderTextColor="#666"
           onChangeText={setLastName}
           value={lastName}
         />
@@ -137,7 +147,7 @@ const SignUp = () => {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="white"
+          placeholderTextColor="#666"
           onChangeText={setEmail}
           value={email}
           autoCapitalize="none"
@@ -147,7 +157,7 @@ const SignUp = () => {
           <TextInput
             style={styles.passwordInput}
             placeholder="Password"
-            placeholderTextColor="white"
+            placeholderTextColor="#666"
             secureTextEntry={!showPassword}
             onChangeText={setPassword}
             value={password}
@@ -159,7 +169,7 @@ const SignUp = () => {
             <Ionicons
               name={showPassword ? "eye" : "eye-off"}
               size={20}
-              color="white"
+              color="#333333"
             />
           </TouchableOpacity>
         </View>
@@ -168,7 +178,7 @@ const SignUp = () => {
           <TextInput
             style={styles.passwordInput}
             placeholder="Confirm Password"
-            placeholderTextColor="white"
+            placeholderTextColor="#666"
             secureTextEntry={!showPassword}
             onChangeText={setConfirmPassword}
             value={confirmPassword}
@@ -180,7 +190,7 @@ const SignUp = () => {
             <Ionicons
               name={showPassword ? "eye" : "eye-off"}
               size={20}
-              color="white"
+              color="#333333"
             />
           </TouchableOpacity>
         </View>
@@ -203,7 +213,10 @@ const SignUp = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => setRole("manager")}
+            onPress={() => {
+              setRole("manager");
+              setManagerAuthCode("");
+            }}
             style={[
               styles.roleButton,
               role === "manager" ? styles.roleButtonSelected : {},
@@ -219,6 +232,15 @@ const SignUp = () => {
             </Text>
           </TouchableOpacity>
         </View>
+        {role === "manager" && (
+          <TextInput
+            style={styles.input}
+            placeholder="Manager Authorization Code"
+            placeholderTextColor="#666"
+            onChangeText={setManagerAuthCode}
+            value={managerAuthCode}
+          />
+        )}
 
         <TouchableOpacity style={styles.button} onPress={handleSignUp}>
           <Text style={styles.buttonText}>Sign Up</Text>
@@ -231,62 +253,37 @@ const SignUp = () => {
         </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
-    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    // Padding if needed, for inner content
-  },
-
-  backgroundImage: {
-    flex: 1,
-    width: '100%', // Ensure it covers the whole screen
-    height: '100%', // Depending on your layout you might need to adjust this
-  },
-
-  logoTextContainer: {
-    backgroundColor: "#e74c3c",
-    padding: 15,
-    width: 333,
-    alignItems: "center",
-    marginBottom: 15,
-    borderRadius: 10,
+    backgroundColor: "#f7f7f7",
   },
 
   logoText: {
-    backgroundColor: "#e74c3c",
-    padding: 15,
-    width: 333,
-    alignItems: "center",
     fontSize: 36,
     fontWeight: "bold",
-    color: "white",
-    marginBottom: 0,
+    color: "#e74c3c",
+    marginBottom: 20,
   },
-
   title: {
     fontSize: 24,
     marginBottom: 20,
-    fontWeight: "bold",
-    color: "white", // Adjusted for visibility on the overlay
+    color: "#333333",
   },
-  
   input: {
     width: 300,
     height: 50,
-    borderColor: "white",
+    borderColor: "#333333",
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 15,
-    fontWeight: "bold",
-    color: "white", // Adjusted for visibility on the overlay
+    color: "#333333",
     fontSize: 14,
   },
   passwordContainer: {
@@ -294,28 +291,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 300,
     height: 50,
-    borderColor: "white",
+    borderColor: "#333333",
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 15,
-    fontWeight: "bold",
     position: "relative",
   },
   passwordInput: {
     flex: 1,
     height: 50,
-    color: "white", // Adjusted for visibility on the overlay
-    fontWeight: "bold",
+    color: "#333333",
     fontSize: 14,
   },
   showPasswordButton: {
     position: "absolute",
     right: 10,
-    height: "100%", // Match the height of passwordContainer
-    justifyContent: "center", // Center the icon vertically
-    paddingHorizontal: 5, // Padding inside the button for touch area
-    fontWeight: "bold",
+    height: "100%",
+    justifyContent: "center",
+    paddingHorizontal: 5,
     color: "#333333",
   },
   roleSelection: {
@@ -333,8 +327,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e74c3c",
   },
   roleButtonText: {
-    color: "white",
-    fontWeight: "bold",
+    color: "#333333",
   },
   button: {
     backgroundColor: "#e74c3c",
@@ -346,14 +339,11 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#fff",
-    fontWeight: "bold",
     fontSize: 18,
   },
   switchText: {
-    // color: 'blue',
     color: "#e74c3c",
     marginTop: 20,
-    //textDecorationLine: 'underline',
     fontSize: 14,
   },
 });
