@@ -16,7 +16,7 @@ import {
   sendEmailVerification,
   signOut,
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { db } from "./firebaseConfig";
@@ -29,6 +29,7 @@ const SignUp = () => {
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState("driver");
   const [showPassword, setShowPassword] = useState(false);
+  const [managerAuthCode, setManagerAuthCode] = useState("");
   const navigation = useNavigation();
 
   useLayoutEffect(() => {
@@ -50,7 +51,7 @@ const SignUp = () => {
       });
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     const auth = getAuth(app);
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
@@ -72,6 +73,26 @@ const SignUp = () => {
       Alert.alert("Invalid Input", "Please enter your first and last name.");
       return;
     }
+
+    if (role === "manager") {
+      if (!managerAuthCode.trim()) {
+        Alert.alert("Authorization Required", "Please enter the manager authorization code.");
+        return;
+      }
+      // Retrieve the manager authorization code from Firebase
+      const authCodeDoc = await getDoc(doc(db, "managerAuthCodes", "authCode"));
+      if (authCodeDoc.exists()) {
+        const validManagerAuthCode = authCodeDoc.data().code;
+        if (managerAuthCode !== validManagerAuthCode) {
+          Alert.alert("Invalid Authorization", "The entered manager authorization code is incorrect.");
+          return;
+        }
+      } else {
+        Alert.alert("Error", "Manager authorization code not found. Please contact support.");
+        return;
+      }
+    }
+
 
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
@@ -192,7 +213,10 @@ const SignUp = () => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => setRole("manager")}
+            onPress={() => {
+              setRole("manager");
+              setManagerAuthCode("");
+            }}
             style={[
               styles.roleButton,
               role === "manager" ? styles.roleButtonSelected : {},
@@ -208,6 +232,15 @@ const SignUp = () => {
             </Text>
           </TouchableOpacity>
         </View>
+        {role === "manager" && (
+          <TextInput
+            style={styles.input}
+            placeholder="Manager Authorization Code"
+            placeholderTextColor="#666"
+            onChangeText={setManagerAuthCode}
+            value={managerAuthCode}
+          />
+        )}
 
         <TouchableOpacity style={styles.button} onPress={handleSignUp}>
           <Text style={styles.buttonText}>Sign Up</Text>
@@ -240,7 +273,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 20,
-    color: "#333333", // Adjusted for visibility on the overlay
+    color: "#333333",
   },
   input: {
     width: 300,
@@ -250,7 +283,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 15,
-    color: "#333333", // Adjusted for visibility on the overlay
+    color: "#333333",
     fontSize: 14,
   },
   passwordContainer: {
@@ -268,15 +301,15 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 1,
     height: 50,
-    color: "#333333", // Adjusted for visibility on the overlay
+    color: "#333333",
     fontSize: 14,
   },
   showPasswordButton: {
     position: "absolute",
     right: 10,
-    height: "100%", // Match the height of passwordContainer
-    justifyContent: "center", // Center the icon vertically
-    paddingHorizontal: 5, // Padding inside the button for touch area
+    height: "100%",
+    justifyContent: "center",
+    paddingHorizontal: 5,
     color: "#333333",
   },
   roleSelection: {
@@ -309,10 +342,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   switchText: {
-    // color: 'blue',
     color: "#e74c3c",
     marginTop: 20,
-    //textDecorationLine: 'underline',
     fontSize: 14,
   },
 });
