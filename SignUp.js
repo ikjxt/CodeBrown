@@ -8,6 +8,7 @@ import {
   Alert,
   TouchableWithoutFeedback,
   Keyboard,
+  ImageBackground,
 } from "react-native";
 import app from "./firebaseConfig";
 import {
@@ -102,15 +103,25 @@ const SignUp = () => {
   };
 
   return (
+
+    <ImageBackground 
+      source={require('./assets/backgroundimage.jpg')}
+      resizeMode="cover"
+      style={styles.backgroundImage}
+    >
+
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
+      <View style={styles.logoTextContainer}>
         <Text style={styles.logoText}>Round Table Pizza</Text>
+        </View>
+
         <Text style={styles.title}>Sign Up</Text>
 
         <TextInput
           style={styles.input}
           placeholder="First Name"
-          placeholderTextColor="#666"
+          placeholderTextColor="white"
           onChangeText={setFirstName}
           value={firstName}
         />
@@ -118,7 +129,7 @@ const SignUp = () => {
         <TextInput
           style={styles.input}
           placeholder="Last Name"
-          placeholderTextColor="#666"
+          placeholderTextColor="white"
           onChangeText={setLastName}
           value={lastName}
         />
@@ -126,7 +137,7 @@ const SignUp = () => {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#666"
+          placeholderTextColor="white"
           onChangeText={setEmail}
           value={email}
           autoCapitalize="none"
@@ -136,7 +147,7 @@ const SignUp = () => {
           <TextInput
             style={styles.passwordInput}
             placeholder="Password"
-            placeholderTextColor="#666"
+            placeholderTextColor="white"
             secureTextEntry={!showPassword}
             onChangeText={setPassword}
             value={password}
@@ -148,7 +159,7 @@ const SignUp = () => {
             <Ionicons
               name={showPassword ? "eye" : "eye-off"}
               size={20}
-              color="#333333"
+              color="white"
             />
           </TouchableOpacity>
         </View>
@@ -157,7 +168,7 @@ const SignUp = () => {
           <TextInput
             style={styles.passwordInput}
             placeholder="Confirm Password"
-            placeholderTextColor="#666"
+            placeholderTextColor="white"
             secureTextEntry={!showPassword}
             onChangeText={setConfirmPassword}
             value={confirmPassword}
@@ -169,7 +180,7 @@ const SignUp = () => {
             <Ionicons
               name={showPassword ? "eye" : "eye-off"}
               size={20}
-              color="#333333"
+              color="white"
             />
           </TouchableOpacity>
         </View>
@@ -220,37 +231,60 @@ const SignUp = () => {
         </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f7f7f7",
+  },
+
+  backgroundImage: {
+    flex: 1,
+    width: '100%', // it covers the whole screen
+    height: '100%', 
+  },
+
+  logoTextContainer: {
+    backgroundColor: "#e74c3c",
+    padding: 15,
+    width: 333,
+    alignItems: "center",
+    marginBottom: 15,
+    borderRadius: 10,
   },
 
   logoText: {
+    backgroundColor: "#e74c3c",
+    padding: 15,
+    width: 333,
+    alignItems: "center",
     fontSize: 36,
     fontWeight: "bold",
-    color: "#e74c3c",
-    marginBottom: 20,
+    color: "white",
+    marginBottom: 0,
   },
+
   title: {
     fontSize: 24,
     marginBottom: 20,
-    color: "#333333", // Adjusted for visibility on the overlay
+    fontWeight: "bold",
+    color: "white", // Adjusted for visibility on the overlay
   },
   input: {
     width: 300,
     height: 50,
-    borderColor: "#333333",
+    borderColor: "white",
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 15,
-    color: "#333333", // Adjusted for visibility on the overlay
+    fontWeight: "bold",
+    color: "white", // Adjusted for visibility on the overlay
     fontSize: 14,
   },
   passwordContainer: {
@@ -258,17 +292,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 300,
     height: 50,
-    borderColor: "#333333",
+    borderColor: "white",
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 15,
+    fontWeight: "bold",
     position: "relative",
   },
   passwordInput: {
     flex: 1,
     height: 50,
-    color: "#333333", // Adjusted for visibility on the overlay
+    color: "white", // Adjusted for visibility on the overlay
+    fontWeight: "bold",
     fontSize: 14,
   },
   showPasswordButton: {
@@ -277,6 +313,7 @@ const styles = StyleSheet.create({
     height: "100%", // Match the height of passwordContainer
     justifyContent: "center", // Center the icon vertically
     paddingHorizontal: 5, // Padding inside the button for touch area
+    fontWeight: "bold",
     color: "#333333",
   },
   roleSelection: {
@@ -294,7 +331,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#e74c3c",
   },
   roleButtonText: {
-    color: "#333333",
+    color: "white",
+    fontWeight: "bold",
   },
   button: {
     backgroundColor: "#e74c3c",
@@ -306,6 +344,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#fff",
+    fontWeight: "bold",
     fontSize: 18,
   },
   switchText: {
