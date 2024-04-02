@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// LocationHistory.js
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,25 +11,25 @@ import {
 } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "./firebaseConfig";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { db } from "./firebaseConfig"; 
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const { width, height } = Dimensions.get("window");
+
+
+const GOOGLE_MAPS_API_KEY = "AIzaSyBqdK2r3h7vi8WZ1ldQRHiayg0Mj5JbeUw";
 
 const LocationHistory = ({ driverId }) => {
   const [locations, setLocations] = useState([]);
   const [filteredLocations, setFilteredLocations] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isRouteVisible, setRouteVisible] = useState(false);
-  const mapRef = React.createRef();
+  const mapRef = useRef(null);
 
-  // Function to get location name using Google Maps Geocoding API
   const getLocationName = async (latitude, longitude) => {
-    const apiKey = "AIzaSyBqdK2r3h7vi8WZ1ldQRHiayg0Mj5JbeUw"; 
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
-
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_MAPS_API_KEY}`;
     try {
       const response = await fetch(url);
       const json = await response.json();
@@ -37,57 +38,49 @@ const LocationHistory = ({ driverId }) => {
       }
       return "Unknown location";
     } catch (error) {
-      console.error(error);
+      console.error("Failed to fetch location name:", error);
       return "Unknown location";
     }
   };
 
   useEffect(() => {
     const fetchUserData = async () => {
-      // Query the USERS collection to find the document with the matching email
-      const userRef = query(collection(db, "USERS"), where("email", "==", driverId));
-      const userSnapshot = await getDocs(userRef);
-
-      if (!userSnapshot.empty) {
-        const userUid = userSnapshot.docs[0].data().userId; // 'userId' field stores the Firebase UID
-        fetchLocationData(userUid);
-      } else {
-        console.log("No user found with the given email:", driverId);
+      setIsLoading(true);
+      try {
+        const userRef = query(collection(db, "USERS"), where("email", "==", driverId));
+        const userSnapshot = await getDocs(userRef);
+        if (!userSnapshot.empty) {
+          const userUid = userSnapshot.docs[0].data().userId;
+          fetchLocationData(userUid);
+        } else {
+          console.log("No user found with the given email:", driverId);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
         setIsLoading(false);
       }
     };
 
     const fetchLocationData = async (uid) => {
-      // Use the obtained UID to fetch locations
-      const locRef = query(collection(db, "locations"), where("userId", "==", uid));
-      const locSnapshot = await getDocs(locRef);
-
-      const locationsDataPromises = locSnapshot.docs.map(async (doc) => {
-        const locationName = await getLocationName(doc.data().latitude, doc.data().longitude);
-        return {
-          ...doc.data(),
-          id: doc.id,
-          name: locationName,
-        };
-      });
-
-      Promise.all(locationsDataPromises).then((resolvedLocationsData) => {
-        setLocations(resolvedLocationsData);
-        
-        // Filter locations based on the current date by default
-        const currentDate = new Date();
-        const filtered = resolvedLocationsData.filter((location) => {
-          const locationDate = new Date(location.timestamp.seconds * 1000);
-          return (
-            locationDate.getDate() === currentDate.getDate() &&
-            locationDate.getMonth() === currentDate.getMonth() &&
-            locationDate.getFullYear() === currentDate.getFullYear()
-          );
+      try {
+        const locRef = query(collection(db, "locations"), where("userId", "==", uid));
+        const locSnapshot = await getDocs(locRef);
+        const locationsDataPromises = locSnapshot.docs.map(async (doc) => {
+          const locationName = await getLocationName(doc.data().latitude, doc.data().longitude);
+          return {
+            ...doc.data(),
+            id: doc.id,
+            name: locationName,
+          };
         });
-
-        setFilteredLocations(filtered);
+        const resolvedLocationsData = await Promise.all(locationsDataPromises);
+        setLocations(resolvedLocationsData);
+        filterLocationsByDate(resolvedLocationsData, new Date());
+      } catch (error) {
+        console.error("Failed to fetch location data:", error);
         setIsLoading(false);
-      });
+      }
     };
 
     if (driverId) {
@@ -104,37 +97,24 @@ const LocationHistory = ({ driverId }) => {
     });
   };
 
-  const renderLocationItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.listItem}
-      onPress={() => focusOnLocation(item)}
-    >
-      <Text style={styles.icon}>📍</Text>
-      <View style={styles.textContainer}>
-        <Text style={styles.listItemText}>{item.name}</Text>
-        <Text style={styles.timestamp}>
-          {new Date(item.timestamp.seconds * 1000).toLocaleString()}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-
-  const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setSelectedDate(currentDate);
-  
-    // Filter locations based on the selected date
-    const filtered = locations.filter((location) => {
+  const filterLocationsByDate = (locationsData, date) => {
+    const filtered = locationsData.filter((location) => {
       const locationDate = new Date(location.timestamp.seconds * 1000);
       return (
-        locationDate.getDate() === currentDate.getDate() &&
-        locationDate.getMonth() === currentDate.getMonth() &&
-        locationDate.getFullYear() === currentDate.getFullYear()
+        locationDate.getDate() === date.getDate() &&
+        locationDate.getMonth() === date.getMonth() &&
+        locationDate.getFullYear() === date.getFullYear()
       );
     });
-  
     setFilteredLocations(filtered);
-    setShowDatePicker(false); // Hide the date picker after selection
+    setIsLoading(false);
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || new Date();
+    setSelectedDate(currentDate);
+    filterLocationsByDate(locations, currentDate);
+    setShowDatePicker(false);
   };
 
   const toggleRouteVisibility = () => {
@@ -176,19 +156,13 @@ const LocationHistory = ({ driverId }) => {
           />
         )}
       </MapView>
-      <TouchableOpacity
-        style={styles.toggleButton}
-        onPress={toggleRouteVisibility}
-      >
+      <TouchableOpacity style={styles.toggleButton} onPress={toggleRouteVisibility}>
         <Text style={styles.toggleButtonText}>
           {isRouteVisible ? "Hide Route" : "Show Route"}
         </Text>
       </TouchableOpacity>
       <View style={styles.bottomContainer}>
-        <TouchableOpacity
-          style={styles.datePickerButton}
-          onPress={() => setShowDatePicker(true)}
-        >
+        <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowDatePicker(true)}>
           <Text style={styles.datePickerButtonText}>
             {selectedDate.toDateString()}
           </Text>
@@ -206,8 +180,18 @@ const LocationHistory = ({ driverId }) => {
         ) : (
           <FlatList
             data={filteredLocations}
-            renderItem={renderLocationItem}
-            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.listItem} onPress={() => focusOnLocation(item)}>
+                <Text style={styles.icon}>📍</Text>
+                <View style={styles.textContainer}>
+                  <Text style={styles.listItemText}>{item.name}</Text>
+                  <Text style={styles.timestamp}>
+                    {new Date(item.timestamp.seconds * 1000).toLocaleString()}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item.id.toString()}
             style={styles.list}
           />
         )}
@@ -265,9 +249,14 @@ const styles = StyleSheet.create({
     color: "grey",
   },
   loadingContainer: {
-    flex: 1,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.8)",
   },
   datePickerButton: {
     backgroundColor: "#e74c3c",
@@ -295,7 +284,7 @@ const styles = StyleSheet.create({
   },
   noDataText: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 20,
   },
 });
