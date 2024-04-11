@@ -1,6 +1,8 @@
 import { TouchableWithoutFeedback } from '@gorhom/bottom-sheet';
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert, Modal, SafeAreaView, Keyboard } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 const ContactScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState('');
@@ -54,10 +56,10 @@ const ContactScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                <View style={styles.content}>
+            <LinearGradient style={styles.content} colors={['#ffffff', '#ffe5e5']}>  
 
                     <Text style={styles.headerText}>Messages</Text>
-                    <TouchableOpacity style={styles.startButton} onPress={handleGroupChatPress}>
+                    <TouchableOpacity style={styles.button} onPress={handleGroupChatPress}>
                         <Text style={styles.buttonText}>Group Chat</Text>
                     </TouchableOpacity>
 
@@ -90,7 +92,7 @@ const ContactScreen = ({ navigation }) => {
                         onChangeText={setNewContactEmail}
                         placeholderTextColor="#888"
                     />
-                    <TouchableOpacity style={styles.startButton} onPress={handleAddContact}>
+                    <TouchableOpacity style={styles.button} onPress={handleAddContact}>
                         <Text style={styles.buttonText}>Add Contact</Text>
                     </TouchableOpacity>
 
@@ -120,73 +122,9 @@ const ContactScreen = ({ navigation }) => {
                             </View>
                         </View>
                     </Modal>
-                </View>
+                </LinearGradient>
             </TouchableWithoutFeedback>
         </SafeAreaView>
-
-
-        // <View style={styles.container}>
-        //     <Text style={styles.title}>Messages</Text>
-        //     <TouchableOpacity
-        //         style={styles.groupChatButton}
-        //         onPress={handleGroupChatPress}>
-        //         <Text style={styles.buttonText}>Group Chat</Text>
-        //     </TouchableOpacity>
-        //     <Text style={styles.title}>Contacts</Text>
-        //     <TextInput
-        //         style={styles.searchInput}
-        //         placeholder="Search Contacts"
-        //         value={searchText}
-        //         onChangeText={setSearchText}
-        //     />
-        //     <FlatList
-        //         data={handleSearch()}
-        //         renderItem={renderContactItem}
-        //         keyExtractor={item => item.id}
-        //         style={styles.contactList}
-        //     />
-        //     <TextInput
-        //         style={styles.input}
-        //         placeholder="New Contact's Name"
-        //         value={newContactName}
-        //         onChangeText={setNewContactName}
-        //     />
-        //     <TextInput
-        //         style={styles.input}
-        //         placeholder="New Contact's Email"
-        //         value={newContactEmail}
-        //         onChangeText={setNewContactEmail}
-        //     />
-        //     <TouchableOpacity style={styles.addButton} onPress={handleAddContact}>
-        //         <Text style={styles.buttonText}>Add Contact</Text>
-        //     </TouchableOpacity>
-        //     <Modal
-        //         animationType="slide"
-        //         transparent={true}
-        //         visible={modalVisible}
-        //         onRequestClose={() => {
-        //             Alert.alert("Modal has been closed.");
-        //             setModalVisible(!modalVisible);
-        //         }}
-        //     >
-        //         <View style={styles.centeredView}>
-        //             <View style={styles.modalView}>
-        //                 {selectedContact && (
-        //                     <>
-        //                         <Text style={styles.modalText}>Name: {selectedContact.name}</Text>
-        //                         <Text style={styles.modalText}>Email: {selectedContact.email}</Text>
-        //                     </>
-        //                 )}
-        //                 <TouchableOpacity
-        //                     style={[styles.button, styles.buttonClose]}
-        //                     onPress={() => setModalVisible(!modalVisible)}
-        //                 >
-        //                     <Text style={styles.textStyle}>Hide</Text>
-        //                 </TouchableOpacity>
-        //             </View>
-        //         </View>
-        //     </Modal>
-        // </View>
     );
 };
 
@@ -249,7 +187,7 @@ const styles = StyleSheet.create({
     routeLabel: {
         fontWeight: "bold",
     },
-    startButton: {
+    button: {
         backgroundColor: "#e74c3c", // Deep orange color
         borderRadius: 24,
         paddingVertical: 12,
@@ -264,40 +202,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
-        width: 205,
-    },
-    completeButton: {
-        backgroundColor: "#e74c3c", // Green color: "#4caf50". [4/10]: changed to orange
-        borderRadius: 24,
-        paddingVertical: 12,
-        paddingHorizontal: 32,
-        alignItems: "center",
-        marginBottom: 16,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-        width: 205,
-    },
-    navigateButton: {
-        backgroundColor: "#e74c3c", // Blue color: "#2196f3". [4/10]: changed to orange
-        borderRadius: 24,
-        paddingVertical: 12,
-        paddingHorizontal: 32,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-        width: 205,
+        width: "100%",
     },
     buttonText: {
         color: "#fff",
@@ -306,7 +211,7 @@ const styles = StyleSheet.create({
     },
     suggestionsList: {
         width: "100%",
-        backgroundColor: "#fff",
+        backgroundColor: "transparent",
         borderRadius: 4,
         marginTop: -8,
         marginBottom: 16,
@@ -317,6 +222,31 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         borderBottomWidth: 1,
         borderBottomColor: "#ccc",
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
     },
 });
 

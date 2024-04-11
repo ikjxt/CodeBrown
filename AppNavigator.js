@@ -134,7 +134,7 @@ function AppNavigator({ isAuthenticated }) {
             </Stack.Screen>
             <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
             <Stack.Screen name="ChatScreen" component={ChatScreen} />
-            <Stack.Screen name="LocationHistoryScreen" component={LocationHistoryScreen} />
+            <Stack.Screen name="Location History" component={LocationHistoryScreen} />
             <Stack.Screen name="TakeOrderScreen" component={TakeOrderScreen} />
             <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} />
             <Stack.Screen name="Edit Profile" component={EditProfileScreen} />

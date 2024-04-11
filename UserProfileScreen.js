@@ -6,6 +6,7 @@ import { doc, getDoc } from '@firebase/firestore';
 import { db } from "./firebaseConfig";
 import { Alert } from 'react-native';
 import { TouchableWithoutFeedback } from '@gorhom/bottom-sheet';
+import { LinearGradient } from 'expo-linear-gradient';
 
 
 const UserProfileScreen = ({ navigation }) => {
@@ -43,30 +44,34 @@ const UserProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.content}>
+      <LinearGradient
+        colors={['#ffffff', '#ffe5e5']}
+        style = {styles.container}> 
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={styles.content}>
 
-          <View style={styles.routeContainer} marginTop={16}> 
-            <Text style={styles.routeText}>
-              <Text style={styles.routeLabel}>First Name:</Text> {fName} 
-            </Text>
-            <Text style={styles.routeText}>
-              <Text style={styles.routeLabel}>Last Name:</Text> {lName} 
-            </Text>
-            <Text style={styles.routeText}>
-              <Text style={styles.routeLabel}>Email:</Text> {email} 
-            </Text>
-            <Text style={styles.routeText}>
-              <Text style={styles.routeLabel}>Phone:</Text> {phone} 
-            </Text>
-          </View>  
+            <View style={styles.routeContainer} marginTop={16}> 
+              <Text style={styles.routeText}>
+                <Text style={styles.routeLabel}>First Name:</Text> {fName} 
+              </Text>
+              <Text style={styles.routeText}>
+                <Text style={styles.routeLabel}>Last Name:</Text> {lName} 
+              </Text>
+              <Text style={styles.routeText}>
+                <Text style={styles.routeLabel}>Email:</Text> {email} 
+              </Text>
+              <Text style={styles.routeText}>
+                <Text style={styles.routeLabel}>Phone:</Text> {phone} 
+              </Text>
+            </View>  
 
-          <TouchableOpacity style={styles.startButton} onPress={editProfile}>
-            <Text style={styles.buttonText}>Edit Profile</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.startButton} onPress={editProfile}>
+              <Text style={styles.buttonText}>Edit Profile</Text>
+            </TouchableOpacity>
 
-        </View> 
-      </TouchableWithoutFeedback>
+          </View> 
+        </TouchableWithoutFeedback>
+      </LinearGradient>
     </SafeAreaView>
   );
 };

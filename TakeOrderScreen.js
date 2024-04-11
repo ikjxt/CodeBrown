@@ -19,6 +19,8 @@ import { getAuth } from "firebase/auth";
 
 import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, orderBy, limit, getDoc } from "firebase/firestore";
 import { getDistance, getCompletion } from "./utils";
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 const GOOGLE_PLACES_API_KEY = "AIzaSyBD14niYPy6mOu_234-bMZgK-3m6gzOZRg";
 
@@ -219,8 +221,8 @@ const TakeOrderScreen = () => {
   );
 
   const renderOrderDetails = () => (
-    <View style={styles.content}>
-      <Image
+    <LinearGradient style={styles.content} colors={['#ffffff', '#ffe5e5']}>  
+    <Image
         source={require("./assets/Logo.png")}
         style={styles.logo}
         resizeMode="contain"
@@ -281,23 +283,25 @@ const TakeOrderScreen = () => {
       <TouchableOpacity style={styles.completeButton} onPress={handleCompleteOrderPress}>
         <Text style={styles.buttonText}>Complete Order</Text>
       </TouchableOpacity>
-
       <TouchableOpacity style={styles.navigateButton} onPress={handleNavigatePress}>
         <Text style={styles.buttonText}>Navigate</Text>
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <FlatList
-          data={[{ key: "orderDetails" }]}
-          renderItem={renderOrderDetails}
-          contentContainerStyle={styles.contentContainer}
-          keyboardShouldPersistTaps="always"
-        />
-      </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <LinearGradient style={styles.content} colors={['#ffffff', '#ffe5e5']}>  
+            <FlatList
+              width={"100%"}
+              data={[{ key: "orderDetails" }]}
+              renderItem={renderOrderDetails}
+              contentContainerStyle={styles.contentContainer}
+              keyboardShouldPersistTaps="always"
+            />
+          </LinearGradient>
+        </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };
@@ -308,8 +312,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   contentContainer: {
-    flexGrow: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+    width: "100%",
+    flex: 1,
+    //backgroundColor: 'rgba(255, 255, 255, 0.9)', 
   },
   content: {
     flex: 1,
