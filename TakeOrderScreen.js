@@ -376,9 +376,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    width: 205,
   },
   completeButton: {
-    backgroundColor: "#4caf50", // Green color
+    backgroundColor: "#e74c3c", // Green color: "#4caf50". [4/10]: changed to orange
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 32,
@@ -392,9 +393,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    width: 205,
   },
   navigateButton: {
-    backgroundColor: "#2196f3", // Blue color
+    backgroundColor: "#e74c3c", // Blue color: "#2196f3". [4/10]: changed to orange
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 32,
@@ -407,6 +409,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    width: 205,
   },
   buttonText: {
     color: "#fff",
