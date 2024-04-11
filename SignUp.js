@@ -1,41 +1,48 @@
-import React, { useState, useLayoutEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import app from "./firebaseConfig";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  signOut,
-} from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
-import { db } from "./firebaseConfig";
+import React, { useState, useLayoutEffect, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from 'react-native';
+import app from './firebaseConfig';
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signOut } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import { db } from './firebaseConfig';
 
 const SignUp = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [role, setRole] = useState("driver");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [role, setRole] = useState('driver');
   const [showPassword, setShowPassword] = useState(false);
+  const [managerAuthCode, setManagerAuthCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [isValidCredentials, setIsValidCredentials] = useState(false);
   const navigation = useNavigation();
+
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, [navigation]);
+  
+  useEffect(() => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidCode = role === 'manager' ? managerAuthCode.trim().length >= 4 : true;
+
+    setIsValidCredentials(
+      emailRegex.test(email) &&
+      password.length >= 6 &&
+      password === confirmPassword &&
+      firstName.trim() !== '' &&
+      lastName.trim() !== '' &&
+      phoneNumber.trim() !== '' &&
+      isValidCode
+    );
+  }, [email, password, confirmPassword, firstName, lastName, phoneNumber, role, managerAuthCode]);
 
   const sendVerificationEmail = (user) => {
     sendEmailVerification(user)
@@ -50,54 +57,70 @@ const SignUp = () => {
       });
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     const auth = getAuth(app);
-    const emailRegex = /\S+@\S+\.\S+/;
-    if (!emailRegex.test(email)) {
-      Alert.alert("Invalid Email", "Please enter a valid email address.");
-      return;
+  
+    if (role === 'manager') {
+      if (!managerAuthCode.trim()) {
+        setError('Please enter the manager authorization code.');
+        return;
+      }
+      
+      const authCodeDoc = await getDoc(doc(db, 'managerAuthCodes', 'authCode'));
+      if (authCodeDoc.exists()) {
+        const validManagerAuthCode = authCodeDoc.data().code;
+        if (managerAuthCode !== validManagerAuthCode) {
+          setError('The entered manager authorization code is incorrect.');
+          return;
+        }
+      } else {
+        setError('Manager authorization code not found. Please contact support.');
+        return;
+      }
     }
-
-    if (password.length < 6) {
-      Alert.alert("Weak Password", "Password should be at least 6 characters.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert("Password Mismatch", "Passwords do not match!");
-      return;
-    }
-
-    if (!firstName.trim() || !lastName.trim()) {
-      Alert.alert("Invalid Input", "Please enter your first and last name.");
-      return;
-    }
-
+  
+    setIsLoading(true);
+    setError(null);
+  
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         sendVerificationEmail(userCredential.user);
         const userId = auth.currentUser ? auth.currentUser.uid : null;
-        const userRef = doc(db, "USERS", email);
+        const userRef = doc(db, 'USERS', email);
         return setDoc(userRef, {
           firstName: firstName,
           userId: userId,
           lastName: lastName,
           email: email,
+          phoneNumber: phoneNumber,
           role: role,
         });
       })
       .then(() => {
-        return signOut(auth); // Sign out the user after sending the verification email
+        return signOut(auth);
       })
       .then(() => {
         Alert.alert(
           "Account Created",
           "Your account has been created successfully. Please verify your email before signing in."
         );
-        navigation.navigate("SignIn"); // Navigate to Sign In screen after signing out
+        navigation.navigate('SignIn');
       })
       .catch((error) => {
-        Alert.alert("Error", error.message);
+        if (error.code === 'auth/email-already-in-use') {
+          setError('The email address is already in use. Please choose a different email.');
+        } else if (error.code === 'auth/invalid-email') {
+          setError('The provided email address is not valid.');
+        } else if (error.code === 'auth/weak-password') {
+          setError('The password is too weak. Please choose a stronger password.');
+        } else if (error.code === 'auth/operation-not-allowed') {
+          setError('Email/password sign-up is not enabled. Please contact support.');
+        } else {
+          setError('An error occurred. Please try again later.');
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -113,6 +136,7 @@ const SignUp = () => {
           placeholderTextColor="#666"
           onChangeText={setFirstName}
           value={firstName}
+          accessibilityLabel="First Name input"
         />
 
         <TextInput
@@ -121,6 +145,7 @@ const SignUp = () => {
           placeholderTextColor="#666"
           onChangeText={setLastName}
           value={lastName}
+          accessibilityLabel="Last Name input"
         />
 
         <TextInput
@@ -130,6 +155,17 @@ const SignUp = () => {
           onChangeText={setEmail}
           value={email}
           autoCapitalize="none"
+          keyboardType="email-address"
+          accessibilityLabel="Email input"
+        />
+         <TextInput
+          style={styles.input}
+          placeholder="Phone Number"
+          placeholderTextColor="#666"
+          onChangeText={setPhoneNumber}
+          value={phoneNumber}
+          keyboardType="phone-pad"
+          accessibilityLabel="Phone Number input"
         />
 
         <View style={styles.passwordContainer}>
@@ -140,13 +176,15 @@ const SignUp = () => {
             secureTextEntry={!showPassword}
             onChangeText={setPassword}
             value={password}
+            accessibilityLabel="Password input"
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             style={styles.showPasswordButton}
+            accessibilityLabel="Toggle password visibility"
           >
             <Ionicons
-              name={showPassword ? "eye" : "eye-off"}
+              name={showPassword ? 'eye' : 'eye-off'}
               size={20}
               color="#333333"
             />
@@ -161,13 +199,15 @@ const SignUp = () => {
             secureTextEntry={!showPassword}
             onChangeText={setConfirmPassword}
             value={confirmPassword}
+            accessibilityLabel="Confirm Password input"
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             style={styles.showPasswordButton}
+            accessibilityLabel="Toggle password visibility"
           >
             <Ionicons
-              name={showPassword ? "eye" : "eye-off"}
+              name={showPassword ? 'eye' : 'eye-off'}
               size={20}
               color="#333333"
             />
@@ -176,32 +216,37 @@ const SignUp = () => {
 
         <View style={styles.roleSelection}>
           <TouchableOpacity
-            onPress={() => setRole("driver")}
+            onPress={() => setRole('driver')}
             style={[
               styles.roleButton,
-              role === "driver" ? styles.roleButtonSelected : {},
+              role === 'driver' ? styles.roleButtonSelected : {},
             ]}
+            accessibilityLabel="Select Driver role"
           >
             <Text
               style={[
                 styles.roleButtonText,
-                { color: role === "driver" ? "#fff" : "#333333" },
+                { color: role === 'driver' ? '#fff' : '#333333' },
               ]}
             >
               Driver
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => setRole("manager")}
+            onPress={() => {
+              setRole('manager');
+              setManagerAuthCode('');
+            }}
             style={[
               styles.roleButton,
-              role === "manager" ? styles.roleButtonSelected : {},
+              role === 'manager' ? styles.roleButtonSelected : {},
             ]}
+            accessibilityLabel="Select Manager role"
           >
             <Text
               style={[
                 styles.roleButtonText,
-                { color: role === "manager" ? "#fff" : "#333333" },
+                { color: role === 'manager' ? '#fff' : '#333333' },
               ]}
             >
               Manager
@@ -209,11 +254,33 @@ const SignUp = () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-          <Text style={styles.buttonText}>Sign Up</Text>
+        {role === 'manager' && (
+          <TextInput
+            style={styles.input}
+            placeholder="Manager Authorization Code"
+            placeholderTextColor="#666"
+            onChangeText={setManagerAuthCode}
+            value={managerAuthCode}
+            accessibilityLabel="Manager Authorization Code input"
+          />
+        )}
+
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        <TouchableOpacity
+          style={[styles.button, !isValidCredentials && styles.disabledButton]}
+          onPress={handleSignUp}
+          disabled={!isValidCredentials || isLoading}
+          accessibilityLabel="Sign up button"
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Sign Up</Text>
+          )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
+        <TouchableOpacity onPress={() => navigation.navigate('SignIn')} accessibilityLabel="Navigate to Sign In">
           <Text style={styles.switchText}>
             Already have an account? Sign In
           </Text>
@@ -226,94 +293,98 @@ const SignUp = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f7f7f7",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f7f7f7',
   },
-
   logoText: {
     fontSize: 36,
-    fontWeight: "bold",
-    color: "#e74c3c",
+    fontWeight: 'bold',
+    color: '#e74c3c',
     marginBottom: 20,
   },
   title: {
     fontSize: 24,
     marginBottom: 20,
-    color: "#333333", // Adjusted for visibility on the overlay
+    color: '#333333',
   },
   input: {
     width: 300,
     height: 50,
-    borderColor: "#333333",
+    borderColor: '#333333',
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 15,
-    color: "#333333", // Adjusted for visibility on the overlay
+    color: '#333333',
     fontSize: 14,
   },
   passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     width: 300,
     height: 50,
-    borderColor: "#333333",
+    borderColor: '#333333',
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 15,
-    position: "relative",
+    position: 'relative',
   },
   passwordInput: {
     flex: 1,
     height: 50,
-    color: "#333333", // Adjusted for visibility on the overlay
+    color: '#333333',
     fontSize: 14,
   },
   showPasswordButton: {
-    position: "absolute",
+    position: 'absolute',
     right: 10,
-    height: "100%", // Match the height of passwordContainer
-    justifyContent: "center", // Center the icon vertically
-    paddingHorizontal: 5, // Padding inside the button for touch area
-    color: "#333333",
+    height: '100%',
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    color: '#333333',
   },
   roleSelection: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginBottom: 20,
   },
   roleButton: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: '#f0f0f0',
     padding: 10,
     marginHorizontal: 5,
     borderRadius: 5,
   },
   roleButtonSelected: {
-    backgroundColor: "#e74c3c",
+    backgroundColor: '#e74c3c',
   },
   roleButtonText: {
-    color: "#333333",
+    color: '#333333',
   },
   button: {
-    backgroundColor: "#e74c3c",
+    backgroundColor: '#e74c3c',
     padding: 15,
     borderRadius: 5,
     width: 300,
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 15,
   },
   buttonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 18,
   },
   switchText: {
-    // color: 'blue',
-    color: "#e74c3c",
+    color: '#e74c3c',
     marginTop: 20,
-    //textDecorationLine: 'underline',
     fontSize: 14,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+  },
+  disabledButton: {
+    backgroundColor: 'rgba(231, 76, 60, 0.5)',
   },
 });
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient'; // Assuming you're using Expo
 import { collection, query, where, getDocs } from '@firebase/firestore';
 import { db } from './firebaseConfig';
 
@@ -28,28 +29,44 @@ const DriverSelectScreen = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#ffffff', '#ffe5e5']} // Gradient from white to light red
+      style={styles.container}>
       <FlatList
         data={drivers}
         renderItem={renderDriverItem}
         keyExtractor={item => item.id}
       />
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 10, // Adjusted padding for overall screen
   },
   item: {
-    backgroundColor: '#f9c2ff',
+    backgroundColor: '#ffffff', // White for item background
     padding: 20,
     marginVertical: 8,
-    marginHorizontal: 16,
+    marginHorizontal: 5, // Adjusted to fit within the new padding
+    borderRadius: 10, // Rounded corners for items
+    borderWidth: 1,
+    borderColor: '#ff0000', // Red border for items
+    shadowColor: '#000', // Shadow for items
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18, // Increased font size
+    fontWeight: 'bold', // Bold font weight
+    color: '#000', // Black color for text
   },
 });
 
