@@ -1,5 +1,5 @@
 import { React, useState } from "react";
-import { View, TextInput, StyleSheet, Text, Alert, TouchableWithoutFeedback, Keyboard, SafeAreaView, Dimensions } from "react-native";
+import { View, TextInput, StyleSheet, Text, Alert, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { getAuth } from "firebase/auth";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { doc, updateDoc } from "firebase/firestore";
@@ -68,7 +68,6 @@ const EditProfileScreen = ({ navigation }) => {
       updatePhoneNumber(); 
       setNewPhoneNumber('');  // Clear the Text Box     
     }
-    navigation.goBack();
   };
 
   const handleChangeEmail = () => {
@@ -80,152 +79,105 @@ const EditProfileScreen = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.content}>
-           <TextInput
-            style={styles.input}
-            placeholder="First Name"
-            placeholderTextColor="#666"
-            onChangeText={setNewFirstName}
-            value={newFirstName}
-            autoCapitalize="none"
-            marginTop={16}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Last Name"
-            placeholderTextColor="#666"
-            onChangeText={setNewLastName}
-            value={newLastName}
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Phone Number"
-            placeholderTextColor="#666"
-            onChangeText={(text) => setNewPhoneNumber(text.replace(/[^0-9]/g, '').slice(0, 10))}
-            value={newPhoneNumber}
-            keyboardType="numeric"
-            maxLength={10}
-          />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+    <View style={styles.container}> 
+      <Text style={styles.title}>Edit Profile</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="First Name"
+        placeholderTextColor="#666"
+        onChangeText={setNewFirstName}
+        value={newFirstName}
+        autoCapitalize="none"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Last Name"
+        placeholderTextColor="#666"
+        onChangeText={setNewLastName}
+        value={newLastName}
+        autoCapitalize="none"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Phone Number"
+        placeholderTextColor="#666"
+        onChangeText={(text) => setNewPhoneNumber(text.replace(/[^0-9]/g, '').slice(0, 10))}
+        value={newPhoneNumber}
+        keyboardType="numeric"
+        maxLength={10}
+      />
 
-          <TouchableOpacity style={styles.button2} onPress={handleChangeEmail}>
-            <Text style={styles.button2Text}>Email</Text>
-          </TouchableOpacity>
+      <TouchableOpacity style={styles.button2} onPress={handleChangeEmail}>
+        <Text>Email</Text>
+      </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button2} onPress={handleChangePassword}>
-            <Text style={styles.button2Text}>Password</Text>
-          </TouchableOpacity>
+      <TouchableOpacity style={styles.button2} onPress={handleChangePassword}>
+        <Text>Password</Text>
+      </TouchableOpacity>
 
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmitChanges}>
-            <Text style={styles.buttonText}>Submit Changes</Text>
-          </TouchableOpacity>
+      <TouchableOpacity style={styles.button1} onPress={handleSubmitChanges}>
+        <Text>Submit Changes</Text>
+      </TouchableOpacity>
 
-        </View>
-      </TouchableWithoutFeedback>
-    </SafeAreaView>
+      
+    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 50,
     flex: 1,
-    backgroundColor: "#fff",
+    alignItems: 'center',
   },
-  contentContainer: {
-    //flexGrow: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-    alignItems: "center",
-    //flexDirection: "column",
-  },
-  logo: {
-    width: 150,
-    height: 30,
-    marginBottom: 5,
+  title: {
+    fontSize:30,
+    fontWeight: 'bold',
+    textAlign:'center',  // Center the title 
+    lineHeight: 60
   },
   input: {
     width: 300,
-    height: 40,
-    borderColor: "#ccc",
+    height: 50,
+    borderColor: '#ddd',
     borderWidth: 1,
-    borderRadius: 4,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-    backgroundColor: "#fff",
+    borderRadius: 5,
+    marginTop: 15,
+    marginBottom: 15,
+    paddingLeft: 15,
+  },
+  button1: {
+    height: 50,
+    width: 150,
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 15,
+    marginBottom: 15,
   },
   button2: {
+    height: 50,
     width: 300,
-    height: 40,
-    borderColor: "#ccc",
+    backgroundColor: '#eeeded',
+    padding: 15,
+    borderColor: '#ddd',
     borderWidth: 1,
-    borderRadius: 4,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-    backgroundColor: "#fff",
-    color: "#666",
+    borderRadius: 5,
     justifyContent: 'center',
-  },
-  button2Text: {
-    color: "#666",
-    fontSize: 14,
-  },
-  routeContainer: {
-    width: "100%",
-    marginBottom: 24,
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  routeText: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: "#333",
-  },
-  routeLabel: {
-    fontWeight: "bold",
-  },
-  submitButton: {
-    backgroundColor: "#e74c3c", // Deep orange color
-    borderRadius: 24,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    alignItems: "center",
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: 210,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  
-});
+    alignItems: 'left',
+    marginTop: 15,
+    marginBottom: 15,
+    paddingLeft: 15,
+  }
+})
 
 EditProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
-    goBack: PropTypes.func.isRequired,
   }).isRequired,
 };
 

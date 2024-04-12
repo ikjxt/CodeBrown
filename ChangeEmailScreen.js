@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text, Alert, SafeAreaView } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
 import { getAuth, reauthenticateWithCredential, EmailAuthProvider } from '@firebase/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { PropTypes } from 'prop-types';
@@ -31,7 +31,7 @@ const ChangeEmailScreen = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}> 
+    <View style={styles.container}> 
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.passwordInput}
@@ -46,20 +46,25 @@ const ChangeEmailScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit</Text>
+      <TouchableOpacity style={styles.button1} onPress={handleSubmit}>
+        <Text>Submit</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 50,
     flex: 1,
     alignItems: 'center',
-    backgroundColor: "#fff",
   },
-  
+  title: {
+    fontSize:30,
+    fontWeight: 'bold',
+    textAlign:'center',  // Center the title 
+    lineHeight: 60
+  },
   input: {
     width: 300,
     height: 50,
@@ -70,46 +75,43 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingLeft: 15,
   },
-  submitButton: {
-    backgroundColor: "#e74c3c", // Deep orange color
-    borderRadius: 24,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    alignItems: "center",
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: 210,
+  button1: {
+    height: 50,
+    width: 150,
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 15,
+    marginBottom: 15,
   },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+  button2: {
+    height: 50,
+    width: 300,
+    backgroundColor: '#eeeded',
+    padding: 15,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft:30,
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: 300,
-    height: 40,
-    borderColor: "#ccc",
+    height: 50,
+    borderColor: '#333333',
     borderWidth: 1,
-    borderRadius: 4,
-    marginTop: 32,
-    marginBottom: 16,
-    paddingHorizontal: 16,
+    borderRadius: 5,
+    marginTop: 15,
+    marginBottom: 15,
+    paddingLeft: 15,
     position: 'relative',
-    backgroundColor: "#fff",
-    
   },
   passwordInput: {
     flex: 1,
-    height: 40,
+    height: 50,
     color: '#333333', // Adjusted for visibility on the overlay
     fontSize: 14,
   },

@@ -19,8 +19,6 @@ import { getAuth } from "firebase/auth";
 
 import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, orderBy, limit, getDoc } from "firebase/firestore";
 import { getDistance, getCompletion } from "./utils";
-import { LinearGradient } from 'expo-linear-gradient';
-
 
 const GOOGLE_PLACES_API_KEY = "AIzaSyBD14niYPy6mOu_234-bMZgK-3m6gzOZRg";
 
@@ -221,8 +219,8 @@ const TakeOrderScreen = () => {
   );
 
   const renderOrderDetails = () => (
-    <LinearGradient style={styles.content} colors={['#ffffff', '#ffe5e5']}>  
-    <Image
+    <View style={styles.content}>
+      <Image
         source={require("./assets/Logo.png")}
         style={styles.logo}
         resizeMode="contain"
@@ -283,25 +281,23 @@ const TakeOrderScreen = () => {
       <TouchableOpacity style={styles.completeButton} onPress={handleCompleteOrderPress}>
         <Text style={styles.buttonText}>Complete Order</Text>
       </TouchableOpacity>
+
       <TouchableOpacity style={styles.navigateButton} onPress={handleNavigatePress}>
         <Text style={styles.buttonText}>Navigate</Text>
       </TouchableOpacity>
-    </LinearGradient>
+    </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <LinearGradient style={styles.content} colors={['#ffffff', '#ffe5e5']}>  
-            <FlatList
-              width={"100%"}
-              data={[{ key: "orderDetails" }]}
-              renderItem={renderOrderDetails}
-              contentContainerStyle={styles.contentContainer}
-              keyboardShouldPersistTaps="always"
-            />
-          </LinearGradient>
-        </TouchableWithoutFeedback>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <FlatList
+          data={[{ key: "orderDetails" }]}
+          renderItem={renderOrderDetails}
+          contentContainerStyle={styles.contentContainer}
+          keyboardShouldPersistTaps="always"
+        />
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };
@@ -312,9 +308,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   contentContainer: {
-    width: "100%",
-    flex: 1,
-    //backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+    flexGrow: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
   },
   content: {
     flex: 1,
@@ -381,10 +376,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    width: 205,
   },
   completeButton: {
-    backgroundColor: "#e74c3c", // Green color: "#4caf50". [4/10]: changed to orange
+    backgroundColor: "#4caf50", // Green color
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 32,
@@ -398,10 +392,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    width: 205,
   },
   navigateButton: {
-    backgroundColor: "#e74c3c", // Blue color: "#2196f3". [4/10]: changed to orange
+    backgroundColor: "#2196f3", // Blue color
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 32,
@@ -414,7 +407,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    width: 205,
   },
   buttonText: {
     color: "#fff",

@@ -259,26 +259,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.8)",
   },
   datePickerButton: {
-    backgroundColor: "#e74c3c", // Deep orange color
-    borderRadius: 24,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
+    backgroundColor: "#e74c3c",
+    padding: 10,
+    borderRadius: 5,
     alignItems: "center",
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: "100%",
+    marginBottom: 10,
   },
   datePickerButtonText: {
     color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 16,
   },
   toggleButton: {
     position: "absolute",
@@ -291,8 +280,7 @@ const styles = StyleSheet.create({
   },
   toggleButtonText: {
     color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
+    fontSize: 16,
   },
   noDataText: {
     fontSize: 16,
