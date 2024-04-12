@@ -103,7 +103,9 @@ function AppNavigator({ isAuthenticated }) {
         const docRef = doc(db, 'USERS', user.email);  
         const docSnap = await getDoc(docRef);
 
-        setRole(docSnap.data().role);
+        setRole(docSnap.data().role);  // [4/10] Is this line needed? setRole() is called in line 112. 
+                                       // OR maybe only need this line and take away the whole if/else statement because the way the 
+                                       // app and firestore is setup, *if (user)* will always be true here so there will always be a doc
 
         if (docSnap.exists()) {
           const Data = docSnap.data();
@@ -132,10 +134,10 @@ function AppNavigator({ isAuthenticated }) {
             </Stack.Screen>
             <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
             <Stack.Screen name="ChatScreen" component={ChatScreen} />
-            <Stack.Screen name="LocationHistoryScreen" component={LocationHistoryScreen} />
+            <Stack.Screen name="Location History" component={LocationHistoryScreen} />
             <Stack.Screen name="TakeOrderScreen" component={TakeOrderScreen} />
             <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} />
-            <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
+            <Stack.Screen name="Edit Profile" component={EditProfileScreen} />
             <Stack.Screen name="Enter Current Password" component={ChangePasswordScreen} />
             <Stack.Screen name="Enter New Password" component={ChangePasswordScreen2} />
             <Stack.Screen name="Enter Current Password " component={ChangeEmailScreen} />
