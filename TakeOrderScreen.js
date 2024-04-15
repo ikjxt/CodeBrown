@@ -13,6 +13,7 @@ import {
   Linking,
   FlatList,
   Image,
+  ImageBackground
 } from "react-native";
 import { app, db } from "./firebaseConfig";
 import { getAuth } from "firebase/auth";
@@ -289,6 +290,13 @@ const TakeOrderScreen = () => {
   );
 
   return (
+
+    <ImageBackground 
+      source={require('./assets/takeorderbc.jpeg')}
+      resizeMode="cover"
+      style={styles.backgroundImage}
+      onError={(error) => console.log('Image loading error:', error.nativeEvent.error)}
+    >
     <SafeAreaView style={styles.container}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <FlatList
@@ -299,6 +307,7 @@ const TakeOrderScreen = () => {
         />
       </TouchableWithoutFeedback>
     </SafeAreaView>
+</ImageBackground>
   );
 };
 
@@ -307,6 +316,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
+
+  backgroundImage: {
+    flex: 1,
+    width: '100%', // Ensure it covers the whole screen
+    height: '100%', // Depending on your layout you might need to adjust this
+  },
+
   contentContainer: {
     flexGrow: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.9)', 
@@ -378,7 +394,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   completeButton: {
-    backgroundColor: "#4caf50", // Green color
+    backgroundColor: "#e74c3c", // Deep orange color
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 32,
@@ -394,7 +410,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   navigateButton: {
-    backgroundColor: "#2196f3", // Blue color
+    backgroundColor: "#e74c3c", // Deep orange color
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 32,
