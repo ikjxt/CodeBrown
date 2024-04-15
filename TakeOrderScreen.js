@@ -220,6 +220,14 @@ const TakeOrderScreen = () => {
   );
 
   const renderOrderDetails = () => (
+
+    <ImageBackground 
+      source={require('./assets/takeorderbc.jpeg')}
+      resizeMode="cover"
+      style={styles.backgroundImage}
+      onError={(error) => console.log('Image loading error:', error.nativeEvent.error)}
+    >
+
     <View style={styles.content}>
       <Image
         source={require("./assets/Logo.png")}
@@ -287,16 +295,17 @@ const TakeOrderScreen = () => {
         <Text style={styles.buttonText}>Navigate</Text>
       </TouchableOpacity>
     </View>
+    </ImageBackground>
   );
 
   return (
 
-    <ImageBackground 
-      source={require('./assets/takeorderbc.jpeg')}
-      resizeMode="cover"
-      style={styles.backgroundImage}
-      onError={(error) => console.log('Image loading error:', error.nativeEvent.error)}
-    >
+    //<ImageBackground 
+      //source={require('./assets/takeorderbc.jpeg')}
+      //resizeMode="cover"
+     // style={styles.backgroundImage}
+     // onError={(error) => console.log('Image loading error:', error.nativeEvent.error)}
+    //>
     <SafeAreaView style={styles.container}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <FlatList
@@ -307,7 +316,7 @@ const TakeOrderScreen = () => {
         />
       </TouchableWithoutFeedback>
     </SafeAreaView>
-</ImageBackground>
+//</ImageBackground>
   );
 };
 
