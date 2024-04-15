@@ -44,12 +44,12 @@ const Dashboard = ({ navigation }) => {
   // Function to initiate a phone call to a customer using the native phone app.
   const makePhoneCall = () => {
     if (Platform.OS === 'android') {
-      Linking.openURL('tel: ' + custNumberRef);
+      Linking.openURL('tel: ' + 9169269050);
     }
     if (Platform.OS == 'ios') {
-      Linking.openURL('tel:// ' + custNumberRef);
+      Linking.openURL('tel:// ' + 9169269050);
     } else {
-      Linking.openURL('telprompt: ' + custNumberRef);
+      Linking.openURL('telprompt: ' + 9169269050);
     }
   };
 
