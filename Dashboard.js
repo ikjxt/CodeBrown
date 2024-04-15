@@ -32,6 +32,7 @@ const Dashboard = ({ navigation }) => {
   const [markers, setMarkers] = useState([]);
   const [distanceFromDelivery, setDistanceFromDelivery] = useState(null);
   const [orderCreatorLocation, setOrderCreatorLocation] = useState(null);
+  const [userFullNames, setUserFullNames] = useState({});
 
   // Setup for Firebase authentication and user session.
   const auth = getAuth();
@@ -88,6 +89,24 @@ const Dashboard = ({ navigation }) => {
   // Memoize the geocodeAddress function to avoid unnecessary re-calculations
   const memoizedGeocodeAddress = useMemo(() => geocodeAddress, []);
 
+  const fetchUserFullName = async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'USERS', userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const firstName = userData.firstName || '';
+        const lastName = userData.lastName || '';
+        return `${firstName} ${lastName}`.trim() || 'Unknown User';
+      } else {
+        console.error('User document not found for user ID:', userId);
+        return 'Unknown User';
+      }
+    } catch (error) {
+      console.error('Error fetching user full name:', error);
+      return 'Unknown User';
+    }
+  };
+
   // Fetch and set the destination location when the delivery address changes
   useEffect(() => {
     const fetchAndSetDestinationLocation = async () => {
@@ -119,15 +138,16 @@ const Dashboard = ({ navigation }) => {
   useEffect(() => {
     const unsubscribe = onSnapshot(
       query(collection(db, 'locations'), where('isActive', '==', true)),
-      (snapshot) => {
+      async (snapshot) => {
         const newLocations = [];
+        const newUserFullNames = {};
         const now = new Date().getTime();
-
-        snapshot.forEach((doc) => { 
+  
+        for (const doc of snapshot.docs) {
           const data = doc.data();
           const lastUpdate = data.timestamp.toDate().getTime();
           let status = 'online';
-
+  
           if (now - lastUpdate > 6000 && now - lastUpdate <= 6000) {
             status = 'recentlyOffline';
           } else if (now - lastUpdate > 6000) {
@@ -135,14 +155,24 @@ const Dashboard = ({ navigation }) => {
           }
           if (status !== 'offline') {
             newLocations.push({ userId: doc.id, ...data, status, lastUpdate });
+  
+            // Fetch the user's full name using their email from the location document
+            if (data.email) {
+              const userFullName = await fetchUserFullName(data.email);
+              newUserFullNames[doc.id] = userFullName;
+            } else {
+              console.log('Email not found for user ID', doc.id);
+              newUserFullNames[doc.id] = 'Unknown User';
+            }
           }
-        });
-
+        }
+  
         setUserLocations(newLocations.filter((location) => location.status !== 'offline'));
+        setUserFullNames(newUserFullNames);
       },
       (error) => { console.error('Error fetching user locations:', error); }
     );
-
+  
     return () => unsubscribe();
   }, []);
 
@@ -150,11 +180,19 @@ const Dashboard = ({ navigation }) => {
   const updateLocation = useCallback(
     debounce(async () => {
       const location = await Location.getCurrentPositionAsync({});
-      const locationData = { latitude: location.coords.latitude, longitude: location.coords.longitude, timestamp: new Date(), isActive: true, };
+      const locationData = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        timestamp: new Date(),
+        isActive: true,
+        email: user.email, // Add the user's email to the location data
+      };
       await setDoc(doc(db, 'locations', userId), locationData);
     }, 1000),
-    []
+    [user.email] // Add user.email as a dependency
   );
+
+
 
   // Update the user's location every 5 seconds
   useEffect(() => { 
@@ -417,28 +455,41 @@ const onSelectOrder = async (orderId) => {
         onPress={() => setIsDropdownVisible(false)}
         compassButton={false}
       >
-        {role === 'manager' && userLocations.filter(location => location.userId !== userId).map((location, index) => (
-      <Marker key={index} coordinate={{ latitude: location.latitude, longitude: location.longitude, }} title={`User: ${location.userId}`}>
-        <View style={{ alignItems: 'center', justifyContent: 'center' }}><MaterialIcons name={location.isActive ? 'location-on' : 'location-off'} size={28} color={location.isActive  ? 'blue' : 'red'}/></View>
-      </Marker>
-    ))}
-    {orderCreatorLocation && (
-      <Marker coordinate={{ latitude: orderCreatorLocation.latitude, longitude: orderCreatorLocation.longitude, }} title={`User: ${orderCreatorLocation.userId}`}>
-        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <MaterialIcons name={orderCreatorLocation.isActive ? 'location-on' : 'location-off'} size={28} color={orderCreatorLocation.isActive ? 'blue' : 'red'}/>
-        </View>
-      </Marker>
-    )}
+{role === 'manager' && userLocations.filter(location => location.userId !== userId).map((location, index) => (
+  <Marker key={index} coordinate={{ latitude: location.latitude, longitude: location.longitude }} title={`User: ${userFullNames[location.userId] || 'Unknown User'}`}>
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <MaterialIcons name={location.isActive ? 'location-on' : 'location-off'} size={28} color={location.isActive ? 'blue' : 'red'} />
+    </View>
+  </Marker>
+))}
+
+{orderCreatorLocation && (
+  <Marker
+    coordinate={{
+      latitude: orderCreatorLocation.latitude,
+      longitude: orderCreatorLocation.longitude,
+    }}
+    title={`User: ${userFullNames[orderCreatorLocation.userId] || 'Unknown User'}`}
+  >
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <MaterialIcons
+        name={orderCreatorLocation.isActive ? 'location-on' : 'location-off'}
+        size={28}
+        color={orderCreatorLocation.isActive ? 'blue' : 'red'}
+      />
+    </View>
+  </Marker>
+)}
 
         {markers.map((marker, index) => ( <Marker key={index} coordinate={{ latitude: marker.latitude, longitude: marker.longitude, }} title="Delivery Location" pinColor="#39FF14" /> ))}
 
         {deliveryLocation && deliveryAddress && ( <Marker key={deliveryAddress} coordinate={deliveryLocation} title="Delivery Location" description={deliveryAddress} /> )}
 
         {userLocation && (
-          <Marker coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude, }} title="Your Location" description="You are here">
-            <View style={{ alignItems: 'center', justifyContent: 'center' }}><MaterialIcons name="my-location" size={28} color="rgba(30, 144, 255, 0)" /></View>
-          </Marker>
-        )}
+  <Marker coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude, }} title={`User: ${userFullNames[userId] || 'Unknown User'}`}>
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}><MaterialIcons name="my-location" size={28} color="rgba(30, 144, 255, 0)" /></View>
+  </Marker>
+)}
         <Polyline coordinates={polylineCoordinates} strokeWidth={6} strokeColor="#007bff" />
         </MapView>
 
