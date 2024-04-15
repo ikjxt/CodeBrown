@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ImageBackground, PropTypes } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ImageBackground, PropTypes, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient'; // Assuming you're using Expo
 import { collection, query, where, getDocs } from '@firebase/firestore';
 import { db } from './firebaseConfig';
@@ -29,16 +29,20 @@ const DriverSelectScreen = ({ navigation }) => {
   );
 
   return (
-    <LinearGradient
-      colors={['#ffffff', '#ffe5e5']} // Gradient from white to light red
-      style={styles.container}>
+    // <LinearGradient
+    //   colors={['#ffffff', '#ffe5e5']} // Gradient from white to light red
+    //   style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
       <FlatList
         marginTop={32}
         data={drivers}
         renderItem={renderDriverItem}
         keyExtractor={item => item.id}
       />
-    </LinearGradient>
+      </View>
+    </SafeAreaView>  
+    // </LinearGradient>
   );
 };
 

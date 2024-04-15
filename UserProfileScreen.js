@@ -36,7 +36,7 @@ const UserProfileScreen = ({ navigation }) => {
       }
     };
     fetchUserData();
-  }, []);  // Empty dependency array means this effect runs once after the initial render [OLD, I BELIEVE THIS CAUSED THE BUG]  
+  }, []);  // Empty dependency array means this effect runs once after the initial render 
 
   const editProfile = () => {
     navigation.navigate('Edit Profile')
@@ -44,34 +44,30 @@ const UserProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#ffffff', '#ffe5e5']}
-        style = {styles.container}> 
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={styles.content}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.content}>
 
-            <View style={styles.routeContainer} marginTop={16}> 
-              <Text style={styles.routeText}>
-                <Text style={styles.routeLabel}>First Name:</Text> {fName} 
-              </Text>
-              <Text style={styles.routeText}>
-                <Text style={styles.routeLabel}>Last Name:</Text> {lName} 
-              </Text>
-              <Text style={styles.routeText}>
-                <Text style={styles.routeLabel}>Email:</Text> {email} 
-              </Text>
-              <Text style={styles.routeText}>
-                <Text style={styles.routeLabel}>Phone:</Text> {phone} 
-              </Text>
-            </View>  
+          <View style={styles.routeContainer} marginTop={16}> 
+            <Text style={styles.routeText}>
+              <Text style={styles.routeLabel}>First Name:</Text> {fName} 
+            </Text>
+            <Text style={styles.routeText}>
+              <Text style={styles.routeLabel}>Last Name:</Text> {lName} 
+            </Text>
+            <Text style={styles.routeText}>
+              <Text style={styles.routeLabel}>Email:</Text> {email} 
+            </Text>
+            <Text style={styles.routeText}>
+              <Text style={styles.routeLabel}>Phone:</Text> {phone} 
+            </Text>
+          </View>  
 
-            <TouchableOpacity style={styles.startButton} onPress={editProfile}>
-              <Text style={styles.buttonText}>Edit Profile</Text>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.startButton} onPress={editProfile}>
+            <Text style={styles.buttonText}>Edit Profile</Text>
+          </TouchableOpacity>
 
-          </View> 
-        </TouchableWithoutFeedback>
-      </LinearGradient>
+        </View> 
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };

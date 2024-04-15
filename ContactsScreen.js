@@ -56,7 +56,7 @@ const ContactScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <LinearGradient style={styles.content} colors={['#ffffff', '#ffe5e5']}>  
+                <View style={styles.content} >  
 
                     <Text style={styles.headerText}>Messages</Text>
                     <TouchableOpacity style={styles.button} onPress={handleGroupChatPress}>
@@ -122,7 +122,7 @@ const ContactScreen = ({ navigation }) => {
                             </View>
                         </View>
                     </Modal>
-                </LinearGradient>
+                </View>
             </TouchableWithoutFeedback>
         </SafeAreaView>
     );

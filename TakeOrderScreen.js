@@ -13,6 +13,7 @@ import {
   Linking,
   FlatList,
   Image,
+  Button,
 } from "react-native";
 import { app, db } from "./firebaseConfig";
 import { getAuth } from "firebase/auth";
@@ -221,8 +222,8 @@ const TakeOrderScreen = () => {
   );
 
   const renderOrderDetails = () => (
-    <LinearGradient style={styles.content} colors={['#ffffff', '#ffe5e5']}>  
-    <Image
+    <View style={styles.content}>  
+      <Image
         source={require("./assets/Logo.png")}
         style={styles.logo}
         resizeMode="contain"
@@ -237,7 +238,6 @@ const TakeOrderScreen = () => {
         placeholderTextColor="#888"
         returnKeyType="done"
       />
-
       <Text style={styles.headerText}>Delivery Address</Text>
       <TextInput
         style={styles.input}
@@ -257,15 +257,15 @@ const TakeOrderScreen = () => {
       )}
 
       <Text style={styles.headerText}>Customer Phone Number</Text>
-        <TextInput
-          ref ={custNumberRef}
-          style={styles.input}
-          value={custNumber}
-          onChangeText={handleCustNumberChange}
-          placeholder="Enter Customer Phone Number"
-          placeholderTextColor="#888"
-          returnKeyType="done"
-          />
+      <TextInput
+        ref ={custNumberRef}
+        style={styles.input}
+        value={custNumber}
+        onChangeText={handleCustNumberChange}
+        placeholder="Enter Customer Phone Number"
+        placeholderTextColor="#888"
+        returnKeyType="done"
+      />
 
       <Text style={styles.headerText}>Route Information</Text>
       <View style={styles.routeContainer}>
@@ -286,22 +286,21 @@ const TakeOrderScreen = () => {
       <TouchableOpacity style={styles.navigateButton} onPress={handleNavigatePress}>
         <Text style={styles.buttonText}>Navigate</Text>
       </TouchableOpacity>
-    </LinearGradient>
+    </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <LinearGradient style={styles.content} colors={['#ffffff', '#ffe5e5']}>  
-            <FlatList
-              width={"100%"}
-              data={[{ key: "orderDetails" }]}
-              renderItem={renderOrderDetails}
-              contentContainerStyle={styles.contentContainer}
-              keyboardShouldPersistTaps="always"
-            />
-          </LinearGradient>
-        </TouchableWithoutFeedback>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.content}>
+          <FlatList
+            data={[{ key: "orderDetails" }]}
+            renderItem={renderOrderDetails}
+            contentContainerStyle={styles.contentContainer}
+            keyboardShouldPersistTaps="always"
+          />
+        </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 };
@@ -318,7 +317,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 16,
+    // padding: 16,
     alignItems: "center",
   },
   logo: {

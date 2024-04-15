@@ -59,10 +59,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: "#fff",
   },
-  
   input: {
     width: 300,
-    height: 50,
+    height: 40,
     borderColor: '#333333',
     borderWidth: 1,
     borderRadius: 5,
