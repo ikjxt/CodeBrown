@@ -333,7 +333,7 @@ const TakeOrderScreen = () => {
                 keyExtractor={(item) => item.place_id}
                 style={styles.suggestionsList}
                 keyboardShouldPersistTaps="always"
-                nestedScrollEnabled={true} // [4/18] This fixed this screens bug of not spreading across the whole screen horizontally, along with the commented out code above
+                nestedScrollEnabled={true}
               />
             )}
 

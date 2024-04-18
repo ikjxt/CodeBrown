@@ -25,7 +25,7 @@ const ContactScreen = ({ navigation }) => {
     }, []);
 
     const handleGroupChatPress = () => {
-        navigation.navigate('ChatScreen');
+        navigation.navigate('Group Chat');
     };
 
     const handleContactPress = (contact) => {

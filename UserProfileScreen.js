@@ -37,7 +37,7 @@ const UserProfileScreen = ({ navigation }) => {
   }, []);  // Empty dependency array means this effect runs once after the initial render
     
   const editProfile = () => {
-    navigation.navigate('EditProfileScreen')
+    navigation.navigate('Edit Profile')
   }
 
   return (
