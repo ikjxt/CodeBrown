@@ -1,5 +1,5 @@
 import React , { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from 'react-native';
 import Card from './Card';
 import { getAuth } from 'firebase/auth';
 import { PropTypes } from 'prop-types';
@@ -43,6 +43,11 @@ const UserProfileScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content} >
+        <Image
+          source={require("./assets/Logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
         <Card
           title="Profile"
           description={<Text style={styles.descriptionText}>
@@ -113,6 +118,15 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: "bold",
   },  
+  logo: {
+    marginTop: -50,
+    marginBottom: -16,
+    alignSelf: 'center',
+    width: 175,
+    height: 175,
+    resizeMode: 'contain',
+    zIndex: 1,
+  },
 })
 
 // fixed ['navigation.navigate' is missing in props validationeslintreact/prop-types] error

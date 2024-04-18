@@ -1,5 +1,6 @@
+// Import necessary modules from React and React Native libraries.
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, Image } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, Image,Platform, Linking } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { getAuth, signOut } from 'firebase/auth';
 import * as Location from 'expo-location';
@@ -7,14 +8,14 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { collection, addDoc, doc, getDoc, query, where, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { PropTypes } from 'prop-types';
-import { Platform, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { custNumberRef } from './TakeOrderScreen';
+import { custNumberRef } from './TakeOrderScreen'; 
 import { getDistance } from 'geolib';
-import debounce from 'lodash/debounce';
+import debounce from 'lodash/debounce'; 
+import { styles } from './DashboardStyles';
 
 const Dashboard = ({ navigation }) => {
-  // State variables
+  // Initialize state variables for managing various functionalities and data.
   const [role, setRole] = useState('');
   const [userLocation, setUserLocation] = useState(null);
   const mapViewRef = useRef(null);
@@ -24,34 +25,87 @@ const Dashboard = ({ navigation }) => {
   const [eta, setEta] = useState('');
   const [deliveryLocation, setDeliveryLocation] = useState(null);
   const [deliveryAddress, setDeliveryAddress] = useState('');
-  const [isSettingsDropdownVisible, setIsSettingsDropdownVisible] = useState(false);
   const [userLocations, setUserLocations] = useState([]);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
   const [lastViewed, setLastViewed] = useState(null);
   const [currentOrders, setCurrentOrders] = useState([]);
   const [markers, setMarkers] = useState([]);
   const [distanceFromDelivery, setDistanceFromDelivery] = useState(null);
+  const [orderCreatorLocation, setOrderCreatorLocation] = useState(null);
+  const [userFullNames, setUserFullNames] = useState({});
 
-  // Firebase and Google Maps API setup
+  // Setup for Firebase authentication and user session.
   const auth = getAuth();
   const userId = auth.currentUser ? auth.currentUser.uid : null;
   const user = auth.currentUser;
+
+  // Google Maps API key for utilizing Maps functionalities.
   const googleMapsApiKey = 'AIzaSyBqdK2r3h7vi8WZ1ldQRHiayg0Mj5JbeUw';
 
+  // Function to initiate a phone call to a customer using the native phone app.
+  const makePhoneCall = () => {
+    if (Platform.OS === 'android') {
+      Linking.openURL('tel: ' + 9169269050);
+    }
+    if (Platform.OS == 'ios') {
+      Linking.openURL('tel:// ' + 9169269050);
+    } else {
+      Linking.openURL('telprompt: ' + 9169269050);
+    }
+  };
+
+  // Hook to monitor and update the activity status of the order creator in real-time.
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (orderCreatorLocation?.userId) {
+        const docRef = doc(db, 'locations', orderCreatorLocation.userId);
+        getDoc(docRef)
+        .then((doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
+            const lastUpdate = data.timestamp.toDate();
+            const timeDifference = new Date() - lastUpdate;
+            const isActive = timeDifference < 6500; // Checks if the user is active within the last 6.5 seconds.
+            
+            // Update the active status of the order creator.
+            setOrderCreatorLocation(prevState => ({ ...prevState, isActive, }));
+          } else {
+            console.error('Location data not found for user ID:', orderCreatorLocation.userId);
+          }
+        })
+        .catch((error) => {console.error('Error fetching location data:', error); });
+      }
+    }, 1000); // Check every second.
+
+    // Cleanup function to clear interval on component unmount.
+    return () => clearInterval(intervalId);
+  }, [orderCreatorLocation?.userId]); // Re-run effect when userId changes
+  
   // Function to set marker location
   const setMarkerLocation = (location) => {
-    setMarkers((currentMarkers) => [
-      ...currentMarkers,
-      {
-        id: new Date().toISOString(),
-        latitude: location.latitude,
-        longitude: location.longitude,
-      },
-    ]);
+    setMarkers((currentMarkers) => [ ...currentMarkers, { id: new Date().toISOString(), latitude: location.latitude, longitude: location.longitude, }, ]);
   };
 
   // Memoize the geocodeAddress function to avoid unnecessary re-calculations
   const memoizedGeocodeAddress = useMemo(() => geocodeAddress, []);
+
+  const fetchUserFullName = async (userId) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'USERS', userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const firstName = userData.firstName || '';
+        const lastName = userData.lastName || '';
+        return `${firstName} ${lastName}`.trim() || 'Unknown User';
+      } else {
+        console.error('User document not found for user ID:', userId);
+        return 'Unknown User';
+      }
+    } catch (error) {
+      console.error('Error fetching user full name:', error);
+      return 'Unknown User';
+    }
+  };
 
   // Fetch and set the destination location when the delivery address changes
   useEffect(() => {
@@ -60,10 +114,7 @@ const Dashboard = ({ navigation }) => {
         try {
           const destinationLocation = await memoizedGeocodeAddress(deliveryAddress);
           setSelectedOrderLocation(destinationLocation);
-        } catch (error) {
-          console.error('Failed to fetch or set destination location:', error);
-          // Display user-friendly error message
-        }
+        } catch (error) { console.error('Failed to fetch or set destination location:', error);}
       }
     };
 
@@ -87,34 +138,41 @@ const Dashboard = ({ navigation }) => {
   useEffect(() => {
     const unsubscribe = onSnapshot(
       query(collection(db, 'locations'), where('isActive', '==', true)),
-      (snapshot) => {
+      async (snapshot) => {
         const newLocations = [];
+        const newUserFullNames = {};
         const now = new Date().getTime();
-
-        snapshot.forEach((doc) => {
+  
+        for (const doc of snapshot.docs) {
           const data = doc.data();
           const lastUpdate = data.timestamp.toDate().getTime();
           let status = 'online';
-
-          if (now - lastUpdate > 20000 && now - lastUpdate <= 40000) {
+  
+          if (now - lastUpdate > 6000 && now - lastUpdate <= 6000) {
             status = 'recentlyOffline';
-          } else if (now - lastUpdate > 40000) {
+          } else if (now - lastUpdate > 6000) {
             status = 'offline';
           }
-
           if (status !== 'offline') {
             newLocations.push({ userId: doc.id, ...data, status, lastUpdate });
+  
+            // Fetch the user's full name using their email from the location document
+            if (data.email) {
+              const userFullName = await fetchUserFullName(data.email);
+              newUserFullNames[doc.id] = userFullName;
+            } else {
+              console.log('Email not found for user ID', doc.id);
+              newUserFullNames[doc.id] = 'Unknown User';
+            }
           }
-        });
-
+        }
+  
         setUserLocations(newLocations.filter((location) => location.status !== 'offline'));
+        setUserFullNames(newUserFullNames);
       },
-      (error) => {
-        console.error('Error fetching user locations:', error);
-        // Display user-friendly error message
-      }
+      (error) => { console.error('Error fetching user locations:', error); }
     );
-
+  
     return () => unsubscribe();
   }, []);
 
@@ -127,26 +185,22 @@ const Dashboard = ({ navigation }) => {
         longitude: location.coords.longitude,
         timestamp: new Date(),
         isActive: true,
+        email: user.email, // Add the user's email to the location data
       };
-
       await setDoc(doc(db, 'locations', userId), locationData);
-    }, 5000),
-    []
+    }, 1000),
+    [user.email] // Add user.email as a dependency
   );
 
-  // Update the user's location every 5 seconds
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      updateLocation();
-    }, 5000);
 
-    return () => {
-      clearInterval(intervalId);
-      updateLocation.cancel();
-    };
+
+  // Update the user's location every 5 seconds
+  useEffect(() => { 
+    const intervalId = setInterval(() => { updateLocation(); }, 1000);
+    return () => { clearInterval(intervalId); updateLocation.cancel(); };
   }, [updateLocation]);
 
-  // Function to get directions from Google Maps API
+  // Function to calculate and set the route for delivery using Google Maps API.
   const getDirections = async (startLoc, destinationLoc) => {
     try {
       const response = await fetch(
@@ -163,24 +217,16 @@ const Dashboard = ({ navigation }) => {
       const eta = json.routes[0].legs[0].duration.text;
 
       return { steps, eta };
-    } catch (error) {
-      console.error('Error fetching directions:', error);
+    } catch (error) { console.error('Error fetching directions:', error);
       return { steps: [], eta: '' };
     }
   };
 
   // Function to clear the route
-  const clearRoute = () => {
-    setPolylineCoordinates([]);
-    setEta('');
-    setDeliveryLocation(null);
-    setMarkers([]);
-  };
+  const clearRoute = () => { setMarkers([]); setPolylineCoordinates([]); setEta(''); setDeliveryLocation(null); setOrderCreatorLocation(null); };
 
   // Log the delivery address when it changes
-  useEffect(() => {
-    console.log('Delivery address updated:', deliveryAddress);
-  }, [deliveryAddress]);
+  useEffect(() => { console.log('Delivery address updated:', deliveryAddress); }, [deliveryAddress]);
 
   // Function to decode the polyline from Google Maps API
   const decodePolyline = (encoded) => {
@@ -218,40 +264,52 @@ const Dashboard = ({ navigation }) => {
   };
 
   // Function to handle order selection
-  const onSelectOrder = async (orderId) => {
-    console.log('Attempting to fetch order with ID:', orderId);
-    try {
-      clearRoute();
+const onSelectOrder = async (orderId) => {
+  setOrderCreatorLocation(null);
+  console.log('Attempting to fetch order with ID:', orderId);
+  try {
+    clearRoute();
 
-      const orderDocSnap = await getDoc(doc(db, 'ORDERS', orderId));
-      if (!orderDocSnap.exists()) {
-        console.error(`Order with ID ${orderId} not found`);
-        return;
-      }
-      const orderData = orderDocSnap.data();
-      const deliveryAddress = orderData.deliveryAddress;
-      const startLocation = userLocation;
-      setDeliveryLocation(null);
-      const destinationLocation = await memoizedGeocodeAddress(deliveryAddress);
-      setDeliveryLocation(destinationLocation);
-      const { steps, eta } = await getDirections(startLocation, destinationLocation);
-      setPolylineCoordinates(steps);
-      setEta(eta);
+    const orderDocSnap = await getDoc(doc(db, 'ORDERS', orderId));
+    if (!orderDocSnap.exists()) {
+      console.error(`Order with ID ${orderId} not found`);
+      return;
+    }
+    const orderData = orderDocSnap.data();
 
-      setMarkerLocation(destinationLocation);
+    // Fetch the location of the user who created the order
+    const userLocationSnap = await getDoc(doc(db, 'locations', orderData.userId));
+    if (!userLocationSnap.exists()) {
+      console.error(`Location for user ID ${orderData.userId} not found`);
+      return;
+    }
+    const creatorLocationData = userLocationSnap.data();
+    const lastLocationUpdate = creatorLocationData.timestamp.toDate();
+    const timeDifference = new Date() - lastLocationUpdate;
+    const isActive = timeDifference < 3000;
+    console.log('isActive:', isActive);
 
-      mapViewRef.current.fitToCoordinates([startLocation, destinationLocation], {
+    setOrderCreatorLocation({ latitude: creatorLocationData.latitude, longitude: creatorLocationData.longitude, userId: orderData.userId, isActive, });
+    
+    const startLocation = { latitude: creatorLocationData.latitude, longitude: creatorLocationData.longitude };
+    const deliveryAddress = orderData.deliveryAddress;
+    setDeliveryLocation(null);
+    const destinationLocation = await memoizedGeocodeAddress(deliveryAddress);
+    setDeliveryLocation(destinationLocation);
+    const { steps, eta } = await getDirections(startLocation, destinationLocation);
+    setPolylineCoordinates(steps);
+    setEta(eta);
+    setMarkerLocation(destinationLocation);
+
+    mapViewRef.current.fitToCoordinates([startLocation, destinationLocation], {
         edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
         animated: true,
       });
-
+  
       setIsDropdownVisible(false);
-    } catch (error) {
-      console.error('Error fetching order details:', error);
-      // Display user-friendly error message
-    }
+    } catch (error) { console.error('Error fetching order details or user location:', error); }
   };
-
+  
   // Function to geocode an address using Google Maps API
   async function geocodeAddress(address) {
     try {
@@ -267,23 +325,10 @@ const Dashboard = ({ navigation }) => {
       } else {
         throw new Error('No results found');
       }
-    } catch (error) {
-      console.error('Error geocoding address:', error);
+    } catch (error) { console.error('Error geocoding address:', error);
       return { latitude: 0, longitude: 0 };
     }
   }
-
-  // Function to make a phone call
-  const makePhoneCall = () => {
-    if (Platform.OS === 'android') {
-      Linking.openURL('tel: ' + custNumberRef);
-    }
-    if (Platform.OS == 'ios') {
-      Linking.openURL('tel:// ' + custNumberRef);
-    } else {
-      Linking.openURL('telprompt: ' + custNumberRef);
-    }
-  };
 
   // Function to get the user's location
   const getUserLocation = async () => {
@@ -295,30 +340,17 @@ const Dashboard = ({ navigation }) => {
     let location = await Location.getCurrentPositionAsync({});
     setUserLocation(location.coords);
 
-    const locationData = {
-      userId: userId,
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      timestamp: new Date(),
-    };
+    const locationData = { userId: userId, latitude: location.coords.latitude, longitude: location.coords.longitude, timestamp: new Date(), };
     try {
       await addDoc(collection(db, 'locations'), locationData);
       console.log('Location data recorded');
-    } catch (error) {
-      console.error('Error recording location data: ', error);
-      // Display user-friendly error message
-    }
+    } catch (error) { console.error('Error recording location data: ', error); }
   };
 
   // Function to center the map on the user's location
   const centerOnUserLocation = () => {
     if (userLocation && mapViewRef.current) {
-      mapViewRef.current.animateToRegion({
-        latitude: userLocation.latitude,
-        longitude: userLocation.longitude,
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.02,
-      });
+      mapViewRef.current.animateToRegion({ latitude: userLocation.latitude, longitude: userLocation.longitude, latitudeDelta: 0.02, longitudeDelta: 0.02, });
     }
   };
 
@@ -355,7 +387,6 @@ const Dashboard = ({ navigation }) => {
       Alert.alert('Access Denied', 'You do not have permission to access this feature.');
       return;
     }
-
     setIsDropdownVisible(!isDropdownVisible);
     if (!isDropdownVisible) {
       setLastViewed(new Date());
@@ -368,7 +399,6 @@ const Dashboard = ({ navigation }) => {
   // Get the user's location when the component mounts
   useEffect(() => {
     getUserLocation();
-
     return () => {
       // Clean up any necessary subscriptions or intervals
     };
@@ -387,7 +417,6 @@ const Dashboard = ({ navigation }) => {
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
-        // Display user-friendly error message
       }
     };
 
@@ -397,39 +426,25 @@ const Dashboard = ({ navigation }) => {
   // Fetch pending orders from Firestore
   useEffect(() => {
     const pendingOrdersQuery = query(collection(db, 'ORDERS'), where('status', '==', 'pending'));
-
     const unsubscribe = onSnapshot(
       pendingOrdersQuery,
       (querySnapshot) => {
         let orders = [];
-
-        querySnapshot.forEach((doc) => {
-          const order = { id: doc.id, ...doc.data() };
-          orders.push(order);
-        });
-
-        orders.sort((a, b) => {
-          const aCreatedAt = a.createdAt ? a.createdAt.toDate() : 0;
-          const bCreatedAt = b.createdAt ? b.createdAt.toDate() : 0;
-          return aCreatedAt - bCreatedAt;
-        });
-
+        querySnapshot.forEach((doc) => { const order = { id: doc.id, ...doc.data() }; orders.push(order); });
+        orders.sort((a, b) => { const aCreatedAt = a.createdAt ? a.createdAt.toDate() : 0; const bCreatedAt = b.createdAt ? b.createdAt.toDate() : 0; return aCreatedAt - bCreatedAt; });
         setCurrentOrders(orders);
       },
-      (error) => {
-        console.error('Error fetching pending orders:', error);
-        // Display user-friendly error message
-      }
+      (error) => { console.error('Error fetching pending orders:', error); }
     );
 
     return () => unsubscribe();
   }, [db]);
+
+
   return (
+    // Render the component UI: MapView, markers, buttons, etc.
     <View style={styles.container}>
-      <MapView
-        ref={mapViewRef}
-        style={styles.map}
-        initialRegion={{
+      <MapView ref={mapViewRef} style={styles.map} initialRegion={{
           latitude: 38.5816,
           longitude: -121.4944,
           latitudeDelta: 0.0922,
@@ -440,117 +455,70 @@ const Dashboard = ({ navigation }) => {
         onPress={() => setIsDropdownVisible(false)}
         compassButton={false}
       >
-        {role === 'manager' &&
-          userLocations.map((location, index) => (
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: location.latitude,
-                longitude: location.longitude,
-              }}
-              title={`User: ${location.userId}`}
-              pinColor={location.status === 'online' ? 'blue' : 'yellow'}
-            />
-          ))}
+{role === 'manager' && userLocations.filter(location => location.userId !== userId).map((location, index) => (
+  <Marker key={index} coordinate={{ latitude: location.latitude, longitude: location.longitude }} title={`User: ${userFullNames[location.userId] || 'Unknown User'}`}>
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <MaterialIcons name={location.isActive ? 'location-on' : 'location-off'} size={28} color={location.isActive ? 'blue' : 'red'} />
+    </View>
+  </Marker>
+))}
 
-        {markers.map((marker, index) => (
-          <Marker
-            key={index}
-            coordinate={{
-              latitude: marker.latitude,
-              longitude: marker.longitude,
-            }}
-            title="Delivery Location"
-            pinColor="#39FF14"
-          />
-        ))}
+{orderCreatorLocation && (
+  <Marker
+    coordinate={{
+      latitude: orderCreatorLocation.latitude,
+      longitude: orderCreatorLocation.longitude,
+    }}
+    title={`User: ${userFullNames[orderCreatorLocation.userId] || 'Unknown User'}`}
+  >
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <MaterialIcons
+        name={orderCreatorLocation.isActive ? 'location-on' : 'location-off'}
+        size={28}
+        color={orderCreatorLocation.isActive ? 'blue' : 'red'}
+      />
+    </View>
+  </Marker>
+)}
 
-        {deliveryLocation && deliveryAddress && (
-          <Marker
-            key={deliveryAddress}
-            coordinate={deliveryLocation}
-            title="Delivery Location"
-            description={deliveryAddress}
-          />
-        )}
+        {markers.map((marker, index) => ( <Marker key={index} coordinate={{ latitude: marker.latitude, longitude: marker.longitude, }} title="Delivery Location" pinColor="#39FF14" /> ))}
+
+        {deliveryLocation && deliveryAddress && ( <Marker key={deliveryAddress} coordinate={deliveryLocation} title="Delivery Location" description={deliveryAddress} /> )}
 
         {userLocation && (
-          <Marker
-            coordinate={{
-              latitude: userLocation.latitude,
-              longitude: userLocation.longitude,
-            }}
-            title="Your Location"
-            description="You are here"
-          />
-        )}
-
+  <Marker coordinate={{ latitude: userLocation.latitude, longitude: userLocation.longitude, }} title={`User: ${userFullNames[userId] || 'Unknown User'}`}>
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}><MaterialIcons name="my-location" size={28} color="rgba(30, 144, 255, 0)" /></View>
+  </Marker>
+)}
         <Polyline coordinates={polylineCoordinates} strokeWidth={6} strokeColor="#007bff" />
-      </MapView>
+        </MapView>
 
-      {eta && (
-        <View style={styles.etaContainer}>
-          <Text style={styles.etaText}>Estimated Time Arrival: {eta}</Text>
-        </View>
-      )}
+      {eta && (<View style={styles.etaContainer}><Text style={styles.etaText}>Estimated Time Arrival: {eta}</Text></View>)}
 
-      {eta && (
-        <>
-          <View style={styles.etaContainer}>
-            <Text style={styles.etaText}>Estimated Time Arrival: {eta}</Text>
-          </View>
-          <TouchableOpacity onPress={clearRoute} style={styles.clearRouteButton}>
-            <Text style={styles.clearRouteButtonText}>Clear Route</Text>
-          </TouchableOpacity>
+      {eta && (<>
+        <View style={styles.etaContainer}><Text style={styles.etaText}>Estimated Time Arrival: {eta}</Text></View>
+          <TouchableOpacity onPress={clearRoute} style={styles.clearRouteButton}><Text style={styles.clearRouteButtonText}>Clear Route</Text></TouchableOpacity>
         </>
       )}
 
-      <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}>
-        <MaterialIcons name="list" size={24} color="black" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.callButton} onPress={makePhoneCall}>
-        <MaterialIcons name="call" size={24} color="black" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.callButton} onPress={makePhoneCall}>
-        <MaterialIcons name="call" size={24} color="black" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}>
-        <MaterialIcons name="menu" size={24} color="black" />
-      </TouchableOpacity>
-
-      <Image
-        source={require('./assets/Logo.png')}
-        style={styles.logo}
-        resizeMode="contain"
-        pointerEvents="none"
-      />
-
-      <TouchableOpacity style={styles.locationButton} onPress={centerOnUserLocation}>
-        <MaterialIcons name="my-location" size={24} color="black" />
-      </TouchableOpacity>
-
-      <TouchableOpacity style={[styles.exitButton]} onPress={handleSignOut}>
-        <MaterialIcons name="exit-to-app" size={24} color="black" />
-      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}><MaterialIcons name="list" size={24} color="black" /></TouchableOpacity>
+      <TouchableOpacity style={styles.callButton} onPress={makePhoneCall}><MaterialIcons name="call" size={24} color="black" /></TouchableOpacity>
+      <TouchableOpacity style={styles.callButton} onPress={makePhoneCall}><MaterialIcons name="call" size={24} color="black" /></TouchableOpacity>
+      <TouchableOpacity style={styles.menuButton} onPress={toggleDropdown}><MaterialIcons name="menu" size={24} color="black" /></TouchableOpacity>
+      <Image source={require('./assets/Logo.png')} style={styles.logo} resizeMode="contain" pointerEvents="none"/>
+      <TouchableOpacity style={styles.locationButton} onPress={centerOnUserLocation}><MaterialIcons name="my-location" size={24} color="black" /></TouchableOpacity>
+      <TouchableOpacity style={[styles.exitButton]} onPress={handleSignOut}><MaterialIcons name="exit-to-app" size={24} color="black" /></TouchableOpacity>
 
       {isDropdownVisible && (
         <View style={styles.dropdown}>
-          <Text style={styles.dropdownTitle}>
-            {currentOrders.length > 0 ? 'Current Orders' : 'No Current Orders'}
-          </Text>
+          <Text style={styles.dropdownTitle}> {currentOrders.length > 0 ? 'Current Orders' : 'No Current Orders'} </Text>
           <View style={styles.titleUnderline}></View>
-          <ScrollView style={styles.scrollView}>
+          <ScrollView style={styles.scrollView}> 
             {currentOrders.map((order) => (
               <View key={order.id}>
                 <TouchableOpacity onPress={() => onSelectOrder(order.id)} style={styles.dropdownItem}>
-                  <Text style={styles.dropdownItemText}>
-                    Order <Text style={styles.orderNumber}>#{order.orderNumber}</Text> by{' '}
-                    {order.userFirstName} {order.userLastName} -{' '}
-                    {order.deliveryAddress.split(',').slice(0, 2).join(',')}
-                  </Text>
+                  <Text style={styles.dropdownItemText}> Order <Text style={styles.orderNumber}>#{order.orderNumber}
+                  </Text> by{' '} {order.userFirstName} {order.userLastName} -{' '} {order.deliveryAddress.split(',').slice(0, 2).join(',')} </Text>
                 </TouchableOpacity>
                 <View style={styles.dropdownDivider}></View>
               </View>
@@ -562,151 +530,7 @@ const Dashboard = ({ navigation }) => {
   );
 };
 
-const { width, height } = Dimensions.get('window');
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
-  menuButton: {
-    position: 'absolute',
-    top: '5%',
-    left: '5%',
-    padding: 10,
-    backgroundColor: '#fff',
-    borderRadius: 30,
-    zIndex: 1,
-  },
-  dropdown: {
-    position: 'absolute',
-    top: 80,
-    left: 0,
-    backgroundColor: '#fff',
-    padding: 3,
-    borderRadius: 5,
-    zIndex: 10,
-    minWidth: 400,
-  },
-  dropdownItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  dropdownItemText: {
-    fontSize: 16,
-    marginVertical: 5,
-    paddingHorizontal: 0,
-  },
-  dropdownDivider: {
-    height: 0,
-    backgroundColor: '#e0e0e0',
-    marginVertical: 0,
-  },
-  locationButton: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    width: 40,
-    height: 40,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  logo: {
-    position: 'absolute',
-    top: '-5%',
-    alignSelf: 'center',
-    width: 175,
-    height: 175,
-    resizeMode: 'contain',
-    zIndex: 1,
-  },
-  callButton: {
-    position: 'absolute',
-    top: '17%',
-    left: '5%',
-    padding: 10,
-    backgroundColor: '#fff',
-    borderRadius: 30,
-    zIndex: 1,
-  },
-  scrollView: {
-    maxHeight: 500,
-  },
-  orderNumber: {
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  etaContainer: {
-    position: 'absolute',
-    bottom: 70,
-    left: '5%',
-    right: '5%',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    padding: 8,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  etaText: {
-    fontSize: 17,
-    fontWeight: 'bold',
-  },
-  clearRouteButton: {
-    position: 'absolute',
-    bottom: 17,
-    alignSelf: 'center',
-    backgroundColor: '#e74c3c',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 5,
-    zIndex: 10,
-  },
-  clearRouteButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-  },
-  exitButton: {
-    position: 'absolute',
-    top: '29%',
-    left: '5%',
-    padding: 10,
-    backgroundColor: '#fff',
-    borderRadius: 30,
-    zIndex: 1,
-  },
-  dropdownTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    padding: 10,
-    color: '#000',
-    textAlign: 'center',
-  },
-  titleUnderline: {
-    height: 2,
-    backgroundColor: 'lightgrey',
-    borderRadius: 10,
-    marginVertical: 1,
-    width: '100%',
-  },
-});
-
-Dashboard.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func.isRequired,
-  }).isRequired,
-};
+// Define propTypes for the component for better type checking and documentation.
+Dashboard.propTypes = { navigation: PropTypes.shape({ navigate: PropTypes.func.isRequired, }).isRequired, };
 
 export default Dashboard;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Modal, Image } from 'react-native';
 import { getFirestore, collection, query, onSnapshot } from 'firebase/firestore';
 
 const ContactScreen = ({ navigation }) => {
@@ -47,6 +47,11 @@ const ContactScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            <Image
+              source={require("./assets/Logo.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Messages</Text>
             <TouchableOpacity
                 style={styles.groupChatButton}
@@ -98,14 +103,16 @@ const ContactScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
-        paddingHorizontal: 20,
+        // paddingTop: 32,
+        paddingHorizontal: 16,
         backgroundColor: "#fff",
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: 16,
+        color: "#333",
+        alignSelf: "flex-start",
     },
     groupChatButton: {
         backgroundColor: "#e74c3c", // Deep orange color
@@ -187,7 +194,16 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: "center"
-    }
+    },
+    logo: {
+        marginTop: -34,
+        marginBottom: -16,
+        alignSelf: 'center',
+        width: 175,
+        height: 175,
+        resizeMode: 'contain',
+        zIndex: 1,
+    },
 });
 
 export default ContactScreen;
