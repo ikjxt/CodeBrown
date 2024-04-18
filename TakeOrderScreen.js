@@ -21,6 +21,7 @@ import { getAuth } from "firebase/auth";
 import { doc, setDoc, updateDoc, serverTimestamp, collection, query, where, getDocs, orderBy, limit, getDoc } from "firebase/firestore";
 import { getDistance, getCompletion } from "./utils";
 import { LinearGradient } from 'expo-linear-gradient';
+import { ScrollView } from "react-native-gesture-handler";
 
 
 const GOOGLE_PLACES_API_KEY = "AIzaSyBD14niYPy6mOu_234-bMZgK-3m6gzOZRg";
@@ -218,97 +219,175 @@ const TakeOrderScreen = () => {
       onPress={() => handleSuggestionPress(item.place_id)}
     >
       <Text>{item.description}</Text>
+      
     </TouchableOpacity>
   );
 
-  const renderOrderDetails = () => (
-    <View style={styles.content}>  
-      <Image
-        source={require("./assets/Logo.png")}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-      <Text style={styles.headerText}>Order Details</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={(text) => setOrderNumber(text.toUpperCase())}
-        value={orderNumber}
-        onSubmitEditing={Keyboard.dismiss}
-        placeholder="Enter Order Number"
-        placeholderTextColor="#888"
-        returnKeyType="done"
-      />
-      <Text style={styles.headerText}>Delivery Address</Text>
-      <TextInput
-        style={styles.input}
-        value={deliveryAddress}
-        onChangeText={handleAddressChange}
-        placeholder="Enter Delivery Address"
-        placeholderTextColor="#888"
-      />
-      {suggestions.length > 0 && (
-        <FlatList
-          data={suggestions}
-          renderItem={renderSuggestion}
-          keyExtractor={(item) => item.place_id}
-          style={styles.suggestionsList}
-          keyboardShouldPersistTaps="always"
-        />
-      )}
+  // const renderOrderDetails = () => ( COMMENTED OUT FOR TESTING
+  //     <View style={styles.content}>  
+  //       <Image
+  //         source={require("./assets/Logo.png")}
+  //         style={styles.logo}
+  //         resizeMode="contain"
+  //       />
+  //       <Text style={styles.headerText}>Order Details</Text>
+  //       <TextInput
+  //         style={styles.input}
+  //         onChangeText={(text) => setOrderNumber(text.toUpperCase())}
+  //         value={orderNumber}
+  //         onSubmitEditing={Keyboard.dismiss}
+  //         placeholder="Enter Order Number"
+  //         placeholderTextColor="#888"
+  //         returnKeyType="done"
+  //       />
+  //       <Text style={styles.headerText}>Delivery Address</Text>
+  //       <TextInput
+  //         style={styles.input}
+  //         value={deliveryAddress}
+  //         onChangeText={handleAddressChange}
+  //         placeholder="Enter Delivery Address"
+  //         placeholderTextColor="#888"
+  //       />
+  //       {suggestions.length > 0 && (
+  //         <FlatList
+  //           data={suggestions}
+  //           renderItem={renderSuggestion}
+  //           keyExtractor={(item) => item.place_id}
+  //           style={styles.suggestionsList}
+  //           keyboardShouldPersistTaps="always"
+  //         />
+  //       )}
 
-      <Text style={styles.headerText}>Customer Phone Number</Text>
-      <TextInput
-        ref ={custNumberRef}
-        style={styles.input}
-        value={custNumber}
-        onChangeText={handleCustNumberChange}
-        placeholder="Enter Customer Phone Number"
-        placeholderTextColor="#888"
-        returnKeyType="done"
-      />
+  //       <Text style={styles.headerText}>Customer Phone Number</Text>
+  //       <TextInput
+  //         ref ={custNumberRef}
+  //         style={styles.input}
+  //         value={custNumber}
+  //         onChangeText={handleCustNumberChange}
+  //         placeholder="Enter Customer Phone Number"
+  //         placeholderTextColor="#888"
+  //         returnKeyType="done"
+  //       />
 
-      <Text style={styles.headerText}>Route Information</Text>
-      <View style={styles.routeContainer}>
-        <Text style={styles.routeText}>
-          <Text style={styles.routeLabel}>Estimated Time:</Text> {estimatedTime} minutes
-        </Text>
-        <Text style={styles.routeText}>
-          <Text style={styles.routeLabel}>Distance:</Text> {distance} miles
-        </Text>
-      </View>
+  //       <Text style={styles.headerText}>Route Information</Text>
+  //       <View style={styles.routeContainer}>
+  //         <Text style={styles.routeText}>
+  //           <Text style={styles.routeLabel}>Estimated Time:</Text> {estimatedTime} minutes
+  //         </Text>
+  //         <Text style={styles.routeText}>
+  //           <Text style={styles.routeLabel}>Distance:</Text> {distance} miles
+  //         </Text>
+  //       </View>
 
-      <TouchableOpacity style={styles.startButton} onPress={handleStartOrderPress}>
-        <Text style={styles.buttonText}>Start Order</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.completeButton} onPress={handleCompleteOrderPress}>
-        <Text style={styles.buttonText}>Complete Order</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.navigateButton} onPress={handleNavigatePress}>
-        <Text style={styles.buttonText}>Navigate</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  //       <TouchableOpacity style={styles.buttonBig} onPress={handleStartOrderPress}>
+  //         <Text style={styles.buttonText}>Start Order</Text>
+  //       </TouchableOpacity>
+  //       <TouchableOpacity style={styles.buttonBig} onPress={handleCompleteOrderPress}>
+  //         <Text style={styles.buttonText}>Complete Order</Text>
+  //       </TouchableOpacity>
+  //       <TouchableOpacity style={styles.buttonBig} onPress={handleNavigatePress}>
+  //         <Text style={styles.buttonText}>Navigate</Text>
+  //       </TouchableOpacity>
+  //     </View>
+      
+  // );
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.content}>
-          <FlatList
-            data={[{ key: "orderDetails" }]}
-            renderItem={renderOrderDetails}
-            contentContainerStyle={styles.contentContainer}
-            keyboardShouldPersistTaps="always"
-          />
-        </View>
-      </TouchableWithoutFeedback>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            {/* <FlatList
+              data={[{ key: "orderDetails" }]}
+              renderItem={renderOrderDetails}
+              contentContainerStyle={styles.contentContainer}
+              keyboardShouldPersistTaps="always"
+            /> */}
+          <View style={styles.content}>  
+            <Image
+              source={require("./assets/Logo.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.headerText}>Order Details</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={(text) => setOrderNumber(text.toUpperCase())}
+              value={orderNumber}
+              onSubmitEditing={Keyboard.dismiss}
+              placeholder="Enter Order Number"
+              placeholderTextColor="#888"
+              returnKeyType="done"
+            />
+            <Text style={styles.headerText}>Delivery Address</Text>
+            <TextInput
+              style={styles.input}
+              value={deliveryAddress}
+              onChangeText={handleAddressChange}
+              placeholder="Enter Delivery Address"
+              placeholderTextColor="#888"
+            />
+            {deliveryAddress !== "" && (
+              <FlatList
+                data={suggestions}
+                renderItem={renderSuggestion}
+                keyExtractor={(item) => item.place_id}
+                style={styles.suggestionsList}
+                keyboardShouldPersistTaps="always"
+                nestedScrollEnabled={true} // [4/18] This fixed this screens bug of not spreading across the whole screen horizontally, along with the commented out code above
+              />
+            )}
+
+            <Text style={styles.headerText}>Customer Phone Number</Text>
+            <TextInput
+              ref ={custNumberRef}
+              style={styles.input}
+              value={custNumber}
+              onChangeText={handleCustNumberChange}
+              placeholder="Enter Customer Phone Number"
+              placeholderTextColor="#888"
+              returnKeyType="done"
+            />
+
+            <Text style={styles.headerText}>Route Information</Text>
+            <View style={styles.routeContainer}>
+              <Text style={styles.routeText}>
+                <Text style={styles.routeLabel}>Estimated Time:</Text> {estimatedTime} minutes
+              </Text>
+              <Text style={styles.routeText}>
+                <Text style={styles.routeLabel}>Distance:</Text> {distance} miles
+              </Text>
+            </View>
+
+            <TouchableOpacity style={styles.buttonBig} onPress={handleStartOrderPress}>
+              <Text style={styles.buttonText}>Start Order</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.buttonBig} onPress={handleCompleteOrderPress}>
+              <Text style={styles.buttonText}>Complete Order</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.buttonBig} onPress={handleNavigatePress}>
+              <Text style={styles.buttonText}>Navigate</Text>
+            </TouchableOpacity>
+            
+          </View>
+        </TouchableWithoutFeedback>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  scroll: {
+    flexGrow: 1,
+  },  
   container: {
+    width: "100%",
     flex: 1,
     backgroundColor: "#fff",
+  },
+  background: {
+    flex: 1,
+    width: '100%', // Ensure it covers the whole screen
+    height: '100%', // Depending on your layout you might need to adjust this
   },
   contentContainer: {
     width: "100%",
@@ -316,16 +395,18 @@ const styles = StyleSheet.create({
     //backgroundColor: 'rgba(255, 255, 255, 0.9)', 
   },
   content: {
+    width: "100%",
     flex: 1,
-    // padding: 16,
+    padding: 16,
     alignItems: "center",
   },
   logo: {
-    width: 150,
+    width: "100%",
     height: 30,
     marginBottom: 5,
   },
   headerText: {
+    width: "100%",
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 8,
@@ -365,7 +446,7 @@ const styles = StyleSheet.create({
   routeLabel: {
     fontWeight: "bold",
   },
-  startButton: {
+  buttonBig: {
     backgroundColor: "#e74c3c", // Deep orange color
     borderRadius: 24,
     paddingVertical: 12,
@@ -380,40 +461,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    width: 205,
-  },
-  completeButton: {
-    backgroundColor: "#e74c3c", // Green color: "#4caf50". [4/10]: changed to orange
-    borderRadius: 24,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    alignItems: "center",
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: 205,
-  },
-  navigateButton: {
-    backgroundColor: "#e74c3c", // Blue color: "#2196f3". [4/10]: changed to orange
-    borderRadius: 24,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: 205,
+    width: "100%",
   },
   buttonText: {
     color: "#fff",
@@ -421,14 +469,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   suggestionsList: {
+    flex: 1,
     width: "100%",
     backgroundColor: "#fff",
     borderRadius: 4,
     marginTop: -8,
     marginBottom: 16,
     elevation: 2,
+
   },
   suggestion: {
+    flex: 1,
+    width: "100%",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
