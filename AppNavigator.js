@@ -54,7 +54,7 @@ function AuthenticatedTabs({ role,userId }) {
       {/* Define the screens as Tab Screens */}
       <Tab.Screen name="Dashboard" component={Dashboard} />
       <Tab.Screen name="Contacts" component={ContactsScreen} />
-      <Tab.Screen name="TakeOrder" component={TakeOrderScreen} options={{ tabBarLabel: 'TakeOrder' }}/> 
+      <Tab.Screen name="TakeOrder" component={TakeOrderScreen} options={{ tabBarLabel: 'Take Order' }}/> 
       <Tab.Screen name="Profile" component={UserProfileScreen} />
       {role === 'manager' && <Tab.Screen name="Log" component={driverselection} />}
 

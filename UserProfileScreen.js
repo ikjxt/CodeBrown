@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from 'r
 import Card from './Card';
 import { getAuth } from 'firebase/auth';
 import { PropTypes } from 'prop-types';
-import { doc, getDoc } from '@firebase/firestore';
+import { doc, getDoc, onSnapshot } from '@firebase/firestore';
 import { db } from "./firebaseConfig";
 
 const UserProfileScreen = ({ navigation }) => {

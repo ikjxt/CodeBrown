@@ -134,14 +134,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   contentContainer: {
-    //flexGrow: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.9)', 
   },
   content: {
     flex: 1,
     padding: 16,
     alignItems: "center",
-    //flexDirection: "column",
   },
   logo: {
     width: 150,

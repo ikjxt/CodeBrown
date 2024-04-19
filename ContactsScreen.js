@@ -64,6 +64,7 @@ const ContactScreen = ({ navigation }) => {
                 placeholder="Search Contacts"
                 value={searchText}
                 onChangeText={setSearchText}
+                placeholderTextColor="#888"
             />
             <FlatList
                 data={handleSearch()}
@@ -138,12 +139,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     searchInput: {
+        width: "100%",
         height: 40,
-        borderColor: 'gray',
+        borderColor: "#ccc",
         borderWidth: 1,
-        borderRadius: 5,
-        marginBottom: 20,
-        paddingHorizontal: 10,
+        borderRadius: 4,
+        marginBottom: 16,
+        paddingHorizontal: 8,
+        backgroundColor: "#fff",
     },
     contactList: {
         flex: 1,
