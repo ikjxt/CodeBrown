@@ -131,11 +131,13 @@ function AppNavigator({ isAuthenticated }) {
               {() => <AuthenticatedTabs role={role} userId={userId} />}
             </Stack.Screen>
             <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
+
             <Stack.Screen name="Group Chat" component={ChatScreen} />
             <Stack.Screen name="Location History" component={LocationHistoryScreen} />
+
             <Stack.Screen name="TakeOrderScreen" component={TakeOrderScreen} />
             <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} />
-            <Stack.Screen name="Edit Profile" component={EditProfileScreen} />
+            <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
             <Stack.Screen name="Enter Current Password" component={ChangePasswordScreen} />
             <Stack.Screen name="Enter New Password" component={ChangePasswordScreen2} />
             <Stack.Screen name="Enter Current Password " component={ChangeEmailScreen} />

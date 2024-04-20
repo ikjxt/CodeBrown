@@ -1,3 +1,4 @@
+
 //Dashboard Styles
 import { StyleSheet, Dimensions } from 'react-native';
 
