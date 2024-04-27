@@ -103,7 +103,7 @@ function AppNavigator({ isAuthenticated }) {
         const docRef = doc(db, 'USERS', user.email);  
         const docSnap = await getDoc(docRef);
 
-        setRole(docSnap.data().role);
+        setRole(docSnap.data().role);  
 
         if (docSnap.exists()) {
           const Data = docSnap.data();
@@ -131,8 +131,10 @@ function AppNavigator({ isAuthenticated }) {
               {() => <AuthenticatedTabs role={role} userId={userId} />}
             </Stack.Screen>
             <Stack.Screen name="ContactsScreen" component={ContactsScreen} />
-            <Stack.Screen name="ChatScreen" component={ChatScreen} />
-            <Stack.Screen name="LocationHistoryScreen" component={LocationHistoryScreen} />
+
+            <Stack.Screen name="Group Chat" component={ChatScreen} />
+            <Stack.Screen name="Location History" component={LocationHistoryScreen} />
+
             <Stack.Screen name="TakeOrderScreen" component={TakeOrderScreen} />
             <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} />
             <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
