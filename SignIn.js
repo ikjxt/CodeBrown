@@ -94,7 +94,7 @@ const SignIn = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
 
-        <Text style={styles.logoText}>Round Table Pizza</Text>
+        <Text style={styles.logoText}>Cheesy Tracker</Text>
         <Text style={styles.title}>DELIVERY APP</Text>
 
         <TextInput
