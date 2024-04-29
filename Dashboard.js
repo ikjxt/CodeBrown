@@ -318,8 +318,41 @@ const Dashboard = ({ navigation }) => {
     } catch (error) {
         console.error('Error fetching order details or user location:', error);
     }
-};
 
+    const orderData = orderDocSnap.data();
+
+    // Fetch the location of the user who created the order
+    const userLocationSnap = await getDoc(doc(db, 'locations', orderData.userId));
+    if (!userLocationSnap.exists()) {
+      console.error(`Location for user ID ${orderData.userId} not found`);
+      return;
+    }
+    const creatorLocationData = userLocationSnap.data();
+    const lastLocationUpdate = creatorLocationData.timestamp.toDate();
+    const timeDifference = new Date() - lastLocationUpdate;
+    const isActive = timeDifference < 3000;
+    console.log('isActive:', isActive);
+
+    setOrderCreatorLocation({ latitude: creatorLocationData.latitude, longitude: creatorLocationData.longitude, userId: orderData.userId, isActive, });
+    
+    const startLocation = { latitude: creatorLocationData.latitude, longitude: creatorLocationData.longitude };
+    const deliveryAddress = orderData.deliveryAddress;
+    setDeliveryLocation(null);
+    const destinationLocation = await memoizedGeocodeAddress(deliveryAddress);
+    setDeliveryLocation(destinationLocation);
+    const { steps, eta } = await getDirections(startLocation, destinationLocation);
+    setPolylineCoordinates(steps);
+    setEta(eta);
+    setMarkerLocation(destinationLocation);
+
+    mapViewRef.current.fitToCoordinates([startLocation, destinationLocation], {
+        edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
+        animated: true,
+      });
+  
+      setIsDropdownVisible(false);
+    } catch (error) { console.error('Error fetching order details or user location:', error); }
+  };
 
   
   // Function to geocode an address using Google Maps API
@@ -392,7 +425,6 @@ const Dashboard = ({ navigation }) => {
       },
     ]);
   };
-
 
   // Function to toggle the dropdown
   const toggleDropdown = () => {
@@ -482,6 +514,7 @@ const Dashboard = ({ navigation }) => {
       latitude: orderCreatorLocation.latitude,
       longitude: orderCreatorLocation.longitude,
     }}
+
     title={`User: ${orderCreatorLocation.userFirstName || 'Unknown'} ${orderCreatorLocation.userLastName || 'User'}`} // Display full name
   >
     <View style={{ alignItems: 'center', justifyContent: 'center' }}>
