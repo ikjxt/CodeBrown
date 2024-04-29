@@ -1,0 +1,147 @@
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, TextInput, ScrollView } from 'react-native';
+import Card from './Card';
+import { getAuth, signOut } from 'firebase/auth';
+import { PropTypes } from 'prop-types';
+import { doc, getDoc, updateDoc } from '@firebase/firestore';
+import { db } from "./firebaseConfig";
+import { Alert } from 'react-native';
+
+
+const UserProfileScreen = ({ navigation }) => {
+  const [fName, setFName] = useState('');
+  const [lName, setLName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const docRef = doc(db, 'USERS', user.email);
+        const docSnap = await getDoc(docRef);
+        setFName(docSnap.data().firstName);
+        setLName(docSnap.data().lastName);
+        setEmail(docSnap.data().email);
+        setPhone(docSnap.data().phoneNumber);
+      } catch (error) {
+        console.error('Error fetching document:', error);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  const editProfile = async () => {
+    try {
+      const docRef = doc(db, 'USERS', user.email);
+      await updateDoc(docRef, {
+        firstName: fName,
+        lastName: lName,
+        email: email,
+        phoneNumber: phone,
+      });
+      Alert.alert('Success', 'Profile updated successfully!');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      Alert.alert('Error', 'Failed to update profile. Please try again.');
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.profileContainer}>
+          <Card
+            title="Profile"
+            description={
+              <View>
+                <Text style={styles.label}>First Name:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={fName}
+                  onChangeText={setFName}
+                  placeholder="First Name"
+                />
+                <Text style={styles.label}>Last Name:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={lName}
+                  onChangeText={setLName}
+                  placeholder="Last Name"
+                />
+                <Text style={styles.label}>Email:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="Email"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                <Text style={styles.label}>Phone:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={phone}
+                  onChangeText={setPhone}
+                  placeholder="Phone"
+                  keyboardType="phone-pad"
+                />
+              </View>
+            }
+          />
+          <TouchableOpacity style={styles.editButton} onPress={editProfile}>
+            <Text>Edit Profile</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
+  },
+  profileContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  editButton: {
+    backgroundColor: "#e74c3c",
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 100,
+    fontSize: 18,
+    fontWeight: "bold",
+    alignItems: "center",
+    marginTop: 20,
+  },
+});
+
+UserProfileScreen.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
+};
+
+export default UserProfileScreen;

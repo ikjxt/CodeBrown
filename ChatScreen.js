@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
@@ -11,21 +11,23 @@ const ChatScreen = () => {
   const flatListRef = useRef();
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(query(collection(db, 'messages'), orderBy('createdAt', 'asc'), limit(20)), (snapshot) => {
-      const updatedMessages = [];
-      snapshot.forEach((doc) => {
-        updatedMessages.push({ id: doc.id, ...doc.data() });
-      });
+    const messagesQuery = query(collection(db, 'messages'), orderBy('createdAt', 'asc'), limit(100));
+    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+      const updatedMessages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
       setMessages(updatedMessages);
       scrollToBottom();
     });
+
     return () => unsubscribe();
   }, []);
 
   const sendMessage = async () => {
     if (inputText.trim() === '') return;
 
-    const { uid, email } = auth.currentUser;
+    const { uid, email } = auth.currentUser || {};
     const createdAt = new Date();
     const message = {
       text: inputText,
@@ -37,7 +39,6 @@ const ChatScreen = () => {
     try {
       await addDoc(collection(db, 'messages'), message);
       setInputText('');
-      scrollToBottom();
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -50,20 +51,22 @@ const ChatScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : null} style={styles.container} keyboardVerticalOffset={Platform.select({ ios: 0, android: 10 })}>
+    <View style={styles.container}>
       <FlatList
         ref={flatListRef}
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.messageContainer}>
-            <Text style={[styles.messageText, { color: item.email === auth.currentUser.email ? 'red' : 'black' }]}>
-              {item.email} - {item.text}
-            </Text>
+          <View style={[
+            styles.messageBubble,
+            item.email === auth.currentUser?.email ? styles.currentUserBubble : styles.otherUserBubble
+          ]}>
+            <Text style={styles.senderName}>{item.email}</Text>
+            <Text style={styles.messageText}>{item.text}</Text>
           </View>
         )}
-        contentContainerStyle={{ flexGrow: 1 }} // Add flexGrow to ensure the content expands to fill the space
-        onContentSizeChange={scrollToBottom} // Ensure auto-scroll when content changes
+        contentContainerStyle={styles.listContentContainer}
+        onContentSizeChange={scrollToBottom}
       />
       <View style={styles.inputContainer}>
         <TextInput
@@ -77,51 +80,70 @@ const ChatScreen = () => {
           <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#E5E5E5', // Light grey background
   },
-  messageContainer: {
+  listContentContainer: {
+    flexGrow: 1,
     padding: 10,
-    marginVertical: 5,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
-    maxWidth: '80%',
+  },
+  messageBubble: {
+    padding: 10,
+    borderRadius: 20,
+    marginVertical: 4,
+    maxWidth: '75%',
+    alignSelf: 'flex-start',
+  },
+  currentUserBubble: {
+    backgroundColor: '#DCF8C6', // Light green bubble for current user
     alignSelf: 'flex-end',
+    marginRight: 10,
+  },
+  otherUserBubble: {
+    backgroundColor: '#FFFFFF', // White bubble for others
+    marginLeft: 10,
+  },
+  senderName: {
+    fontSize: 12,
+    color: '#6C757D', // Dark grey color for the sender's name
+    marginBottom: 2,
   },
   messageText: {
     fontSize: 16,
+    color: '#212529', // Dark color for the message text
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: '#CCC',
     paddingHorizontal: 10,
-    paddingVertical: 5,
-    height: 60, // Set a fixed height for the input container
+    paddingVertical: 8,
+    backgroundColor: '#FFF', // White background for the input area
   },
   input: {
     flex: 1,
     height: 40,
     paddingHorizontal: 10,
-    backgroundColor: '#fff',
-    borderRadius: 5,
+    backgroundColor: '#F8F9FA', // Very light grey background for the input field
+    borderRadius: 20,
     marginRight: 10,
   },
   sendButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    backgroundColor: '#007BFF', // Bright blue background for the send button
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
   },
   sendButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#FFFFFF', // White color for the send button text
+    fontSize: 16,
   },
 });
 

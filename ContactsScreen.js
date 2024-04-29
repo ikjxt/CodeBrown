@@ -1,21 +1,31 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Alert, Modal } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Modal, Image } from 'react-native';
+import { getFirestore, collection, query, onSnapshot } from 'firebase/firestore';
 
 const ContactScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState('');
-    const [contacts, setContacts] = useState([
-        { id: '1', name: 'Alex', email: 'alex@example.com' },
-        { id: '2', name: 'Bridgette', email: 'bridgette@example.com' },
-        { id: '3', name: 'Connor', email: 'connor@example.com' },
-        // Add more contacts as needed
-    ]);
-    const [newContactName, setNewContactName] = useState('');
-    const [newContactEmail, setNewContactEmail] = useState('');
+    const [contacts, setContacts] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedContact, setSelectedContact] = useState(null);
 
+    useEffect(() => {
+        const db = getFirestore();
+        const unsubscribe = onSnapshot(query(collection(db, 'USERS')), (snapshot) => {
+            const fetchedContacts = snapshot.docs.map(doc => ({
+                id: doc.id,
+                name: `${doc.data().firstName} ${doc.data().lastName}`,
+                email: doc.data().email,
+                firstName: doc.data().firstName,
+                lastName: doc.data().lastName
+            }));
+            setContacts(fetchedContacts);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     const handleGroupChatPress = () => {
-        navigation.navigate('ChatScreen');
+        navigation.navigate('Group Chat');
     };
 
     const handleContactPress = (contact) => {
@@ -24,34 +34,24 @@ const ContactScreen = ({ navigation }) => {
     };
 
     const handleSearch = () => {
-        const filteredContacts = contacts.filter(contact =>
+        return contacts.filter(contact =>
             contact.name.toLowerCase().includes(searchText.toLowerCase())
         );
-        return filteredContacts;
-    };
-
-    const handleAddContact = () => {
-        if (newContactName && newContactEmail) {
-            const newId = String(contacts.length + 1); // Simple ID generation
-            const newContact = { id: newId, name: newContactName, email: newContactEmail };
-            setContacts([...contacts, newContact]);
-            setNewContactName('');
-            setNewContactEmail('');
-        } else {
-            Alert.alert('Missing Information', 'Please enter both a name and an email for the new contact.');
-        }
     };
 
     const renderContactItem = ({ item }) => (
-        <TouchableOpacity
-            style={styles.contactItem}
-            onPress={() => handleContactPress(item)}>
+        <TouchableOpacity style={styles.contactItem} onPress={() => handleContactPress(item)}>
             <Text style={styles.contactName}>{item.name}</Text>
         </TouchableOpacity>
     );
 
     return (
         <View style={styles.container}>
+            <Image
+              source={require("./assets/Logo.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Messages</Text>
             <TouchableOpacity
                 style={styles.groupChatButton}
@@ -64,6 +64,7 @@ const ContactScreen = ({ navigation }) => {
                 placeholder="Search Contacts"
                 value={searchText}
                 onChangeText={setSearchText}
+                placeholderTextColor="#888"
             />
             <FlatList
                 data={handleSearch()}
@@ -71,27 +72,11 @@ const ContactScreen = ({ navigation }) => {
                 keyExtractor={item => item.id}
                 style={styles.contactList}
             />
-            <TextInput
-                style={styles.input}
-                placeholder="New Contact's Name"
-                value={newContactName}
-                onChangeText={setNewContactName}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="New Contact's Email"
-                value={newContactEmail}
-                onChangeText={setNewContactEmail}
-            />
-            <TouchableOpacity style={styles.addButton} onPress={handleAddContact}>
-                <Text style={styles.buttonText}>Add Contact</Text>
-            </TouchableOpacity>
             <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
                 onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
                     setModalVisible(!modalVisible);
                 }}
             >
@@ -99,7 +84,7 @@ const ContactScreen = ({ navigation }) => {
                     <View style={styles.modalView}>
                         {selectedContact && (
                             <>
-                                <Text style={styles.modalText}>Name: {selectedContact.name}</Text>
+                                <Text style={styles.modalText}>Name: {selectedContact.firstName} {selectedContact.lastName}</Text>
                                 <Text style={styles.modalText}>Email: {selectedContact.email}</Text>
                             </>
                         )}
@@ -107,7 +92,7 @@ const ContactScreen = ({ navigation }) => {
                             style={[styles.button, styles.buttonClose]}
                             onPress={() => setModalVisible(!modalVisible)}
                         >
-                            <Text style={styles.textStyle}>Hide</Text>
+                            <Text style={styles.textStyle}>Close</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -119,20 +104,33 @@ const ContactScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
-        paddingHorizontal: 20,
+        // paddingTop: 32,
+        paddingHorizontal: 16,
+        backgroundColor: "#fff",
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: 16,
+        color: "#333",
+        alignSelf: "flex-start",
     },
     groupChatButton: {
-        paddingVertical: 15,
-        paddingHorizontal: 30,
-        borderRadius: 10,
-        marginBottom: 20,
-        backgroundColor: '#e74c3c',
+        backgroundColor: "#e74c3c", // Deep orange color
+        borderRadius: 24,
+        paddingVertical: 12,
+        paddingHorizontal: 32,
+        alignItems: "center",
+        marginBottom: 16,
+        shadowColor: "#000",
+        shadowOffset: {
+        width: 0,
+        height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        width: "100%",
     },
     buttonText: {
         fontSize: 18,
@@ -141,27 +139,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     searchInput: {
+        width: "100%",
         height: 40,
-        borderColor: 'gray',
+        borderColor: "#ccc",
         borderWidth: 1,
-        borderRadius: 5,
-        marginBottom: 20,
-        paddingHorizontal: 10,
-    },
-    input: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-    },
-    addButton: {
-        backgroundColor: '#e74c3c',
-        paddingVertical: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        marginBottom: 20,
+        borderRadius: 4,
+        marginBottom: 16,
+        paddingHorizontal: 8,
+        backgroundColor: "#fff",
     },
     contactList: {
         flex: 1,
@@ -178,7 +163,8 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 22
+        marginTop: 22,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
     },
     modalView: {
         margin: 20,
@@ -201,7 +187,7 @@ const styles = StyleSheet.create({
         elevation: 2
     },
     buttonClose: {
-        backgroundColor: "#2196F3",
+        backgroundColor: '#e74c3c',
     },
     textStyle: {
         color: "white",
@@ -212,7 +198,15 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         textAlign: "center"
     },
-    // Add any other styles you may have
+    logo: {
+        marginTop: -34,
+        marginBottom: -16,
+        alignSelf: 'center',
+        width: 175,
+        height: 175,
+        resizeMode: 'contain',
+        zIndex: 1,
+    },
 });
 
 export default ContactScreen;

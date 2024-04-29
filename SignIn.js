@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, Animated, Switch, ImageBackground} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard, Animated, Switch, ImageBackground, ActivityIndicator} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import app from './firebaseConfig';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
@@ -8,42 +8,21 @@ import { db } from './firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
-
-
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false); // State to manage checkbox status
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [isValidCredentials, setIsValidCredentials] = useState(false);
   const navigation = useNavigation();
   const formOpacity = useRef(new Animated.Value(0)).current;
 
-
-  // const fetchUserRoleAndNavigate = async (userId) => {
-  //   const driverDocRef = doc(db, "DRIVERS", userId);
-  //   const managerDocRef = doc(db, "MANAGERS", userId);
-
-  //   const driverDocSnap = await getDoc(driverDocRef);
-  //   if (driverDocSnap.exists()) {
-  //     navigation.navigate('Dashboard', { role: 'driver' });
-  //     return;
-  //   }
-
-  //   const managerDocSnap = await getDoc(managerDocRef);
-  //   if (managerDocSnap.exists()) {
-  //     navigation.navigate('Dashboard', { role: 'manager' });
-  //     return;
-  //   }
-
-  //   Alert.alert("Error", "User's role could not be determined.");
-  // };
-
-  // Remove the header
-  // useLayoutEffect(() => {
-  //  navigation.setOptions({
-  //    headerShown: false,
-  //  });
-  //}, [navigation]); 
+  useEffect(() => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setIsValidCredentials(emailRegex.test(email) && password.length >= 6);
+  }, [email, password]);
 
   useEffect(() => {
     const loadCredentials = async () => {
@@ -51,13 +30,10 @@ const SignIn = () => {
       setRememberMe(savedRememberMe === 'true');
       if (savedRememberMe === 'true') {
         const savedEmail = await AsyncStorage.getItem('userEmail');
-        // Load and set the email if Remember Me was true, ignoring the password
         if (savedEmail) {
           setEmail(savedEmail);
-          // Do not automatically fill in the password
         }
       } else {
-        // Clear the email field if Remember Me is not true
         setEmail('');
       }
     };
@@ -70,12 +46,18 @@ const SignIn = () => {
   }, [navigation]);
 
   const handleSignIn = async () => {
+    if (!email || !password) {
+      setError('Please enter your email and password.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
     const auth = getAuth(app);
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         if (userCredential.user.emailVerified) {
-          // Email is verified, proceed with signing in
-          
           if (rememberMe) {
             await AsyncStorage.setItem('userEmail', email);
             await AsyncStorage.setItem('rememberMe', 'true');
@@ -85,14 +67,25 @@ const SignIn = () => {
           }
           navigation.navigate('Dashboard');
         } else {
-          // Email is not verified, alert the user
           Alert.alert("Email Verification Required", "Please verify your email before signing in.");
-          // Optional: Sign out the user to reinforce the verification process
           auth.signOut();
         }
       })
       .catch((error) => {
-        Alert.alert('Sign In Failed', error.message);
+        if (error.code === 'auth/user-not-found') {
+          setError('The provided email address is not registered.');
+        } else if (error.code === 'auth/wrong-password') {
+          setError('The provided password is incorrect.');
+        } else if (error.code === 'auth/too-many-requests') {
+          setError('Too many sign-in attempts. Please try again later.');
+        } else if (error.code === 'auth/user-disabled') {
+          setError('Your account has been disabled. Please contact support.');
+        } else {
+          setError('An error occurred. Please try again later.');
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
   
@@ -101,7 +94,7 @@ const SignIn = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
 
-        <Text style={styles.logoText}>Round Table Pizza</Text>
+        <Text style={styles.logoText}>Cheesy Tracker</Text>
         <Text style={styles.title}>DELIVERY APP</Text>
 
         <TextInput
@@ -111,6 +104,8 @@ const SignIn = () => {
           onChangeText={setEmail}
           value={email}
           autoCapitalize="none"
+          keyboardType="email-address"
+          accessibilityLabel="Email input"
         />
 
         <View style={styles.passwordContainer}>
@@ -121,54 +116,69 @@ const SignIn = () => {
             secureTextEntry={!showPassword}
             onChangeText={setPassword}
             value={password}
+            accessibilityLabel="Password input"
           />
           <TouchableOpacity
             style={styles.showPasswordButton}
             onPress={() => setShowPassword(!showPassword)}
+            accessibilityLabel="Toggle password visibility"
           >
             <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={20} color="#333333" />
           </TouchableOpacity>
-          </View>
-          <View style={styles.credentialsContainer}>
+        </View>
+
+        <View style={styles.credentialsContainer}>
           <View style={styles.leftSideContainer}>
-             <Switch
+            <Switch
               value={rememberMe}
               onValueChange={setRememberMe}
+              accessibilityLabel="Remember me switch"
             />
-          <Text style={styles.rememberMeText}>Remember Me</Text>
+            <Text style={styles.rememberMeText}>Remember Me</Text>
           </View>
 
-          <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')} style={styles.rightSideContainer}>
+          <TouchableOpacity onPress={() => navigation.navigate('forgotpassword')} style={styles.rightSideContainer} accessibilityLabel="Forgot password">
             <Text style={styles.switchTextfg}>Forgot Password?</Text>
           </TouchableOpacity>
-          </View>
+        </View>
 
-
-        <TouchableOpacity style={styles.button} onPress={handleSignIn}>
-          <Text style={styles.buttonText}>Sign In</Text>
+        {error && <Text style={styles.errorText}>{error}</Text>}
+        <TouchableOpacity
+          style={[styles.button, !isValidCredentials && styles.disabledButton]}
+          onPress={handleSignIn}
+          disabled={!isValidCredentials || isLoading}
+          accessibilityLabel="Sign in button"
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Sign In</Text>
+          )}
         </TouchableOpacity>
 
         <View style={styles.signUpContainer}>
           <Text style={styles.switchText1}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+            <TouchableOpacity onPress={() => navigation.navigate('SignUp')} accessibilityLabel="Sign up">
               <Text style={styles.switchText}>Sign Up</Text>
             </TouchableOpacity>
         </View>
-        </View>
+      </View>
     </TouchableWithoutFeedback>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f7f7f7',
+    paddingHorizontal: 16,
   },
   
   signUpContainer: {
     flexDirection: 'row',
-    marginTop: 20,
+    marginTop: 16,
   },
   overlay: {
     position: 'absolute',
@@ -176,7 +186,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.65)', // Ensures text readability over the video
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
   },
   rememberMeContainer: {
     flexDirection: 'row',
@@ -201,82 +211,101 @@ const styles = StyleSheet.create({
   },
   input: {
     width: 300,
-    height: 50,
-    borderColor: '#333333',
+    height: 40,
+    borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingLeft: 15,
+    borderRadius: 4,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    backgroundColor: "#fff",
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: 300,
-    height: 50,
-    borderColor: '#333333',
+    height: 40,
+    borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
-    paddingLeft: 15,
+    borderRadius: 4,
+    marginTop: 0,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    position: 'relative',
+    backgroundColor: "#fff",
+    
   },
   passwordInput: {
     flex: 1,
-    height: 50,
-
+    height: 40,
+    color: '#333333', // Adjusted for visibility on the overlay
+    fontSize: 14,
   },
   showPasswordButton: {
-    padding: 10,
-  },
-  button: {
-    backgroundColor: '#e74c3c',
-    padding: 15,
-    borderRadius: 5,
-    width: 300,
-    alignItems: 'center',
-    marginTop: 15,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-  },
-  switchText: {
-    color: 'blue', //"Sign up" link text
-    marginTop: 10,
-    
-  },
-  switchText1: {
-    marginTop: 10, // "Don't have an account" text
+    position: 'absolute',
+    right: 10,
+    height: '100%', // Match the height of passwordContainer
+    justifyContent: 'center', // Center the icon vertically
+    paddingHorizontal: 5, // Padding inside the button for touch area
     color: '#333333',
     
+  },
+  button: {
+    backgroundColor: "#e74c3c", // Deep orange color
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+    width: 0,
+    height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    width: 256,
+  },
+  buttonText: {
+      fontSize: 18,
+      color: 'white',
+      fontWeight: 'bold',
+      textAlign: 'center',
+  },
+  switchText: {
+    color: 'blue',
+    marginTop: 10,
+  },
+  switchText1: {
+    marginTop: 10,
+    color: '#333333',
   },
   switchTextfg: {
     color: 'blue',
   },
   leftSideContainer: {
     flexDirection: 'row',
-    alignItems: 'center', // This ensures vertical alignment in the row
-    marginTop: 2,
-    marginBottom: 5.5,
-    // Other styling as needed
+    alignItems: 'center',
+    marginBottom: 16,
   },
-  
   rightSideContainer: {
-    // Apply the same vertical alignment strategy as leftSideContainer
-    justifyContent: 'center', // If needed, based on your layout
-    // Other styling as needed
-    marginTop: 2,
-    marginBottom: 5.5,
+    justifyContent: 'center',
+    marginBottom: 16,
   },
-  
   credentialsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', // This should align children vertically in the center
-    width: '100%', // Ensure the container spans the entire width
-    paddingHorizontal: 50, // Adjust as needed to match your layout
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 32,
   },
-  
-
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+  },
+  disabledButton: {
+    backgroundColor: 'rgba(231, 76, 60, 0.5)',
+  },
 });
 
 export default SignIn;
