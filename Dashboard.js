@@ -264,17 +264,61 @@ const Dashboard = ({ navigation }) => {
   };
 
   // Function to handle order selection
-const onSelectOrder = async (orderId) => {
-  setOrderCreatorLocation(null);
-  console.log('Attempting to fetch order with ID:', orderId);
-  try {
-    clearRoute();
+  const onSelectOrder = async (orderId) => {
+    setOrderCreatorLocation(null); // Clear previous state
+    console.log('Attempting to fetch order with ID:', orderId);
+    try {
+        clearRoute(); // Clear any existing route data
 
-    const orderDocSnap = await getDoc(doc(db, 'ORDERS', orderId));
-    if (!orderDocSnap.exists()) {
-      console.error(`Order with ID ${orderId} not found`);
-      return;
+        const orderDocSnap = await getDoc(doc(db, 'ORDERS', orderId));
+        if (!orderDocSnap.exists()) {
+            console.error(`Order with ID ${orderId} not found`);
+            return;
+        }
+        const orderData = orderDocSnap.data();
+
+        // Fetch the location and additional details of the user who created the order
+        const userLocationSnap = await getDoc(doc(db, 'locations', orderData.userId));
+        if (!userLocationSnap.exists()) {
+            console.error(`Location for user ID ${orderData.userId} not found`);
+            return;
+        }
+        const creatorLocationData = userLocationSnap.data();
+        const lastLocationUpdate = creatorLocationData.timestamp.toDate();
+        const timeDifference = new Date() - lastLocationUpdate;
+        const isActive = timeDifference < 3000; // Determine if the location data is recent
+        console.log('isActive:', isActive);
+
+        // Update the location of the order creator including their full name
+        setOrderCreatorLocation({
+            latitude: creatorLocationData.latitude,
+            longitude: creatorLocationData.longitude,
+            userId: orderData.userId,
+            isActive,
+            userFirstName: orderData.userFirstName, // Set the user's first name from the order data
+            userLastName: orderData.userLastName // Set the user's last name from the order data
+        });
+
+        const startLocation = { latitude: creatorLocationData.latitude, longitude: creatorLocationData.longitude };
+        const deliveryAddress = orderData.deliveryAddress;
+        setDeliveryLocation(null);
+        const destinationLocation = await memoizedGeocodeAddress(deliveryAddress);
+        setDeliveryLocation(destinationLocation);
+        const { steps, eta } = await getDirections(startLocation, destinationLocation);
+        setPolylineCoordinates(steps);
+        setEta(eta);
+        setMarkerLocation(destinationLocation);
+
+        mapViewRef.current.fitToCoordinates([startLocation, destinationLocation], {
+            edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
+            animated: true,
+        });
+
+        setIsDropdownVisible(false);
+    } catch (error) {
+        console.error('Error fetching order details or user location:', error);
     }
+
     const orderData = orderDocSnap.data();
 
     // Fetch the location of the user who created the order
@@ -309,6 +353,7 @@ const onSelectOrder = async (orderId) => {
       setIsDropdownVisible(false);
     } catch (error) { console.error('Error fetching order details or user location:', error); }
   };
+
   
   // Function to geocode an address using Google Maps API
   async function geocodeAddress(address) {
@@ -469,7 +514,8 @@ const onSelectOrder = async (orderId) => {
       latitude: orderCreatorLocation.latitude,
       longitude: orderCreatorLocation.longitude,
     }}
-    title={`User: ${userFullNames[orderCreatorLocation.userId] || 'Unknown User'}`}
+
+    title={`User: ${orderCreatorLocation.userFirstName || 'Unknown'} ${orderCreatorLocation.userLastName || 'User'}`} // Display full name
   >
     <View style={{ alignItems: 'center', justifyContent: 'center' }}>
       <MaterialIcons
