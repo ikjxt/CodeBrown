@@ -1,12 +1,10 @@
 import React , { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from 'react-native';
 import Card from './Card';
-import { getAuth,signOut } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { PropTypes } from 'prop-types';
-import { doc, getDoc } from '@firebase/firestore';
+import { doc, getDoc, onSnapshot } from '@firebase/firestore';
 import { db } from "./firebaseConfig";
-import { Alert } from 'react-native';
-
 
 const UserProfileScreen = ({ navigation }) => {
   // Need these to work with the useEffect
@@ -39,23 +37,28 @@ const UserProfileScreen = ({ navigation }) => {
   }, []);  // Empty dependency array means this effect runs once after the initial render
     
   const editProfile = () => {
-    navigation.navigate('EditProfileScreen')
+    navigation.navigate('Edit Profile')
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <View >
+      <View style={styles.content} >
+        <Image
+          source={require("./assets/Logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
         <Card
           title="Profile"
-          description={<Text>{user.photoURL}
-                            First Name: {fName} {"\n"}
-                            Last Name: {lName} {"\n"}
-                            Email: {email} {"\n"} 
-                            Phone: {phone} {"\n"}
+          description={<Text style={styles.descriptionText}>
+                          <Text style={styles.label}>First Name: </Text>{fName} {"\n"}
+                          <Text style={styles.label}>Last Name: </Text>{lName} {"\n"}
+                          <Text style={styles.label}>Email: </Text>{email} {"\n"} 
+                          <Text style={styles.label}>Phone: </Text>{phone} {"\n"}
                       </Text>}
         /> 
         <TouchableOpacity style={styles.editButton} onPress={editProfile}>
-          <Text>Edit Profile</Text>
+          <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
 
       </View>
@@ -68,6 +71,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: 'center',
+  },
+  content: {
+    width: "100%",
+    flex: 1,
+    padding: 16,
+    alignItems: "center",
   },
   button: {
     height: 50,
@@ -83,9 +92,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e74c3c", // Deep orange color
     borderRadius: 24,
     paddingVertical: 12,
-    paddingHorizontal: 100,
-    fontSize: 18,
-    fontWeight: "bold",
+    paddingHorizontal: 32,
     alignItems: "center",
     marginBottom: 16,
     shadowColor: "#000",
@@ -96,8 +103,30 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    width: "100%",
   },
-  
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  descriptionText: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: "#333",
+  },  
+  label: {
+    fontWeight: "bold",
+  },  
+  logo: {
+    marginTop: -50,
+    marginBottom: -16,
+    alignSelf: 'center',
+    width: 175,
+    height: 175,
+    resizeMode: 'contain',
+    zIndex: 1,
+  },
 })
 
 // fixed ['navigation.navigate' is missing in props validationeslintreact/prop-types] error

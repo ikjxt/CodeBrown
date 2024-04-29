@@ -14,16 +14,16 @@ const Card = ({ title, description }) => {
 
 const styles = StyleSheet.create({
   card: {
+    width: "100%",
     borderRadius: 8,
+    padding: 16,
     backgroundColor: '#FFFFFF',
     elevation: 3,
-    shadowOffset: { width: 1, height: 1 },
-    shadowColor: '#333',
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    marginHorizontal: 30,
-    marginTop: 50,
-    marginBottom: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2,},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    marginBottom: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -127,7 +127,7 @@ const SignUp = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
-        <Text style={styles.logoText}>Round Table Pizza</Text>
+        <Text style={styles.logoText}>Cheesy Tracker</Text>
         <Text style={styles.title}>Sign Up</Text>
 
         <TextInput
@@ -305,44 +305,46 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
-    color: '#333333',
-  },
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: "#333",
+},
   input: {
     width: 300,
-    height: 50,
-    borderColor: '#333333',
+    height: 40,
+    borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingLeft: 15,
-    color: '#333333',
-    fontSize: 14,
+    borderRadius: 4,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    backgroundColor: "#fff",
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: 300,
-    height: 50,
-    borderColor: '#333333',
+    height: 40,
+    borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingLeft: 15,
+    borderRadius: 4,
+    marginTop: 0,
+    marginBottom: 16,
+    paddingHorizontal: 16,
     position: 'relative',
+    backgroundColor: "#fff",
   },
   passwordInput: {
     flex: 1,
-    height: 50,
-    color: '#333333',
+    height: 40,
+    color: '#333333', // Adjusted for visibility on the overlay
     fontSize: 14,
   },
   showPasswordButton: {
     position: 'absolute',
     right: 10,
-    height: '100%',
-    justifyContent: 'center',
-    paddingHorizontal: 5,
+    height: '100%', // Match the height of passwordContainer
+    justifyContent: 'center', // Center the icon vertically
+    paddingHorizontal: 5, // Padding inside the button for touch area
     color: '#333333',
   },
   roleSelection: {
@@ -363,16 +365,27 @@ const styles = StyleSheet.create({
     color: '#333333',
   },
   button: {
-    backgroundColor: '#e74c3c',
-    padding: 15,
-    borderRadius: 5,
-    width: 300,
-    alignItems: 'center',
-    marginBottom: 15,
+    backgroundColor: "#e74c3c", // Deep orange color
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+    width: 0,
+    height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    width: 256,
   },
   buttonText: {
-    color: '#fff',
     fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   switchText: {
     color: '#e74c3c',
