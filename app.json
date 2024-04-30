@@ -21,6 +21,8 @@
       }
     },
     "android": {
+      "package": "com.yourcompany.awesomeproject",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -29,10 +31,16 @@
         "googleMaps": {
           "apiKey": "AIzaSyBqdK2r3h7vi8WZ1ldQRHiayg0Mj5JbeUw"
         }
-      }
+      },
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "67564852-13b1-4ee6-8dc8-76cf1bafe340"
+      }
     }
   }
 }
