@@ -264,6 +264,7 @@ const Dashboard = ({ navigation }) => {
   };
 
   // Function to handle order selection
+  // Function to handle order selection
 const onSelectOrder = async (orderId) => {
   setOrderCreatorLocation(null);
   console.log('Attempting to fetch order with ID:', orderId);
@@ -276,8 +277,6 @@ const onSelectOrder = async (orderId) => {
       return;
     }
     const orderData = orderDocSnap.data();
-
-    // Fetch the location of the user who created the order
     const userLocationSnap = await getDoc(doc(db, 'locations', orderData.userId));
     if (!userLocationSnap.exists()) {
       console.error(`Location for user ID ${orderData.userId} not found`);
@@ -289,8 +288,15 @@ const onSelectOrder = async (orderId) => {
     const isActive = timeDifference < 3000;
     console.log('isActive:', isActive);
 
-    setOrderCreatorLocation({ latitude: creatorLocationData.latitude, longitude: creatorLocationData.longitude, userId: orderData.userId, isActive, });
-    
+    setOrderCreatorLocation({
+      latitude: creatorLocationData.latitude,
+      longitude: creatorLocationData.longitude,
+      userId: orderData.userId,
+      isActive,
+      userFirstName: orderData.userFirstName,
+      userLastName: orderData.userLastName
+    });
+
     const startLocation = { latitude: creatorLocationData.latitude, longitude: creatorLocationData.longitude };
     const deliveryAddress = orderData.deliveryAddress;
     setDeliveryLocation(null);
@@ -302,13 +308,17 @@ const onSelectOrder = async (orderId) => {
     setMarkerLocation(destinationLocation);
 
     mapViewRef.current.fitToCoordinates([startLocation, destinationLocation], {
-        edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
-        animated: true,
-      });
-  
-      setIsDropdownVisible(false);
-    } catch (error) { console.error('Error fetching order details or user location:', error); }
-  };
+      edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
+      animated: true,
+    });
+
+    setIsDropdownVisible(false);
+  } catch (error) {
+    console.error('Error fetching order details or user location:', error);
+  } // Ensure this line is properly terminated with a semicolon or correctly formatted
+};
+
+
   
   // Function to geocode an address using Google Maps API
   async function geocodeAddress(address) {
@@ -469,7 +479,8 @@ const onSelectOrder = async (orderId) => {
       latitude: orderCreatorLocation.latitude,
       longitude: orderCreatorLocation.longitude,
     }}
-    title={`User: ${userFullNames[orderCreatorLocation.userId] || 'Unknown User'}`}
+
+    title={`User: ${orderCreatorLocation.userFirstName || 'Unknown'} ${orderCreatorLocation.userLastName || 'User'}`} // Display full name
   >
     <View style={{ alignItems: 'center', justifyContent: 'center' }}>
       <MaterialIcons
