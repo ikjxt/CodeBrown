@@ -1,6 +1,6 @@
 # CodeBrown
 
-# Round Table Pizza Delivery Tracker
+# CheesyTracker
 
 
 **Synopsis:**
@@ -105,6 +105,7 @@ Git: A distributed version control system.
 **Testing:**
 
 Android Studio: Comprehensive environment tailored for Android app creation.
+Expo Go App
 
 ![AS](as.jpg)
 
@@ -122,7 +123,7 @@ Set up Firebase configuration in '**firebaseConfig.js**'.
 
 Update the firebaseConfig.js file with your Firebase configuration.
 
-Run the application using '**npm start**'.
+Run the application using '**npx expo start**'.
 
 **Testing:** 
 
