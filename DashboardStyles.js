@@ -152,4 +152,45 @@ export const styles = StyleSheet.create({
         marginVertical: 1,
         width: '100%',
       },
+      loadingContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      loadingText: {
+        fontSize: 18,
+        marginTop: 10,
+      },
+      errorContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+      },
+      errorText: {
+        fontSize: 18,
+        color: 'red',
+        textAlign: 'center',
+      },
+      mapContainer: {
+        flex: 1,
+      },
+      zoomInButton: {
+        position: 'absolute',
+        bottom: 120,
+        right: 20,
+        backgroundColor: '#007bff',
+        borderRadius: 30,
+        padding: 10,
+        elevation: 5,
+      },
+      zoomOutButton: {
+        position: 'absolute',
+        bottom: 80,
+        right: 20,
+        backgroundColor: '#007bff',
+        borderRadius: 30,
+        padding: 10,
+        elevation: 5,
+      },
 });

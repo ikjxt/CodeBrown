@@ -188,7 +188,7 @@ const Dashboard = ({ navigation }) => {
         email: user.email, // Add the user's email to the location data
       };
       await setDoc(doc(db, 'locations', userId), locationData);
-    }, 1000),
+    }, 120000),
     [user.email] // Add user.email as a dependency
   );
 
@@ -461,6 +461,7 @@ const onSelectOrder = async (orderId) => {
           longitudeDelta: 0.0421,
         }}
         showsUserLocation={true}
+        showsMyLocationButton={false}
         onUserLocationChange={(event) => setUserLocation(event.nativeEvent.coordinate)}
         onPress={() => setIsDropdownVisible(false)}
         compassButton={false}
@@ -503,6 +504,12 @@ const onSelectOrder = async (orderId) => {
 )}
         <Polyline coordinates={polylineCoordinates} strokeWidth={6} strokeColor="#007bff" />
         </MapView>
+        {Platform.OS === 'android' && (
+        <TouchableOpacity style={styles.locationButton} onPress={centerOnUserLocation}>
+          <MaterialIcons name="my-location" size={24} color="black" />
+        </TouchableOpacity>
+      )}
+
 
       {eta && (<View style={styles.etaContainer}><Text style={styles.etaText}>Estimated Time Arrival: {eta}</Text></View>)}
 
