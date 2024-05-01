@@ -1,3 +1,5 @@
+![Project Logo](assets/Logo.png)
+
 # CodeBrown
 
 # CheesyTracker
@@ -78,43 +80,43 @@ Authentication: Firebase Authentication for user authentication.
 
 Firestore: Firebase's NoSQL database for real-time data storage.
 
-![Firebase](firebase.png)
+![Firebase](assets/firebase.png)
 
 **Frontend:**
 
 React Native: A JavaScript framework for building mobile applications.
 
-![React](react.png)
+![React](assets/react.png)
 
 
 **Development Tools:**
 
 Node.js: A JavaScript runtime for executing JavaScript code server-side.
 
-![nodejs](nodejs.png)
+![nodejs](assets/nodejs.png)
 
 **Integrated Development Environment (IDE):**
 
 Visual Studio Code: A lightweight yet powerful code editor.
 
-![VSCODE](vscode.jpg)
+![VSCODE](assets/vscode.jpg)
 
 Android Studio: The official integrated development environment for Android app development.
 
-![AS](as.jpg)
+![AS](assets/as.jpg)
 
 **Version Control:**
 
 Git: A distributed version control system.
 
-![Github](github.png)
+![Github](assets/github.png)
 
 **Testing:**
 
 Android Studio: Comprehensive environment tailored for Android app creation.
 Expo Go App
 
-![AS](as.jpg)
+![AS](assets/as.jpg)
 
 **Development Instructions:**
 
@@ -171,11 +173,11 @@ npm
 **In Progress:**: Finalize documentation and prepare for deployment.
 
 ## Entity Relationship Diagram (ERD)
-![MockUp](ERD.JPG)
+![MockUp](assets/ERD.JPG)
 
 ## Prototype Images
 
-![MockUp](protoType.jpg)
+![MockUp](assets/protoType.jpg)
 
 **Contact Information:**
 
