@@ -5,7 +5,7 @@
 
 **Synopsis:**
 
-Round Table Pizza Delivery Tracker is a mobile application designed to assist Round Table Pizza in managing deliveries efficiently. The application provides real-time tracking of delivery drivers' locations, allowing business managers to customize routes, enhance accountability, and respond promptly to emergencies.
+CheesyTracker is a location-tracking application developed for Round Table Pizza, enabling business managers to efficiently manage deliveries and track the real-time location of their delivery drivers. The application offers features such as live location updates, route customization, two-factor authentication for security, and location history logging. It aims to enhance accountability among drivers and streamline the delivery management process for the client's business.
 
 # Project Description
 
@@ -30,11 +30,14 @@ The project aims to benefit the business managers working for the client by prov
 
 - Logging and storing of visited locations at intervals
 
-  - The application logs and stores previously visited locations at given intervals, providing a historical record.
+- Customize and optimize delivery routes for improved efficiency.
 
-- Two-factor authentication for user information security
+- Securely log and store location history data for reference and analysis.
 
-  - To ensure user information security, the application implements two-factor authentication.
+
+
+# Why the Application was Created
+The application was created to address the specific needs of Round Table Pizza's business managers in managing deliveries and tracking driver locations. By providing real-time tracking and route customization features, CheesyTracker aims to enhance accountability, streamline operations, and ultimately improve the overall efficiency of the delivery process.
 
 **Expected Uses:**
 
@@ -44,7 +47,7 @@ The project aims to benefit the business managers working for the client by prov
 
 - Route Customization
   
-  -Use real-time location data to customize and alter routes for more efficient deliveries.
+  - Use real-time location data to customize and alter routes for more efficient deliveries.
 
 - Emergency Assistance
 
@@ -58,6 +61,10 @@ Client: Harmanjot Singh
 Managers: Employed managers overseeing Round Table Pizza locations.
 
 Delivery Drivers: Employed drivers responsible for pizza deliveries.
+
+# Screenshots
+
+
 
 # Project Code
 
@@ -145,23 +152,23 @@ npm
 
 **CSC 190 Fall 2023:**
 
-**Done**: Project setup and Firebase integration.
+**Done:**: Project setup and Firebase integration.
 
 **Done:** Implement basic authentication and user interface.
 
 **CSC 191 Spring 2024:**
 
-Week 1-2: Develop real-time location tracking and sharing features.
+**Done:**: Develop real-time location tracking and sharing features.
 
-Week 3-4: Implement location logging and two-factor authentication.
+**Done:**: Implement location logging and two-factor authentication.
 
-Week 4-5: Conduct testing and resolve any issues.
+**Done:**: Conduct testing and resolve any issues.
 
-Week 6-7: Improve button responsiveness and feedback on user interaction.
+**Done:**: Improve button responsiveness and feedback on user interaction.
 
-Week 7-9: Ensure a consistent layout across different screen sizes.
+**Done:**: Ensure a consistent layout across different screen sizes.
 
-Week 9-10: Finalize documentation and prepare for deployment.
+**In Progress:**: Finalize documentation and prepare for deployment.
 
 ## Entity Relationship Diagram (ERD)
 ![MockUp](ERD.JPG)
