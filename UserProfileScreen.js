@@ -1,66 +1,62 @@
-import React , { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from 'react-native';
 import Card from './Card';
 import { getAuth } from 'firebase/auth';
 import { PropTypes } from 'prop-types';
-import { doc, getDoc, onSnapshot } from '@firebase/firestore';
+import { doc, onSnapshot } from '@firebase/firestore';
 import { db } from "./firebaseConfig";
 
 const UserProfileScreen = ({ navigation }) => {
-  // Need these to work with the useEffect
-  const [fName, setFName] = useState(''); 
+  // State variables
+  const [fName, setFName] = useState('');
   const [lName, setLName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  
-  const auth = getAuth();         // Set observer on Auth object,
-  const user = auth.currentUser;  // Get the current user to display their info
-  
-  
-  // Get data from firestore
+  const [loading, setLoading] = useState(true);
+
+  const auth = getAuth();
+  const user = auth.currentUser;
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // Get the doc
-        const docRef = doc(db, 'USERS', user.email);  
-        const docSnap = await getDoc(docRef);         
-        // Get each field
+    const unsubscribe = onSnapshot(doc(db, 'USERS', user.email), (docSnap) => {
+      if (docSnap.exists()) {
         setFName(docSnap.data().firstName);
         setLName(docSnap.data().lastName);
         setEmail(docSnap.data().email);
         setPhone(docSnap.data().phoneNumber);
-      } catch (error) {
-        console.error('Error fetching document:', error);
+        setLoading(false);
       }
-    };
-    fetchUserData();
-  }, []);  // Empty dependency array means this effect runs once after the initial render
-    
+    });
+
+    return () => unsubscribe();
+  }, [user.email]);
+
   const editProfile = () => {
-    navigation.navigate('Edit Profile')
-  }
+    navigation.navigate('EditProfileScreen');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content} >
-        <Image
-          source={require("./assets/Logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Card
-          title="Profile"
-          description={<Text style={styles.descriptionText}>
-                          <Text style={styles.label}>First Name: </Text>{fName} {"\n"}
-                          <Text style={styles.label}>Last Name: </Text>{lName} {"\n"}
-                          <Text style={styles.label}>Email: </Text>{email} {"\n"} 
-                          <Text style={styles.label}>Phone: </Text>{phone} {"\n"}
-                      </Text>}
-        /> 
+      <View style={styles.content}>
+        <Image source={require("./assets/Logo.png")} style={styles.logo} resizeMode="contain" />
+        {loading ? (
+          <Text>Loading...</Text>
+        ) : (
+          <Card
+            title="Profile"
+            description={
+              <Text style={styles.descriptionText}>
+                <Text style={styles.label}>First Name: </Text>{fName} {"\n"}
+                <Text style={styles.label}>Last Name: </Text>{lName} {"\n"}
+                <Text style={styles.label}>Email: </Text>{email} {"\n"}
+                <Text style={styles.label}>Phone: </Text>{phone} {"\n"}
+              </Text>
+            }
+          />
+        )}
         <TouchableOpacity style={styles.editButton} onPress={editProfile}>
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
-
       </View>
     </SafeAreaView>
   );
@@ -86,10 +82,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft:30,
-  }, 
+    marginLeft: 30,
+  },
   editButton: {
-    backgroundColor: "#e74c3c", // Deep orange color
+    backgroundColor: "#e74c3c",
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 32,
@@ -114,10 +110,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 8,
     color: "#333",
-  },  
+  },
   label: {
     fontWeight: "bold",
-  },  
+  },
   logo: {
     marginTop: -50,
     marginBottom: -16,
@@ -127,9 +123,8 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     zIndex: 1,
   },
-})
+});
 
-// fixed ['navigation.navigate' is missing in props validationeslintreact/prop-types] error
 UserProfileScreen.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func.isRequired,
