@@ -7,14 +7,14 @@
 
 **Synopsis:**
 
-CheesyTracker is a location-tracking application developed for Round Table Pizza, enabling business managers to efficiently manage deliveries and track the real-time location of their delivery drivers. The application offers features such as live location updates, route customization, two-factor authentication for security, and location history logging. It aims to enhance accountability among drivers and streamline the delivery management process for the client's business.
+CheesyTracker is a location-tracking application developed for Round Table Pizza, enabling business managers to efficiently manage deliveries and track the real-time location of their delivery drivers. The application offers features such as live location updates, route customization, two-factor authentication for security, and location history logging. It aims to enhance accountability among drivers and streamline the delivery management process for the client's business. It will also improve delivery accuracy and efficiency for customers.
 
 # Project Description
 
 
 **Client's Business:**
 
-The client, Harmanjot Singh, owns multiple locations of Round Table Pizza in the Sacramento area.
+The Client, Harmanjot Singh, owns multiple locations of Round Table Pizza in the Sacramento area.
 
 **Value Expected:**
 
@@ -39,7 +39,7 @@ The project aims to benefit the business managers working for the client by prov
 
 
 # Why the Application was Created
-The application was created to address the specific needs of Round Table Pizza's business managers in managing deliveries and tracking driver locations. By providing real-time tracking and route customization features, CheesyTracker aims to enhance accountability, streamline operations, and ultimately improve the overall efficiency of the delivery process.
+The application was created to address the specific needs of Round Table Pizza's business managers regarding suspected cases of time theft by managing deliveries and tracking driver locations. By providing real-time tracking and route customization features, CheesyTracker aims to enhance accountability, streamline operations, and ultimately improve the overall efficiency of the delivery process.
 
 **Expected Uses:**
 
@@ -62,7 +62,7 @@ Client: Harmanjot Singh
 
 Managers: Employed managers overseeing Round Table Pizza locations.
 
-Delivery Drivers: Employed drivers responsible for pizza deliveries.
+Delivery Drivers: Employed drivers responsible for Pizza deliveries.
 
 # Screenshots
 
