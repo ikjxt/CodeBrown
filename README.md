@@ -164,6 +164,12 @@ npm
 
 **Done:**: Implement location logging and two-factor authentication.
 
+**Done:**: Implement group messaging feature.
+
+**Done:**: Implement editable user profiles.
+
+**Done:**: Implement order tracking and driver route suggestion.
+
 **Done:**: Conduct testing and resolve any issues.
 
 **Done:**: Improve button responsiveness and feedback on user interaction.
@@ -197,6 +203,7 @@ Email Address: hsghuman02@gmail.com
 - [@saulb99](https://github.com/saulb99)
 - [@ikjxt](https://github.com/ikjxt)
 - [@Aman7396](https://github.com/Aman7396)
+- [@rachmanmapp](https://github.com/RachmanMapp)
 
 
 This project is part of the Senior Project by Team Code Brown.
