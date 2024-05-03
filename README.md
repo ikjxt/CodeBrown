@@ -196,6 +196,7 @@ Email Address: hsghuman02@gmail.com
 - [@akashdeep42](https://github.com/akashdeep42)
 - [@saulb99](https://github.com/saulb99)
 - [@ikjxt](https://github.com/ikjxt)
+- [@Aman7396](https://github.com/Aman7396)
 
 
 This project is part of the Senior Project by Team Code Brown.
