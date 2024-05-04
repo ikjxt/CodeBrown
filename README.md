@@ -1,14 +1,15 @@
 # CodeBrown
 
-# Round Table Pizza Delivery Tracker
+# Cheesy Tracker
 
 
 **Synopsis:**
 
-Round Table Pizza Delivery Tracker is a mobile application designed to assist Round Table Pizza in managing deliveries efficiently. The application provides real-time tracking of delivery drivers' locations, allowing business managers to customize routes, enhance accountability, and respond promptly to emergencies.
+Cheesy Tracker is a mobile application designed to assist our client in managing deliveries efficiently. The application provides real-time tracking of delivery drivers' locations, allowing business managers to customize routes, enhance accountability, and respond promptly to emergencies.
 
 # Project Description
 
+This project is a year long commitment we made to our client, in order to develop a product with all of his requested features and functionalites. We created an application that tracks the live location of users and allows admin accounts to access these location logs by both date and time. We also added two factor authentication, account verification, messaging functionality, GPS navigation, and some smaller functionalities to assist our client.
 
 **Client's Business:**
 
@@ -35,6 +36,10 @@ The project aims to benefit the business managers working for the client by prov
 - Two-factor authentication for user information security
 
   - To ensure user information security, the application implements two-factor authentication.
+
+- Real Time Messaging
+
+  - The application allows users to chat with each other in real time.
 
 **Expected Uses:**
 
