@@ -32,11 +32,9 @@ The project aims to benefit the business managers working for the client by prov
 
 - Logging and storing of visited locations at intervals
 
-- Customize and optimize delivery routes for improved efficiency.
+- Order storage and updates, allowing drivers to keep track of everything in a centralized application.
 
-- Securely log and store location history data for reference and analysis.
-
-
+- Real time messaging to facilitate communication and teamwork. 
 
 # Why the Application was Created
 The application was created to address the specific needs of Round Table Pizza's business managers regarding suspected cases of time theft by managing deliveries and tracking driver locations. By providing real-time tracking and route customization features, CheesyTracker aims to enhance accountability, streamline operations, and ultimately improve the overall efficiency of the delivery process.
@@ -66,7 +64,7 @@ Delivery Drivers: Employed drivers responsible for Pizza deliveries.
 
 # Screenshots
 
-
+![Project Dashboard](assets/dashboard.png)
 
 # Project Code
 
