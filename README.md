@@ -65,7 +65,6 @@ Delivery Drivers: Employed drivers responsible for Pizza deliveries.
 # Screenshots
 ![Application Sign In Screen](assets/signin.png)
 ![Application Sign Up Screen](assets/signup.png)
-![Application Take Order Screen](assets/takeorder.png)
 ![Application Dashboard Screen](assets/dashboard.png)
 ![Application Location History Screen](assets/location.png)
 
